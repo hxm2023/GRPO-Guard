@@ -1,0 +1,1 @@
+{"case_id":"f2_misbound_logprob_boundary","envelope_id":"env-0-10-pre_reward-f2","expected_decision":"reject","generation_event_id":"gen-0-10","notes":"{\"name\": \"boundary\", \"scorer_policy_version\": 2}","required_reason_codes":["L003_SCORER_POLICY_MISMATCH"],"run_id":"run-test-0001"}

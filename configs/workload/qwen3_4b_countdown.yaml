@@ -1,0 +1,39 @@
+# Fixed workload (design doc §4.1; upscaled 2026-08-22 per CLAUDE.md change record)
+workload_id: wl-qwen3-4b-countdown-v01
+
+model:
+  id: Qwen/Qwen3-4B
+  revision: ""            # pinned after first snapshot on autodl2 (see compatibility_profile.yaml)
+  precision: bf16
+
+task:
+  name: countdown
+  verifier: countdown-rule-v1
+  goal_range: [3, 100]
+  numbers_per_prompt: 3
+  prompts_per_split:
+    train: 32
+    calibration: 8
+    held_out: 8
+
+training:
+  framework: trl
+  trainer: GRPOTrainer
+  mode: server             # GRPOConfig(use_vllm=True, vllm_mode="server")
+  max_policy_lag_versions: 0
+  trajectory_use_policy: consume_once_v01
+  gradient_accumulation_microbatches: 4
+
+rollout:
+  runtime_id: rollout-gpu1
+  engine: vllm
+  server_mode: true
+  max_model_len: 2048
+  gpu_memory_utilization: 0.85
+
+compute:
+  server: autodl2
+  gpus: 2
+  gpu0_role: trainer
+  gpu1_role: rollout
+  gpu_hours_budget: 80      # hard cap per CLAUDE.md change record

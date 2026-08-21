@@ -1,0 +1,1 @@
+{"case_id":"f3_retokenization_boundary","envelope_id":"env-0-10-pre_reward-f3","expected_decision":"reject","generation_event_id":"gen-0-10-f3","notes":"{\"name\": \"boundary\", \"kind\": \"template\"}","required_reason_codes":["T002_TOKENIZER_MISMATCH"],"run_id":"run-test-0001"}

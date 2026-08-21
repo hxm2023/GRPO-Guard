@@ -1,0 +1,1 @@
+{"case_id":"f3_retokenization_held_out","envelope_id":"env-0-10-pre_reward","expected_decision":"reject","generation_event_id":"gen-0-10","notes":"{\"name\": \"held_out\", \"kind\": \"sequence\", \"required_reason_codes\": [\"T004_TOKEN_SEQUENCE_MISMATCH\"]}","required_reason_codes":["T004_TOKEN_SEQUENCE_MISMATCH"],"run_id":"run-test-0001"}

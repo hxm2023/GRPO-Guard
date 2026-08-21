@@ -1,0 +1,14 @@
+# Strict on-policy protocol (design doc §9.1)
+protocol_id: strict_v01
+mode: strict_on_policy
+max_policy_lag_versions: 0
+importance_correction: null
+trajectory_use_policy: consume_once_v01
+
+# authoritative behavior-logprob source: exactly one, no fallback
+behavior_logprob_source: generation_service
+diagnostic_non_authoritative_logprobs_allowed: false
+
+# lifecycle requirements (design doc §6.2)
+sync_terminal_success_events: [canary_passed, sync_reconciled_canary_passed]
+generation_requires_canary: true

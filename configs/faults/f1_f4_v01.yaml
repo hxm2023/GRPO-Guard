@@ -1,0 +1,48 @@
+# F1-F4 canonical fault matrix (design doc §11, §16.2)
+matrix_id: f1_f4_v01
+protocol: strict_v01
+
+cases:
+  - id: f1_static_rollout
+    fault: f1_static_rollout
+    variants:
+      - {name: canonical, runtime_version: 0, claimed_parent: 1}
+      - {name: boundary, runtime_version: 0, claimed_parent: 2}
+      - {name: held_out, runtime_version: 0, claimed_parent: 3}
+    expected_decision: reject
+    required_reason_codes: [P004_STALE_POLICY_STRICT]
+
+  - id: f2_misbound_logprob
+    fault: f2_misbound_logprob
+    variants:
+      - {name: canonical, scorer_policy_version: 1}
+      - {name: boundary, scorer_policy_version: 2}
+      - {name: held_out, scorer_policy_version: 3}
+    expected_decision: reject
+    required_reason_codes: [L003_SCORER_POLICY_MISMATCH]
+
+  - id: f3_retokenization
+    fault: f3_retokenization
+    variants:
+      - {name: canonical, kind: tokenizer}
+      - {name: boundary, kind: template}
+      - {name: held_out, kind: sequence, required_reason_codes: [T004_TOKEN_SEQUENCE_MISMATCH]}
+    expected_decision: reject
+    required_reason_codes: [T002_TOKENIZER_MISMATCH]
+
+  - id: f4_mask_shift
+    fault: f4_mask_shift
+    variants:
+      - {name: canonical, shift: 1}
+      - {name: boundary, shift: 3}
+      - {name: held_out, shift: 2}
+    expected_decision: reject
+    required_reason_codes: [M004_CANONICAL_MASK_MISMATCH]
+
+normal_cases:
+  count: 8
+  expected_decision: allow
+  allowed_reason_codes_prefix: []
+
+boundary_cases:
+  count: 4

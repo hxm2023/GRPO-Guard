@@ -1,0 +1,1 @@
+{"case_id":"f4_mask_shift_held_out","envelope_id":"env-0-10-pre_reward-f4","expected_decision":"reject","generation_event_id":"gen-0-10-f4","notes":"{\"name\": \"held_out\", \"shift\": 2}","required_reason_codes":["M004_CANONICAL_MASK_MISMATCH"],"run_id":"run-test-0001"}

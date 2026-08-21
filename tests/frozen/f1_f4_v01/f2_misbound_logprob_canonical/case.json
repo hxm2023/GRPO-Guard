@@ -1,0 +1,1 @@
+{"case_id":"f2_misbound_logprob_canonical","envelope_id":"env-0-10-pre_reward-f2","expected_decision":"reject","generation_event_id":"gen-0-10","notes":"{\"name\": \"canonical\", \"scorer_policy_version\": 1}","required_reason_codes":["L003_SCORER_POLICY_MISMATCH"],"run_id":"run-test-0001"}
