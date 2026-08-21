@@ -14,6 +14,7 @@ dist/
 
 # Private or local-only files
 *.log
+!artifacts/v0.1.0/smoke/logs/
 wandb_api.txt
 *.key
 .env
