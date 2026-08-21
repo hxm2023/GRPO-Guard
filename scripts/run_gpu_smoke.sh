@@ -46,6 +46,7 @@ echo "[smoke] running GRPOTrainer on GPU0 (server mode, 1 committed step)"
 GRPO_GUARD_MODEL="${MODEL_PATH}" \
 GRPO_GUARD_VLLM_PORT="${VLLM_PORT}" \
 GRPO_GUARD_SMOKE_OUT="${OUT_DIR}" \
+PYTHONPATH="${REPO_DIR}/src" \
 CUDA_VISIBLE_DEVICES=0 python examples/countdown/smoke_train.py \
   > "${LOG_DIR}/trainer.log" 2>&1
 TRAINER_RC=$?

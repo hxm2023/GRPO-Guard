@@ -53,10 +53,40 @@ def reward_func(prompts, completions, **kwargs) -> list[float]:
     return scores
 
 
+def _patch_device_normalization() -> None:
+    """Adapter fix for trl 1.10.0 + vllm 0.26.0 (design doc §14.2).
+
+    VLLMClient.init_communicator passes ``accelerator.device`` (unindexed
+    torch.device('cuda')) into vLLM's PyNcclCommunicator, whose init warm-up
+    all_reduce asserts in_tensor.device == self.device and crashes on
+    'cuda' != 'cuda:0'.  Normalizing to the current device index is small,
+    local, and version-guarded; the patch fails closed (asserts versions)
+    instead of silently skipping.
+    """
+    import torch
+    import trl
+    import vllm
+    from trl.generation.vllm_client import VLLMClient
+
+    assert trl.__version__ == "1.10.0", f"patch built for trl 1.10.0, got {trl.__version__}"
+    assert vllm.__version__ == "0.26.0", f"patch built for vllm 0.26.0, got {vllm.__version__}"
+
+    _orig = VLLMClient.init_communicator
+
+    def _normalized(self, device, *a, **kw):
+        if isinstance(device, torch.device) and device.index is None:
+            device = torch.device(device.type, torch.cuda.current_device())
+        return _orig(self, device, *a, **kw)
+
+    VLLMClient.init_communicator = _normalized
+
+
 def main() -> int:
     import torch
     from trl import GRPOConfig, GRPOTrainer
     from trl.generation.vllm_client import VLLMClient
+
+    _patch_device_normalization()
 
     # --- observable upstream weight-sync adapter (design doc §4.1.1) -------
     sync_observations: list[dict] = []
@@ -83,6 +113,7 @@ def main() -> int:
         per_device_train_batch_size=1,
         gradient_accumulation_steps=1,
         num_generations=4,
+        generation_batch_size=4,
         max_completion_length=64,
         num_train_epochs=1,
         max_steps=1,

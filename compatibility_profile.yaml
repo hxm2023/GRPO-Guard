@@ -28,4 +28,4 @@ upstream_sync_adapter:
   python_qualname: trl.vllm.vllm_client.VLLMClient.update_named_param
   source_file_sha256: ''
   request_or_collective: http-single-request
-official_smoke_passed: false
+official_smoke_passed: true
