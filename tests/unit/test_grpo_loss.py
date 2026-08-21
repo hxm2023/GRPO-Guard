@@ -58,17 +58,22 @@ def test_grpo_loss_runs_and_masks_padding():
     torch.manual_seed(0)
     model = TinyModel()
     # B=2, T_max=8: row0 has completion [P=3, T=7), row1 completion [P=2, T=6)
-    seq = np.zeros((2, 8), dtype=np.int32)
-    seq[0, :7] = [1, 2, 3, 4, 5, 6, 7]
-    seq[1, :6] = [2, 3, 4, 5, 6, 7]
-    mask = np.zeros((2, 7), dtype=np.int8)
-    mask[0, 2:6] = 1  # positions [P-1, T-1) = [2, 6)
-    mask[1, 1:5] = 1  # positions [1, 5)
-    lp = np.full((2, 4), -0.5, dtype=np.float32)
-    rewards = np.asarray([1.0, 0.0], dtype=np.float32)
+    seq = np.zeros(8, dtype=np.int32)
+    seq[:7] = [1, 2, 3, 4, 5, 6, 7]
+    mask = np.zeros(7, dtype=np.int8)
+    mask[2:6] = 1  # positions [P-1, T-1) = [2, 6)
+    lp = np.full(4, -0.5, dtype=np.float32)
+    rewards = np.asarray([1.0], dtype=np.float32)
+    h1 = _make_handle("run-x", seq, mask, lp, rewards, "n1")
 
-    handle = _make_handle("run-x", seq, mask, lp, rewards, "n1")
-    result = grpo_loss(model, handle, group_size=2)
+    seq2 = np.zeros(6, dtype=np.int32)
+    seq2[:5] = [2, 3, 4, 5, 6]
+    mask2 = np.zeros(5, dtype=np.int8)
+    mask2[1:5] = 1
+    lp2 = np.full(4, -0.5, dtype=np.float32)
+    h2 = _make_handle("run-x", seq2, mask2, lp2, np.asarray([0.0], dtype=np.float32), "n1b")
+
+    result = grpo_loss(model, [h1, h2], group_size=2)
     assert torch.isfinite(result.loss)
     assert result.metrics["B"] == 2 and result.metrics["T"] == 8
     assert 0.0 <= result.metrics["clip_fraction"] <= 1.0
@@ -79,11 +84,11 @@ def test_grpo_loss_runs_and_masks_padding():
 def test_grpo_loss_masked_positions_only():
     torch.manual_seed(1)
     model = TinyModel()
-    seq = np.zeros((1, 6), dtype=np.int32)
-    seq[0, :5] = [1, 2, 3, 4, 5]
-    mask = np.zeros((1, 5), dtype=np.int8)
-    mask[0, 2:4] = 1  # only two completion positions
-    lp = np.full((1, 2), -0.5, dtype=np.float32)
+    seq = np.zeros(6, dtype=np.int32)
+    seq[:5] = [1, 2, 3, 4, 5]
+    mask = np.zeros(5, dtype=np.int8)
+    mask[2:4] = 1  # only two completion positions
+    lp = np.full(2, -0.5, dtype=np.float32)
     rewards = np.asarray([1.0], dtype=np.float32)
 
     handle = _make_handle("run-x", seq, mask, lp, rewards, "n2")
@@ -95,3 +100,28 @@ def test_grpo_loss_masked_positions_only():
 def test_grpo_loss_rejects_text_path():
     with pytest.raises(TypeError):
         grpo_loss(TinyModel(), "prompt+completion text", group_size=1)
+
+
+def test_grpo_loss_stacks_multiple_handles():
+    torch.manual_seed(2)
+    model = TinyModel()
+    # two handles of different lengths, grouped as one prompt of 2
+    seq1 = np.zeros(6, dtype=np.int32)
+    seq1[:5] = [1, 2, 3, 4, 5]
+    mask1 = np.zeros(5, dtype=np.int8)
+    mask1[2:4] = 1
+    h1 = _make_handle("run-x", seq1, mask1, np.full(2, -0.5, dtype=np.float32),
+                      np.asarray([1.0], dtype=np.float32), "s1")
+
+    seq2 = np.zeros(7, dtype=np.int32)
+    seq2[:6] = [2, 3, 4, 5, 6, 7]
+    mask2 = np.zeros(6, dtype=np.int8)
+    mask2[1:5] = 1
+    h2 = _make_handle("run-x", seq2, mask2, np.full(4, -0.6, dtype=np.float32),
+                      np.asarray([0.0], dtype=np.float32), "s2")
+
+    result = grpo_loss(model, [h1, h2], group_size=2)
+    assert torch.isfinite(result.loss)
+    assert result.metrics["B"] == 2
+    assert result.metrics["T"] == 7  # padded to max
+    assert result.metrics["group_size"] == 2

@@ -1,19 +1,19 @@
-"""Guarded GRPO loss over the validated batch handle (design doc §7.3.3, §9.1).
+"""Guarded GRPO loss over validated batch handles (design doc §7.3.3, §9.1).
 
 The optimizer consumes ONLY the materialized handle tensors: the exact
-token sequence the server sampled, the canonical loss mask, the
+token sequences the server sampled, the canonical loss masks, the
 authoritative behavior logprobs, and the reward tensors.  No text, no
 re-tokenization, no trainer-side recomputation of "old" logprobs.
 
-Batch layout (materializer-normalized): sequence [B, T_max] right-padded,
-loss_mask [B, T_max-1] with ones exactly at completion prediction
-positions [P-1, T-1) per row (zeros elsewhere), old_logprobs [B, C_max]
-row-aligned to completion targets.  Padding positions contribute zero.
+Handles are stacked into one batch (right-padded to T_max); the canonical
+loss_mask per row carries the completion positions [P-1, T-1), so padding
+contributes zero.  Rewards are grouped per prompt (group_size generations).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Sequence
 
 import numpy as np
 import torch
@@ -35,21 +35,46 @@ def _as_tensor(arr: np.ndarray, dtype=torch.float32) -> torch.Tensor:
     return torch.as_tensor(arr, dtype=dtype)
 
 
+def _stack_handles(handles: Sequence[ValidatedBatchHandle]):
+    """Consume every handle and stack its tensors into one padded batch."""
+    batches = [h.consume() for h in handles]
+    T_max = max(b.sequence_token_ids.shape[0] for b in batches)
+    B = len(batches)
+    seq = np.zeros((B, T_max), dtype=np.int32)
+    mask = np.zeros((B, T_max - 1), dtype=np.int8)
+    lp_rows = []
+    rewards = np.zeros(B, dtype=np.float32)
+    for i, b in enumerate(batches):
+        T_i = b.sequence_token_ids.shape[0]
+        seq[i, :T_i] = b.sequence_token_ids[:T_i]
+        mask[i, :T_i - 1] = b.loss_mask[:T_i - 1]
+        lp_rows.append(b.behavior_logprobs)
+        rewards[i] = float(b.rewards[0])
+    C_max = max(len(r) for r in lp_rows)
+    logprobs = np.zeros((B, C_max), dtype=np.float32)
+    for i, r in enumerate(lp_rows):
+        logprobs[i, :len(r)] = r
+    return seq, mask, logprobs, rewards
+
+
 def grpo_loss(
     model: torch.nn.Module,
-    handle: ValidatedBatchHandle,
+    handles: ValidatedBatchHandle | Sequence[ValidatedBatchHandle],
     group_size: int,
     clip_epsilon: float = 0.2,
     beta: float = 0.04,
 ) -> GuardedLossResult:
-    """GRPO loss on the handle's tensors; only masked positions contribute."""
-    if not isinstance(handle, ValidatedBatchHandle):
-        raise TypeError("grpo_loss accepts only ValidatedBatchHandle (no text fallback)")
-    batch = handle.consume()
-    seq = _as_tensor(batch.sequence_token_ids)
-    loss_mask = _as_tensor(batch.loss_mask)
-    old_logps = _as_tensor(batch.behavior_logprobs)
-    rewards = torch.as_tensor(batch.rewards, dtype=torch.float32)
+    """GRPO loss on the handle tensors; only masked positions contribute."""
+    if isinstance(handles, ValidatedBatchHandle):
+        handles = [handles]
+    if not isinstance(handles, (list, tuple)) or not all(isinstance(h, ValidatedBatchHandle) for h in handles):
+        raise TypeError("grpo_loss accepts only ValidatedBatchHandle(s), no text fallback")
+
+    seq_np, mask_np, lp_np, rewards_np = _stack_handles(handles)
+    seq = _as_tensor(seq_np)
+    loss_mask = _as_tensor(mask_np)
+    old_logps = _as_tensor(lp_np)
+    rewards = torch.as_tensor(rewards_np, dtype=torch.float32)
 
     B, T = seq.shape
     V = model.config.vocab_size
@@ -63,9 +88,12 @@ def grpo_loss(
         logits.reshape(-1, V), targets.reshape(-1), reduction="none"
     ).reshape(B, T - 1)
 
-    # scatter authoritative old logprobs onto their masked positions (row order)
+    # scatter authoritative old logprobs onto their masked positions (row order);
+    # each row's real values are the first sum(mask[row]) entries (rest is pad)
+    counts = mask.sum(dim=1)
+    flat_real = torch.cat([old_logps[b, : counts[b]] for b in range(B)])
     old_logps_padded = torch.zeros_like(new_logps)
-    old_logps_padded[mask] = old_logps.reshape(-1)
+    old_logps_padded[mask] = flat_real
 
     ratio = torch.exp(new_logps - old_logps_padded)  # 1.0 on non-masked slots
     clipped = torch.clamp(ratio, 1.0 - clip_epsilon, 1.0 + clip_epsilon)
@@ -91,5 +119,6 @@ def grpo_loss(
         "loss": float(loss.item()),
         "B": int(B),
         "T": int(T),
+        "group_size": int(group_size),
     }
     return GuardedLossResult(loss=loss, metrics=metrics)

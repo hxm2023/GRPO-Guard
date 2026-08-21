@@ -131,8 +131,8 @@ def materialize(
 
     if rewards is None:
         raise ValueError("rewards tensor must be provided by the reward adapter (never fabricated here)")
-    if rewards.shape[0] != loss_arr.shape[0]:
-        raise ValueError("rewards length must match loss_mask length")
+    if rewards.ndim != 1 or rewards.shape[0] == 0:
+        raise ValueError("rewards must be a non-empty 1-D per-sequence tensor")
 
     batch = MaterializedBatch(
         sequence_token_ids=seq_arr,

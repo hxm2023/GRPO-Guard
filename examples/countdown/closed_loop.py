@@ -430,16 +430,11 @@ def main() -> int:
 
         # ---- guarded update: one real optimizer step ------------------------
         adapter = GuardedUpdateAdapter(store)
-        metrics_accum = []
         optimizer.zero_grad()
-        total_loss = torch.zeros((), dtype=torch.float32)
-        for h in handles:
-            res = grpo_loss(model, h, group_size=N_GENS)
-            total_loss = total_loss + res.loss
-            metrics_accum.append(res.metrics)
-        total_loss.backward()
+        res = grpo_loss(model, handles, group_size=N_GENS)
+        res.loss.backward()
         optimizer.step()
-        log(f"guarded update: loss={total_loss.item():.4f} ratios={metrics_accum[0]['ratio_p50']:.3f}/{metrics_accum[0]['ratio_max']:.3f}")
+        log(f"guarded update: loss={res.metrics['loss']:.4f} ratios={res.metrics['ratio_p50']:.3f}/{res.metrics['ratio_max']:.3f} B={res.metrics['B']}")
 
         # ---- commit v1 + observed sync + canary check -----------------------
         ckpt_v1 = commit_checkpoint(model, 1, OUT_DIR / "ckpt_v1")
@@ -497,7 +492,7 @@ def main() -> int:
                 "sync_params_observed": len(sync_calls),
                 "canary": {"calibration_reloads": len(calib_sketches), "tolerance": tolerance,
                            "v1_verdict": check.verdict, "v1_drift": check.drift},
-                "update_metrics": metrics_accum[0],
+                "update_metrics": res.metrics,
                 "model": MODEL_PATH,
             },
         }
