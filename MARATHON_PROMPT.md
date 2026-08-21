@@ -2,10 +2,11 @@
 
 ```
 /research-pipeline "Execute the GRPO-Guard engineering project. READ CLAUDE.md in the
-project root FIRST (constitution: clean repo, fixed workload Qwen2.5-1.5B + Countdown +
+project root FIRST (constitution: clean repo, fixed workload Qwen/Qwen3-4B [upscaled from
+1.5B by user decision 2026-08-22, see Workload Change Record] + Countdown +
 TRL/vLLM server, F1-F4 canonical faults, producer ownership + event lineage + content
 hashing, guarded single-use update handle, reason-coded validation, paired replay,
-Day3/4/5 gates, 40 GPU·h hard cap, forbidden legacy narratives). AUTHORITATIVE DESIGN:
+Day3/4/5 gates, 80 GPU·h hard cap, forbidden legacy narratives). AUTHORITATIVE DESIGN:
 GRPO-Guard_详细项目设计与旧项目迁移手册.md (project root) — read it fully before any
 implementation; it locks schema/protocols/faults/tests/budget/release. ARIS role is
 execution discipline, NOT re-discovery: no Phase 0-1 redesign; run the Day1-Day5 plan

@@ -18,9 +18,11 @@ re-read it at every gate.
 
 - **Clean new repo** (do not inherit grpo-credit-assignment's .git; old repo is
   legacy-evidence only, never rename-and-continue).
-- **Fixed workload**: Qwen/Qwen2.5-1.5B-Instruct (fixed revision), Countdown task,
-  frozen train/eval manifests, deterministic rule verifier, TRL GRPO + vLLM server,
-  GPU0 trainer / GPU1 rollout, BF16 preferred, ≥1 real committed optimizer update.
+- **Fixed workload**: **Qwen/Qwen3-4B** (fixed revision; 2026-08-22 user decision to
+  upscale from the design doc's Qwen2.5-1.5B — see Workload Change Record below),
+  Countdown task, frozen train/eval manifests, deterministic rule verifier, TRL GRPO
+  + vLLM server, GPU0 trainer / GPU1 rollout, BF16 preferred, ≥1 real committed
+  optimizer update.
 - **Compatibility matrix frozen BEFORE work** (`compatibility_profile.yaml`); the
   official server-mode GRPO smoke must pass before F1 online experiments.
 - **F1-F4 canonical faults** (static rollout / misbound old-logprob / retokenization /
@@ -37,8 +39,32 @@ re-read it at every gate.
 - **Three gates** (Day 3 Correctness / Day 4 Impact+Overhead / Day 5 Release) with the
   exact pass conditions in the design doc §16. Quarantine/reject never enters
   reward/update consumption.
-- **Budget**: 30-36 A800 GPU·h hard cap 40 (2×A800); light artifacts <5 GB;
-  never publish full checkpoints.
+- **Budget (4B upscaled)**: ~60-80 A800 GPU·h, hard cap **80** (2×A800; the design
+  doc's 30-36/40 was for 1.5B). 4B rollout is ~2-3× slower per step than 1.5B;
+  keep the real closed loop to ONE committed update-sync-rollout cycle and bound
+  fault-run lengths so the cap holds. Light artifacts <5 GB; never publish full
+  checkpoints.
+
+## Workload Change Record (2026-08-22 — decision log)
+
+- **Decision**: upscale workload model from Qwen2.5-1.5B (design doc v1.0 §4.1) to
+  Qwen/Qwen3-4B.
+- **Evidence**: job-market scale signal — resume reviewers read "4B GRPO closed
+  loop" as materially stronger than "1.5B"; Qwen3-4B matches the scale of the
+  companion paper project (posttrain-paper GRPO training), and jindun has the model
+  cached.
+- **Alternative considered**: (a) keep 1.5B — deterministic, cheap, fast to gate
+  (rejected: weak scale signal); (b) 7B — strongest signal but rollout slow, budget
+  ~100-150 GPU·h, harder to schedule on shared jindun (rejected for now; re-evaluate
+  if a dedicated server becomes available).
+- **Why rejected others**: 7B costs vs. time-to-gate trade; 1.5B fails the resume
+  signal goal the user set.
+- **What would falsify this decision**: if 4B rollout latency makes the closed loop
+  + F1-F4 matrix infeasible within the 80 GPU·h cap — then fall back to 1.5B and
+  record the regression (no gate loosening).
+- **Protocol note**: per design doc §4.1, this change is recorded BEFORE the first
+  formal run; the fault-injection logic, event lineage, reason codes and Gate
+  conditions are model-size-independent and unchanged.
 - **Forbidden legacy narratives** (design doc §2.2, §3.2): success-rate curves,
   static-policy claims, ρ=0.735, "CPC works", re-used production trainer code as-is.
   Killed legacy logic may only be rebuilt as minimal fault fixtures marked
@@ -68,8 +94,9 @@ re-read it at every gate.
 - Server choice is PENDING (candidates: jindun 8×A800, autodl1 2×RTX 6000D, local
   RTX 5060 8GB for CPU/light parts). When chosen, record in this file; GPU
   contention rules of the chosen box apply (other users first).
-- Budget regardless of server: 30-36 GPU·h hard cap 40, 2 GPUs enough, wall time
-  15-20h segmented. Checkpoint/resume default; save progress before sacrificing a run.
+- Budget regardless of server: **60-80 GPU·h hard cap 80** (4B workload), 2 GPUs
+  enough, wall time ~20-30h segmented (4B rollout slower than 1.5B — bound fault-run
+  lengths). Checkpoint/resume default; save progress before sacrificing a run.
 
 ## Pipeline (adapted)
 
