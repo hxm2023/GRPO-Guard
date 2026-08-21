@@ -1,0 +1,31 @@
+profile_id: cuda-cu130-server-v01
+python: 3.12.3
+torch: 2.11.0+cu130
+cuda_runtime: '12.8'
+cuda_driver: 595.71.05
+transformers: 5.15.1
+trl: 1.10.0
+vllm: 0.26.0
+accelerate: 1.14.0
+model_id: Qwen/Qwen3-4B
+model_revision: 1cfa9a7208912126459214e8b04321603b3df60c
+trl_mode: server
+trainer_cuda_visible_devices:
+- 0
+rollout_cuda_visible_devices:
+- 1
+serve_command:
+- trl
+- vllm-serve
+- --model
+- Qwen/Qwen3-4B
+- --port
+- '8000'
+trainer_config:
+  use_vllm: true
+  vllm_mode: server
+upstream_sync_adapter:
+  python_qualname: trl.vllm.vllm_client.VLLMClient.update_named_param
+  source_file_sha256: ''
+  request_or_collective: http-single-request
+official_smoke_passed: false

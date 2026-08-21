@@ -5,7 +5,8 @@ set -euo pipefail
 
 REPO_DIR="${1:-/root/autodl-tmp/grpo-guard/repo}"
 OUT_DIR="${2:-/root/autodl-tmp/grpo-guard/smoke_out}"
-MODEL="${GRPO_GUARD_MODEL:-Qwen/Qwen3-4B}"
+MODEL_PATH="${GRPO_GUARD_MODEL_PATH:-/root/autodl-tmp/models/Qwen3-4B}"
+MODEL_ID="Qwen/Qwen3-4B"
 VLLM_PORT="${VLLM_PORT:-8000}"
 LOG_DIR="${OUT_DIR}/logs"
 mkdir -p "${OUT_DIR}" "${LOG_DIR}"
@@ -13,9 +14,9 @@ mkdir -p "${OUT_DIR}" "${LOG_DIR}"
 cd "${REPO_DIR}"
 source /root/autodl-tmp/grpo-guard/.venv/bin/activate
 
-echo "[smoke] starting vLLM server on GPU1 (${MODEL})"
+echo "[smoke] starting vLLM server on GPU1 (${MODEL_PATH})"
 CUDA_VISIBLE_DEVICES=1 nohup trl vllm-serve \
-  --model "${MODEL}" \
+  --model "${MODEL_PATH}" \
   --port "${VLLM_PORT}" \
   --gpu-memory-utilization 0.6 \
   --max-model-len 2048 \
@@ -42,7 +43,7 @@ for i in $(seq 1 60); do
 done
 
 echo "[smoke] running GRPOTrainer on GPU0 (server mode, 1 committed step)"
-GRPO_GUARD_MODEL="${MODEL}" \
+GRPO_GUARD_MODEL="${MODEL_PATH}" \
 GRPO_GUARD_VLLM_PORT="${VLLM_PORT}" \
 GRPO_GUARD_SMOKE_OUT="${OUT_DIR}" \
 CUDA_VISIBLE_DEVICES=0 python examples/countdown/smoke_train.py \

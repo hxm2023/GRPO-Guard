@@ -19,7 +19,7 @@ def _server_env(server: str) -> dict:
     script = (
         "cd /root/autodl-tmp/grpo-guard && source .venv/bin/activate && "
         "python - <<'PY'\n"
-        "import json, torch, transformers, trl, vllm, accelerate, platform, subprocess\n"
+        "import json, torch, transformers, trl, vllm, accelerate, platform\n"
         "out = {\n"
         "  'python': platform.python_version(),\n"
         "  'torch': torch.__version__,\n"
@@ -51,6 +51,18 @@ def _server_env(server: str) -> dict:
     return env
 
 
+def _model_revision(server: str) -> str:
+    """Immutable model revision from the HF mirror API."""
+    res = subprocess.run(
+        ["ssh", server, "curl -s https://hf-mirror.com/api/models/Qwen/Qwen3-4B | grep -o '\"sha\":\"[a-f0-9]*\"' | head -1"],
+        capture_output=True, text=True, timeout=60,
+    )
+    line = res.stdout.strip()
+    if '"sha":' not in line:
+        return "TBD-after-first-snapshot"
+    return line.split('"sha":"')[1].rstrip('"')
+
+
 def freeze_compatibility_profile(out_path: Path, server: str = "autodl2") -> Path:
     env = _server_env(server)
     profile = {
@@ -64,7 +76,7 @@ def freeze_compatibility_profile(out_path: Path, server: str = "autodl2") -> Pat
         "vllm": env["vllm"],
         "accelerate": env["accelerate"],
         "model_id": "Qwen/Qwen3-4B",
-        "model_revision": "TBD-after-first-snapshot",
+        "model_revision": _model_revision(server),
         "trl_mode": "server",
         "trainer_cuda_visible_devices": [0],
         "rollout_cuda_visible_devices": [1],
