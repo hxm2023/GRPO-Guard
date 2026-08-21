@@ -71,10 +71,11 @@ def grpo_loss(
         raise TypeError("grpo_loss accepts only ValidatedBatchHandle(s), no text fallback")
 
     seq_np, mask_np, lp_np, rewards_np = _stack_handles(handles)
-    seq = _as_tensor(seq_np)
-    loss_mask = _as_tensor(mask_np)
-    old_logps = _as_tensor(lp_np)
-    rewards = torch.as_tensor(rewards_np, dtype=torch.float32)
+    device = next(model.parameters()).device
+    seq = _as_tensor(seq_np).to(device)
+    loss_mask = _as_tensor(mask_np).to(device)
+    old_logps = _as_tensor(lp_np).to(device)
+    rewards = torch.as_tensor(rewards_np, dtype=torch.float32).to(device)
 
     B, T = seq.shape
     V = model.config.vocab_size

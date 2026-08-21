@@ -62,7 +62,7 @@ def start_server(server_log: Path) -> subprocess.Popen:
     proc = subprocess.Popen(
         [
             trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(VLLM_PORT),
-            "--gpu-memory-utilization", "0.6", "--max-model-len", "2048",
+            "--gpu-memory-utilization", "0.5", "--max-model-len", "2048",
         ],
         env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
         stdout=open(server_log, "w"), stderr=subprocess.STDOUT,
@@ -99,15 +99,17 @@ def stop_server(proc: subprocess.Popen) -> None:
             os.killpg(proc.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
-    # the vLLM EngineCore may outlive the group; kill only processes serving
-    # OUR model path (never blanket-kill the shared card, TTRL may be running)
+    # the vLLM EngineCore may outlive the group (cmdline is just
+    # "VLLM::EngineCore"); kill only processes tied to OUR server port or
+    # model path — never blanket-kill the shared card, TTRL may be running
     subprocess.run(
         ["bash", "-c",
          f"for p in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader); do "
-         f"if grep -q '{MODEL_PATH}' /proc/$p/cmdline 2>/dev/null; then kill -9 $p 2>/dev/null; fi; done"],
+         f"cmd=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); "
+         f"if echo \"$cmd\" | grep -qE '{VLLM_PORT}|{MODEL_PATH}|VLLM::EngineCore'; then kill -9 $p 2>/dev/null; fi; done"],
         capture_output=True,
     )
-    time.sleep(3)
+    time.sleep(5)
 
 
 # ---------------------------------------------------------------- identity
@@ -364,8 +366,8 @@ def main() -> int:
         reward_events: list[RewardEvent] = []
         for p in prompts:
             for g in range(N_GENS):
-                res = client.generate([p["text"]], n=1, temperature=0.0, top_p=1.0,
-                                                     top_k=1, max_tokens=MAX_COMPLETION, logprobs=0)
+                res = client.generate([p["text"]], n=1, temperature=1.0, top_p=1.0,
+                                                     top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
                 pid, cid, lps, _ = _unpack_gen(res)
                 text = tokenizer.decode(cid[0], skip_special_tokens=True)
                 gen = runtime.emit_generation(
@@ -456,8 +458,8 @@ def main() -> int:
 
         # ---- v1 rollout: proves the loop -------------------------------------
         p = prompts[0]
-        res = client.generate([p["text"]], n=2, temperature=0.0, top_p=1.0,
-                                             top_k=1, max_tokens=MAX_COMPLETION, logprobs=0)
+        res = client.generate([p["text"]], n=2, temperature=1.0, top_p=1.0,
+                                             top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
         pid, cid, lps, _ = _unpack_gen(res)
         for g in range(2):
             gen1 = runtime.emit_generation(

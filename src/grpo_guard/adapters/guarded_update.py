@@ -143,7 +143,7 @@ def materialize(
     )
 
     input_event = UpdateInputEvent(
-        event_id=f"uinput-{update_id}",
+        event_id=f"uinput-{update_id}-{hashlib.sha256(nonce.encode()).hexdigest()[:12]}",
         event_type="update_input_materialized",
         run_id=run_id,
         component_id="guarded_materializer",
