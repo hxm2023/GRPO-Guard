@@ -89,11 +89,32 @@ re-read it at every gate.
   pass counts is forbidden), frozen fixtures never auto-overwritten, all published
   numbers traceable to artifact + commit + checksum.
 
-## Compute (server TBD — reserved, do not bind)
+## Compute (autodl2 — SHARED with agent-ttrl; server decided 2026-08-22)
 
-- Server choice is PENDING (candidates: jindun 8×A800, autodl1 2×RTX 6000D, local
-  RTX 5060 8GB for CPU/light parts). When chosen, record in this file; GPU
-  contention rules of the chosen box apply (other users first).
+- **Server: `ssh autodl2`** — 2×RTX 6000D 84GB, 1TB RAM, /root/autodl-tmp 1TB
+  (expanded), CUDA 12.8 (PyTorch 2.8.0 image, python 3.12 ubuntu22.04),
+  ~10.75 元/h for the 2-GPU instance. No autodl1 (released), no jindun.
+- **SHARED-CARD LAYOUT (locked)**:
+  - GPU0 → Guard trainer (4B ZeRO-3, ~30GB) — exclusive
+  - GPU1 → Guard rollout vLLM (~16GB) **+ agent-ttrl LoRA training (~25-35GB,
+    nice low priority)** — 84GB card has headroom
+  - Agent-RL-Credit-Auditor → CPU cores (0 GPU)
+- **SHARED-CARD RULES (multi-project, non-negotiable)**:
+  1. **Canary calibration windows are EXCLUSIVE** — agent-ttrl pauses during
+     Guard canary runs (fixed environment for drift calibration, ≥5 reloads);
+     coordinate via a shared marker file on the server (e.g.,
+     /root/autodl-tmp/shared/guard-canary.lock) — whoever holds the lock, the
+     other project pauses GPU work;
+  2. Guard's formal fault-matrix / paired-replay runs have priority over TTRL
+     (TTRL is `nice`d + concurrency-bounded; Guard's timing/overhead evidence
+     must not be degraded);
+  3. Guard overhead measurements (on/off repeats) run when TTRL is idle or at
+     minimum load — record observed GPU util in the run manifest;
+  4. Both projects' manifests record "parallel-with-X" + observed GPU util;
+  5. Checkpoint to /root/autodl-tmp; resume-from-checkpoint default; save
+     progress before any sacrifice.
+- CPU/contract work (Day 1 schemas, unit tests, fixtures) on local RTX 5060
+  BEFORE renting GPU time.
 - Budget regardless of server: **60-80 GPU·h hard cap 80** (4B workload), 2 GPUs
   enough, wall time ~20-30h segmented (4B rollout slower than 1.5B — bound fault-run
   lengths). Checkpoint/resume default; save progress before sacrificing a run.
