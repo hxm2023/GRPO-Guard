@@ -1,0 +1,34 @@
+{
+  "run_id": "loop-1787355683",
+  "closed_loop": {
+    "v0_rollout_sequences": 32,
+    "v1_rollout_sequences": 2,
+    "identity_allowed": 32,
+    "pre_update_allowed": 32,
+    "committed_optimizer_steps": 1,
+    "policy_versions": {
+      "v0": "1371204785c657d6138cfd25ea0516b1cc0a45b1cad205c2ec250f01ce3f6c3a",
+      "v1": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70"
+    },
+    "sync_params_observed": 398,
+    "canary": {
+      "calibration_reloads": 5,
+      "tolerance": 0,
+      "v1_verdict": "pass",
+      "v1_drift": {
+        "max_token_drift": 0
+      }
+    },
+    "update_metrics": {
+      "ratio_p50": 1.0,
+      "ratio_p95": 1.083100438117981,
+      "ratio_max": 2.4342923164367676,
+      "clip_fraction": 0.02197265625,
+      "loss": 0.0,
+      "B": 32,
+      "T": 90,
+      "group_size": 4
+    },
+    "model": "/root/autodl-tmp/models/Qwen3-4B"
+  }
+}

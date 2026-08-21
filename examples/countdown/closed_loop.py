@@ -292,6 +292,17 @@ def main() -> int:
     # fresh scratch for this run (event ids are deterministic per policy step)
     import shutil
 
+    # single-loop guard: refuse to run if another loop process is alive
+    pidfile = OUT_DIR / "loop.pid"
+    if pidfile.exists():
+        try:
+            other = int(pidfile.read_text().strip())
+            os.kill(other, 0)
+            raise RuntimeError(f"another closed loop is running (pid {other})")
+        except (ValueError, ProcessLookupError):
+            pass
+    pidfile.write_text(str(os.getpid()), encoding="utf-8")
+
     shutil.rmtree(OUT_DIR / "events", ignore_errors=True)
     shutil.rmtree(OUT_DIR / "store", ignore_errors=True)
 
@@ -433,10 +444,10 @@ def main() -> int:
         # ---- guarded update: one real optimizer step ------------------------
         adapter = GuardedUpdateAdapter(store)
         optimizer.zero_grad()
-        res = grpo_loss(model, handles, group_size=N_GENS)
-        res.loss.backward()
+        loss_res = grpo_loss(model, handles, group_size=N_GENS)
+        loss_res.loss.backward()
         optimizer.step()
-        log(f"guarded update: loss={res.metrics['loss']:.4f} ratios={res.metrics['ratio_p50']:.3f}/{res.metrics['ratio_max']:.3f} B={res.metrics['B']}")
+        log(f"guarded update: loss={loss_res.metrics['loss']:.4f} ratios={loss_res.metrics['ratio_p50']:.3f}/{loss_res.metrics['ratio_max']:.3f} B={loss_res.metrics['B']}")
 
         # ---- commit v1 + observed sync + canary check -----------------------
         ckpt_v1 = commit_checkpoint(model, 1, OUT_DIR / "ckpt_v1")
@@ -461,7 +472,7 @@ def main() -> int:
         res = client.generate([p["text"]], n=2, temperature=1.0, top_p=1.0,
                                              top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
         pid, cid, lps, _ = _unpack_gen(res)
-        for g in range(2):
+        for g in range(len(pid)):
             gen1 = runtime.emit_generation(
                 pid[g], cid[g], [lp[0] for lp in lps[g]] if lps else None,
                 behavior_policy_version=1, checkpoint_manifest_sha256=ckpt_v1["checkpoint_manifest_sha256"],
@@ -494,7 +505,7 @@ def main() -> int:
                 "sync_params_observed": len(sync_calls),
                 "canary": {"calibration_reloads": len(calib_sketches), "tolerance": tolerance,
                            "v1_verdict": check.verdict, "v1_drift": check.drift},
-                "update_metrics": res.metrics,
+                "update_metrics": loss_res.metrics,
                 "model": MODEL_PATH,
             },
         }
