@@ -58,13 +58,15 @@ def now_utc() -> str:
 
 def start_server(server_log: Path) -> subprocess.Popen:
     log(f"starting vLLM server (GPU1) at :{VLLM_PORT}")
+    trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
     proc = subprocess.Popen(
         [
-            "trl", "vllm-serve", "--model", MODEL_PATH, "--port", str(VLLM_PORT),
+            trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(VLLM_PORT),
             "--gpu-memory-utilization", "0.6", "--max-model-len", "2048",
         ],
         env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
         stdout=open(server_log, "w"), stderr=subprocess.STDOUT,
+        start_new_session=True,  # whole process group dies together
     )
     for _ in range(120):
         time.sleep(2)
@@ -87,11 +89,25 @@ def _health() -> bool:
 
 
 def stop_server(proc: subprocess.Popen) -> None:
-    proc.terminate()
+    import signal
+
     try:
+        os.killpg(proc.pid, signal.SIGTERM)
         proc.wait(timeout=30)
-    except subprocess.TimeoutExpired:
-        proc.kill()
+    except (ProcessLookupError, subprocess.TimeoutExpired):
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    # the vLLM EngineCore may outlive the group; kill only processes serving
+    # OUR model path (never blanket-kill the shared card, TTRL may be running)
+    subprocess.run(
+        ["bash", "-c",
+         f"for p in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader); do "
+         f"if grep -q '{MODEL_PATH}' /proc/$p/cmdline 2>/dev/null; then kill -9 $p 2>/dev/null; fi; done"],
+        capture_output=True,
+    )
+    time.sleep(3)
 
 
 # ---------------------------------------------------------------- identity
@@ -113,6 +129,7 @@ def hash_existing_checkpoint(policy_version: int) -> dict:
     weights = [{
         "uri": f"artifact://{p.name}", "media_type": "application/safetensors",
         "num_bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+        "producer_event_id": f"ckpt-commit-v{policy_version}",
     } for p in shards]
     return {
         "manifest_id": f"pm-{policy_version}",
@@ -150,6 +167,7 @@ def commit_checkpoint(model, policy_version: int, ckpt_dir: Path) -> dict:
     weights = [{
         "uri": f"artifact://{p.name}", "media_type": "application/safetensors",
         "num_bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+        "producer_event_id": f"ckpt-commit-v{policy_version}",
     } for p in shard_paths]
     manifest = {
         "manifest_id": f"pm-{policy_version}",
@@ -175,6 +193,11 @@ def commit_checkpoint(model, policy_version: int, ckpt_dir: Path) -> dict:
 def _token_diff(a: list[int], b: list[int]) -> int:
     n = max(len(a), len(b))
     return sum(1 for i in range(n) if i >= len(a) or i >= len(b) or a[i] != b[i])
+
+
+def _unpack_gen(res: dict):
+    """VLLMClient.generate returns a dict; split into the 4-tuple form."""
+    return (res["prompt_ids"], res["completion_ids"], res["logprobs"], res.get("logprob_token_ids"))
 
 
 # ---------------------------------------------------------------- envelopes
@@ -264,6 +287,12 @@ def main() -> int:
     # exclusive canary window (shared-card rule 1)
     lock_file.write_text(json.dumps({"holder": "grpo-guard", "reason": "canary calibration", "at": now_utc()}), encoding="utf-8")
 
+    # fresh scratch for this run (event ids are deterministic per policy step)
+    import shutil
+
+    shutil.rmtree(OUT_DIR / "events", ignore_errors=True)
+    shutil.rmtree(OUT_DIR / "store", ignore_errors=True)
+
     run_id = f"loop-{int(time.time())}"
     store = ArtifactStore(OUT_DIR / "store")
     log_ = AppendLog(OUT_DIR / "events", run_id=run_id, lease_id="guard-trainer")
@@ -277,7 +306,9 @@ def main() -> int:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
 
     def all_events():
-        return {e["event_id"]: e for e in log_.iterate()}
+        from grpo_guard.schema.events import event_from_payload
+
+        return {e["event_id"]: event_from_payload(e) for e in log_.iterate()}
 
     server = start_server(OUT_DIR / "vllm_server.log")
     try:
@@ -293,7 +324,7 @@ def main() -> int:
                 stop_server(server)
                 server = start_server(OUT_DIR / f"vllm_server_calib{i}.log")
                 client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT, connection_timeout=300)
-            calib_sketches.append(suite.sketch(lambda p, **kw: client.generate(p, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8, logprobs=0)))
+            calib_sketches.append(suite.sketch(lambda p, **kw: _unpack_gen(client.generate(p, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8, logprobs=0))))
         tolerance = max(
             max(_token_diff(a, b) for a, b in zip(calib_sketches[0], s))
             for s in calib_sketches[1:]
@@ -333,8 +364,9 @@ def main() -> int:
         reward_events: list[RewardEvent] = []
         for p in prompts:
             for g in range(N_GENS):
-                (pid, cid, lps, _) = client.generate([p["text"]], n=1, temperature=0.0, top_p=1.0,
+                res = client.generate([p["text"]], n=1, temperature=0.0, top_p=1.0,
                                                      top_k=1, max_tokens=MAX_COMPLETION, logprobs=0)
+                pid, cid, lps, _ = _unpack_gen(res)
                 text = tokenizer.decode(cid[0], skip_special_tokens=True)
                 gen = runtime.emit_generation(
                     pid[0], cid[0], [lp[0] for lp in lps[0]] if lps else None,
@@ -418,7 +450,7 @@ def main() -> int:
             client.update_named_param(name, param.data)
             sync_calls.append(name)
         log(f"synced {len(sync_calls)} params (v1)")
-        check = suite.check(lambda p, **kw: client.generate(p, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8, logprobs=0),
+        check = suite.check(lambda p, **kw: _unpack_gen(client.generate(p, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8, logprobs=0)),
                             1, v0_baseline, tolerance)
         if check.verdict != "pass":
             raise RuntimeError(f"canary MISMATCH after v1 sync: {check.drift}")
@@ -429,8 +461,9 @@ def main() -> int:
 
         # ---- v1 rollout: proves the loop -------------------------------------
         p = prompts[0]
-        (pid, cid, lps, _) = client.generate([p["text"]], n=2, temperature=0.0, top_p=1.0,
+        res = client.generate([p["text"]], n=2, temperature=0.0, top_p=1.0,
                                              top_k=1, max_tokens=MAX_COMPLETION, logprobs=0)
+        pid, cid, lps, _ = _unpack_gen(res)
         for g in range(2):
             gen1 = runtime.emit_generation(
                 pid[g], cid[g], [lp[0] for lp in lps[g]] if lps else None,

@@ -65,8 +65,8 @@ class VLLMRuntimeAdapter:
     ) -> GenerationEvent:
         """Emit a sealed GenerationEvent; the token artifacts come from the
         server's sampled ids (authoritative), masks are canonical §7.9."""
-        seq = np.asarray(prompt_ids + completion_ids, dtype=np.int32)
-        T = int(seq.shape[0])
+        seq_arr = np.asarray(prompt_ids + completion_ids, dtype=np.int32)
+        T = int(seq_arr.shape[0])
         P = len(prompt_ids)
         C = len(completion_ids)
 
@@ -74,8 +74,9 @@ class VLLMRuntimeAdapter:
         target[P:T] = 1
         loss = target[1:].copy()
 
-        ev_id = f"gen-{behavior_policy_version}-{self.run_id}-{self._seq:04d}"
-        seq_ref = self.store.put(seq.tobytes(), "application/octet-stream", ev_id, dtype="int32", shape=[T])
+        seq_no = self.next_seq()
+        ev_id = f"gen-{behavior_policy_version}-{self.run_id}-{seq_no:04d}"
+        seq_ref = self.store.put(seq_arr.tobytes(), "application/octet-stream", ev_id, dtype="int32", shape=[T])
         target_ref = self.store.put(target.tobytes(), "application/octet-stream", ev_id, dtype="int8", shape=[T])
         loss_ref = self.store.put(loss.tobytes(), "application/octet-stream", ev_id, dtype="int8", shape=[T - 1])
 
@@ -91,7 +92,7 @@ class VLLMRuntimeAdapter:
             event_type="generation_finished",
             run_id=self.run_id,
             component_id=self.component_id,
-            lifecycle_seq=self.next_seq(),
+            lifecycle_seq=seq_no,
             created_at_utc=now_utc(),
             output_artifacts=[seq_ref, target_ref, loss_ref] + ([lp_ref] if lp_ref else []),
             request_id=request_id,

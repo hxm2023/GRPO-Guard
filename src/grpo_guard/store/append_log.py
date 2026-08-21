@@ -105,15 +105,24 @@ class AppendLog:
         return event
 
     def append_provenance_edge(self, event_id: str, artifact_sha256: str, role: str) -> None:
-        """Non-hashed provenance edge (event → output artifact), design doc §7.3."""
+        """Append-only provenance edges (event → output artifact), design doc §7.3.
+
+        One event may own many artifacts; the edge list is append-only.  A
+        conflict means the same (event, artifact) was registered with a
+        different role — a genuine inconsistency, never silently merged.
+        """
         path = self.edges_dir / f"{event_id}.json"
         edge = {"event_id": event_id, "artifact_sha256": artifact_sha256, "role": role}
+        existing: list[dict] = []
         if path.exists():
             existing = json.loads(path.read_text(encoding="utf-8"))
-            if existing != edge:
-                raise ValueError(f"conflicting provenance edge for {event_id}:{artifact_sha256}")
-        else:
-            path.write_text(canonical_dumps(edge).decode("utf-8"), encoding="utf-8")
+            for e in existing:
+                if e["artifact_sha256"] == artifact_sha256:
+                    if e["role"] != role:
+                        raise ValueError(f"conflicting provenance edge for {event_id}:{artifact_sha256}")
+                    return  # idempotent: identical edge already recorded
+        existing.append(edge)
+        path.write_text(canonical_dumps(existing).decode("utf-8"), encoding="utf-8")
 
     # ---- reads -----------------------------------------------------------
 
