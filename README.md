@@ -112,6 +112,20 @@ PY
 | Day 3 Correctness | canonical F1–F4 **4/4 reject** (pre-registered codes); 12/12 variants; normal **32/32 ALLOW** (0 false reject); boundary 4/4; stale acceptance 0 | `fault_matrix.json` |
 | Day 4 Impact/Overhead | paired gradients: F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model); guard overhead 40.4 ms/batch (3 repeats); F1 update norm 0.0 measured | `replay/`, `overhead.json`, `day4_summary.json` |
 
+## Online experiments (autodl2, real server rollouts)
+
+All runs below executed on autodl2 (2xRTX 6000D) against the REAL vLLM
+server (trl vllm-serve + Qwen3-4B), evidence committed under
+`artifacts/v0.1.0/`:
+
+| experiment | result | evidence |
+|---|---|---|
+| F1-F8 online matrix | F1-F4 4/4 reject, normal 4/4 ALLOW; F5-F8 4/4 (v0.2-preview) | `online/fault_matrix_online.json`, `v0.2.0-dev/fault_matrix_online.json` |
+| bounded off-policy online | lag≤bound+correction ALLOW; lag>bound reject P005; missing correction reject P006 — 3/3 | `bounded/bounded_online.json` |
+| tag v0.1.0 clean smoke | 1 committed step, 398 sync calls (release commit reproduced) | `smoke_v010/smoke_result.json` |
+| Day 2/5 guarded closed loop | 32/32 ALLOW → real update → 398-param sync → canary v1 pass → v1 rollout | `loop/` |
+| Day 4 paired replay | F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model) | `replay/gradient_replay.json` |
+
 ## v0.2-preview: fault families F5-F8
 
 Implemented as preview (CPU-only, clearly scoped — NOT part of the v0.1
