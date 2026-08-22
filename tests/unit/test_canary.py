@@ -9,6 +9,30 @@ def _fake_gen(prompt, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8):
     return ([list(range(10))], [[(base + i) % 50 + 1 for i in range(max_tokens)]], [[[0.5] * max_tokens]], None)
 
 
+def test_sketch_accepts_dict_from_trl_client():
+    # TRL's VLLMClient.generate returns a dict; tuple-unpacking a dict
+    # yields its KEYS — the constant-sketch bug.  The suite must read the
+    # dict keys explicitly.
+    suite = CanarySuite(prompts=["x"])
+
+    def dict_gen(prompt, **kw):
+        pid, cid, lps, lti = _fake_gen(prompt, **kw)
+        return {"prompt_ids": pid, "completion_ids": cid, "logprobs": lps,
+                "logprob_token_ids": lti}
+
+    s1 = suite.sketch(dict_gen)
+    s2 = suite.sketch(dict_gen)
+    assert s1 == s2
+    assert isinstance(s1[0], list) and all(isinstance(t, int) for t in s1[0])
+    # and a drift in the dict-based sketch IS detected
+    drifted = {"prompt_ids": _fake_gen(["x"])[0],
+               "completion_ids": [[t + 9 for t in _fake_gen(["x"])[1][0]]],
+               "logprobs": [], "logprob_token_ids": None}
+    assert suite.check(dict_gen, policy_version=1, baseline=s1, tolerance=0).verdict == "pass"
+    r = suite.check(lambda p, **kw: drifted, policy_version=1, baseline=s1, tolerance=0)
+    assert r.verdict == "mismatch"
+
+
 def test_sketch_deterministic():
     suite = CanarySuite(prompts=["a", "b"])
     s1 = suite.sketch(_fake_gen)

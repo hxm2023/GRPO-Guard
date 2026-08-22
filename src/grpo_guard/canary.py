@@ -37,8 +37,18 @@ class CanarySuite:
         (prompt_ids, completion_ids, logprobs, logprob_token_ids)."""
         sketches = []
         for prompt in self.prompts:
-            _, completion_ids, _, _ = generate_fn([prompt], n=1, temperature=0.0, top_p=1.0, max_tokens=self.max_tokens)
-            sketches.append(completion_ids[0])
+            res = generate_fn([prompt], n=1, temperature=0.0, top_p=1.0, max_tokens=self.max_tokens)
+            if isinstance(res, dict):
+                # TRL's VLLMClient.generate returns a dict keyed by
+                # prompt_ids/completion_ids/logprobs/logprob_token_ids;
+                # tuple-unpacking a dict yields its KEYS — a silent constant
+                # sketch.  This bug made every canary look identical
+                # (drift always 0) and is fixed here.
+                completion_ids = res["completion_ids"][0]
+            else:
+                _, completion_ids, _, _ = res
+                completion_ids = completion_ids[0]
+            sketches.append(completion_ids)
         return sketches
 
     def calibrate(self, generate_fn, reloads: int = 5) -> dict:
