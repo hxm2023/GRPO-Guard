@@ -1,0 +1,6 @@
+# Evidence artifacts are content-hashed (SHA256SUMS): hashes must match
+# across platforms, so line endings are pinned to LF in the working tree.
+artifacts/** text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
