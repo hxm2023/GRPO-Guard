@@ -10,7 +10,9 @@ code (design doc §3.2).
 from grpo_guard.faults.f5_f8 import (
     inject_f5_split_leakage,
     inject_f6_evaluator_alias,
+    inject_f6_no_alias,
     inject_f7_event_reorder,
+    inject_f7_sync_reorder,
     inject_f8_artifact_mutation,
 )
 from grpo_guard.faults.mask_shift import inject_f4_mask_shift
@@ -33,6 +35,8 @@ __all__ = [
     "inject_f4_mask_shift",
     "inject_f5_split_leakage",
     "inject_f6_evaluator_alias",
+    "inject_f6_no_alias",
     "inject_f7_event_reorder",
+    "inject_f7_sync_reorder",
     "inject_f8_artifact_mutation",
 ]

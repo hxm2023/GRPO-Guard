@@ -266,7 +266,10 @@ def m001_mask_shape_mismatch(ctx: ValidationContext) -> RuleResult | None:
     if target.size != align.T or loss.size != align.T - 1:
         return RuleResult("M001_MASK_SHAPE_MISMATCH", "reject", "mask lengths disagree with sequence length")
     if gen.service_behavior_logprobs is not None:
-        lp_data = ctx.store.get(gen.service_behavior_logprobs)
+        try:
+            lp_data = ctx.store.get(gen.service_behavior_logprobs)
+        except (HashMismatchError, FileNotFoundError):
+            return None  # T001 catches corrupt artifacts
         if element_count(gen.service_behavior_logprobs, lp_data) != align.C:
             return RuleResult("M001_MASK_SHAPE_MISMATCH", "reject", "service logprob length != C")
     return None
@@ -291,7 +294,10 @@ def _mask_violation(ctx: ValidationContext, check: str) -> RuleResult | None:
             if target[s:e].any():
                 return RuleResult("M003_PADDING_SELECTED", "reject", f"target mask selects padding [{s},{e})")
     if check == "canonical":
-        loss = mask_from_artifact_bytes(ctx.store.get(gen.loss_mask), align.T - 1)
+        try:
+            loss = mask_from_artifact_bytes(ctx.store.get(gen.loss_mask), align.T - 1)
+        except (HashMismatchError, FileNotFoundError):
+            return None  # T001 catches corrupt artifacts
         if not (target == align.completion_target_mask).all() or not (loss == align.loss_mask).all():
             return RuleResult("M004_CANONICAL_MASK_MISMATCH", "reject", "producer masks differ from span-reconstructed canonical masks")
     return None

@@ -1,0 +1,1 @@
+{"case_id":"f8_artifact_mutation_boundary","envelope_id":"env-gen-0-loop-1787364111-0004-pre_reward","expected_decision":"reject","generation_event_id":"gen-0-loop-1787364111-0004","notes":"{\"name\": \"boundary\", \"which\": \"loss_mask\"}","required_reason_codes":["T001_ARTIFACT_HASH_MISMATCH"],"run_id":"loop-1787364111"}

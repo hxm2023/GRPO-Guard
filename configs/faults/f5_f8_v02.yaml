@@ -1,6 +1,6 @@
-# F5-F8 canonical fault matrix — v0.2-preview (design doc §11)
-# NOT part of the v0.1 matrix. Pre-registered expectations; run via
-# `grpo-guard day3-matrix --config configs/faults/f5_f8_v02.yaml`.
+# F5-F8 canonical fault matrix — v0.2 (design doc §11)
+# Pre-registered expectations; run via
+# `grpo-guard v02-matrix --config configs/faults/f5_f8_v02.yaml`.
 matrix_id: f5_f8_v02
 protocol: strict_v01
 
@@ -9,6 +9,8 @@ cases:
     fault: f5_split_leakage
     variants:
       - {name: canonical, other_split: held_out}
+      - {name: boundary, other_split: held_out, extra_split: calibration}
+      - {name: held_out, other_split: calibration}
     expected_decision: reject
     required_reason_codes: [D003_SPLIT_OVERLAP]
 
@@ -16,20 +18,26 @@ cases:
     fault: f6_evaluator_alias
     variants:
       - {name: canonical, eval_protocol: declared}
+      - {name: boundary, kind: no_alias, expected_decision: allow, required_reason_codes: []}
+      - {name: held_out, kind: eval_version, eval_protocol: declared, eval_reward_version: countdown-rule-v1-eval}
     expected_decision: quarantine
     required_reason_codes: [R006_EVALUATOR_ALIAS]
 
   - id: f7_event_reorder
     fault: f7_event_reorder
     variants:
-      - {name: canonical}
+      - {name: canonical, kind: scoring_late, required_reason_codes: [L005_SCORING_AFTER_UPDATE]}
+      - {name: boundary, kind: scoring_late, scorer_policy_version: 1, required_reason_codes: [L005_SCORING_AFTER_UPDATE]}
+      - {name: held_out, kind: sync_late, required_reason_codes: [P007_EVENT_ORDER_INVALID]}
     expected_decision: reject
     required_reason_codes: [L005_SCORING_AFTER_UPDATE]
 
   - id: f8_artifact_mutation
     fault: f8_artifact_mutation
     variants:
-      - {name: canonical}
+      - {name: canonical, which: sequence}
+      - {name: boundary, which: loss_mask}
+      - {name: held_out, which: logprobs}
     expected_decision: reject
     required_reason_codes: [T001_ARTIFACT_HASH_MISMATCH]
 

@@ -1,0 +1,1 @@
+{"case_id":"f5_split_leakage_held_out","envelope_id":"env-gen-0-loop-1787364111-0004-pre_reward","expected_decision":"reject","generation_event_id":"gen-0-loop-1787364111-0004","notes":"{\"name\": \"held_out\", \"other_split\": \"calibration\"}","required_reason_codes":["D003_SPLIT_OVERLAP"],"run_id":"loop-1787364111"}
