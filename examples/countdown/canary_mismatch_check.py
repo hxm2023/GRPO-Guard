@@ -97,7 +97,8 @@ def main() -> int:
     log("perturbed checkpoint saved")
 
     # ---- phase 3: canary on the perturbed weights --------------------------
-    server2 = start_server(OUT_DIR / "vllm_server_perturbed.log", port=VLLM_PORT)
+    server2 = start_server(OUT_DIR / "vllm_server_perturbed.log", port=VLLM_PORT,
+                           model=str(PERTURBED_DIR))
     try:
         client2 = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                              connection_timeout=300)
@@ -118,7 +119,7 @@ def main() -> int:
         canary_status="mismatch" if check.verdict == "mismatch" else "pass",
     )
     d = validate_envelope(ctx, "identity_pre_reward").decision_payload
-    p008 = "P008_CANARY_MISMATCH" in d.reason_codes
+    p008_fired = "P008_CANARY_MISMATCH" in d.reason_codes and d.decision == "reject"
 
     result = {
         "run_id": f"canary-{int(time.time())}",
@@ -127,9 +128,9 @@ def main() -> int:
         "perturbed_drift": check.drift,
         "validator_decision": d.decision,
         "validator_reason_codes": d.reason_codes[:4],
-        "p008_fired": p008,
+        "p008_fired": p008_fired,
         "expectation": "canary mismatch -> validator reject P008",
-        "matched": p008 and check.verdict == "mismatch",
+        "matched": p008_fired and check.verdict == "mismatch",
     }
     (OUT_DIR / "canary_mismatch_online.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     log(f"result: verdict={check.verdict} validator={d.decision} p008={p008}")
