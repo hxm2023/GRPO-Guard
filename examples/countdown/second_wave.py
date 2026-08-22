@@ -292,7 +292,8 @@ def main() -> int:
         log(f"Phase A: loop#2 update loss={res2.metrics['loss']:.6f} ratios={res2.metrics['ratio_p50']:.3f}/{res2.metrics['ratio_max']:.3f}")
 
         ckpt_v2 = commit_checkpoint(model, 2, OUT_DIR / "ckpt_v2")
-        # observed sync v1 -> v2
+        # observed sync v1 -> v2 (communicator needed for the NCCL broadcast)
+        client.init_communicator(device=torch.device("cuda:0"))
         sync_calls = 0
         for name, param in model.named_parameters():
             client.update_named_param(name, param.data)
