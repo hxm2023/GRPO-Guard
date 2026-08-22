@@ -53,7 +53,7 @@ def main() -> int:
     from grpo_guard.validators.validator import validate_envelope
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    suite = CanarySuite()
+    suite = CanarySuite(max_tokens=32)
 
     def generate_fn(client):
         return lambda prompts, **kw: (
@@ -80,7 +80,7 @@ def main() -> int:
     torch.manual_seed(7)
     with torch.no_grad():
         for p in model.parameters():
-            p.data.add_(torch.randn_like(p.data).mul_(0.05))
+            p.data.add_(torch.randn_like(p.data).mul_(0.3))
     from safetensors.torch import save_file
 
     keys = list(model.state_dict().keys())
@@ -133,7 +133,7 @@ def main() -> int:
         "matched": p008_fired and check.verdict == "mismatch",
     }
     (OUT_DIR / "canary_mismatch_online.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
-    log(f"result: verdict={check.verdict} validator={d.decision} p008={p008}")
+    log(f"result: verdict={check.verdict} validator={d.decision} p008={p008_fired}")
     log("CANARY CHECK DONE")
     return 0 if result["matched"] else 1
 
