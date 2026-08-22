@@ -4,7 +4,19 @@ Every number below is gate-passed and traces to `artifacts/` + commit +
 SHA256SUMS (design doc §16, §20: 简历每个数字可追到 report cell 和 raw
 artifact).
 
-## Resume bullets (design doc §20.3 format — Release Gate passed)
+## 简历 bullet（精炼版，1-2 行）
+
+**中文版：**
+> GRPO-Guard：在线 GRPO 轨迹契约与故障注入框架｜PyTorch、TRL、vLLM
+> - 在 Qwen3-4B 真实闭环中实现可审计的训练证据链（内容寻址事件 + 单次守卫更新），8 类故障在 64 个真实 rollout 上 512/512 拒绝、normal 64/64 无误拒
+> - 确定性配对回放量化故障梯度影响（24 对）；guard 开销 0.6 ms/条；CI 全绿（py3.11/3.12）
+
+**English version:**
+> **GRPO-Guard** — online GRPO trajectory-contract & fault-injection framework | PyTorch, TRL, vLLM
+> - Built a machine-verifiable evidence chain (content-addressed events + single-use guarded updates) in a real Qwen3-4B/Countdown closed loop; 8 fault families rejected 512/512 on 64 live rollouts with 0 false rejects
+> - Quantified fault impact via 24 deterministic paired gradient probes (cosine distributions); guard overhead 0.6 ms/trajectory; CI green on Python 3.11/3.12
+
+## Resume bullets (设计文档 §20.3 长版 — Release Gate passed)
 
 **GRPO-Guard：在线 GRPO 轨迹契约与故障注入框架｜PyTorch、TRL、vLLM、Qwen3-4B**
 
