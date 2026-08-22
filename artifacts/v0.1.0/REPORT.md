@@ -101,6 +101,12 @@ server-mode smoke re-run on autodl2 from that exact commit →
 398 observed sync calls) — COMPATIBILITY GATE SMOKE PASSED on the release
 commit.
 
+**Bounded off-policy online** (`artifacts/v0.1.0/bounded/bounded_online.json`,
+design doc §9.2): on a real server rollout —
+lag 1 ≤ bound 2 with declared correction → ALLOW; lag 5 > bound →
+reject P005_LAG_EXCEEDS_BOUND; bounded mode without declared correction →
+reject P006_CORRECTION_UNDECLARED.  3/3 matched.
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
