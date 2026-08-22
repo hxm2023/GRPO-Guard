@@ -107,6 +107,13 @@ lag 1 ≤ bound 2 with declared correction → ALLOW; lag 5 > bound →
 reject P005_LAG_EXCEEDS_BOUND; bounded mode without declared correction →
 reject P006_CORRECTION_UNDECLARED.  3/3 matched.
 
+**Canary sketch fix (2026-08-22)**: a bug in `canary.py`'s sketch made the
+online canary-mismatch check read dict KEYS instead of token ids when the
+generator returned TRL's dict directly (constant sketch ⇒ drift always 0).
+Fixed with a regression test.  NOTE: the Day 2 loop's canary calibration and
+v1 check used the `_unpack_gen` wrapper (tuple path) and were NOT affected;
+the fix only affects direct-dict callers (the online mismatch check).
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
