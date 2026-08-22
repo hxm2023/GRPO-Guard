@@ -142,6 +142,11 @@ injected into EVERY generation —
 | normal set | 32/32 ALLOW |
 | validator | 0.59 ms/envelope mean (0.55-0.98, n=32) |
 
+**64-rollout batch online matrix** (`artifacts/v0.1.0/batch_online_64/`,
+16 prompts × 4 gens): normal **64/64 ALLOW**; F1-F4 **256/256 reject**;
+F5-F8 **256/256 reject/quarantine**; validator 0.63 ms/env mean (0.59-0.87,
+n=64).
+
 **Full paired gradient replay** (`artifacts/v0.1.0/replay_all/gradient_replay.json`):
 ALL 8 prompt groups × F2/F3/F4 = **24 pairs** (real model, v1 weights +
 deterministic drift seed 7 σ=0.005).  Gradient-cosine distribution:

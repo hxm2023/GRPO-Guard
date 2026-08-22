@@ -1,0 +1,4633 @@
+{
+  "run_id": "batch-1787416913",
+  "scope": "F1-F8 batch online matrix (64 real rollouts, 16 prompts x 4 gens, per-generation injection)",
+  "source": "autodl2 vLLM server",
+  "normal": [
+    {
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "allow"
+    }
+  ],
+  "validator_timing_ms": {
+    "mean": 0.63,
+    "min": 0.59,
+    "max": 0.87,
+    "count": 64
+  },
+  "f14": [
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f1_static_rollout",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    }
+  ],
+  "f58": [
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0001",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0002",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0003",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0004",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0005",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0006",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0007",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0008",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0009",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0010",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0011",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0012",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0013",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0014",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0015",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0016",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0017",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0018",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0019",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0020",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0021",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0022",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0023",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0024",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0025",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0026",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0027",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0028",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0029",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0030",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0031",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0032",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0033",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0034",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0035",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0036",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0037",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0038",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0039",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0040",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0041",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0042",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0043",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0044",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0045",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0046",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0047",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0048",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0049",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0050",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0051",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0052",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0053",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0054",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0055",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0056",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0057",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0058",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0059",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0060",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0061",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0062",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0063",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f5_split_leakage",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "generation": "gen-0-batch-1787416913-0064",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ]
+    }
+  ],
+  "summary": {
+    "normal_allow": 64,
+    "normal_total": 64,
+    "f14_reject": 256,
+    "f14_total": 256,
+    "f58_reject_or_quarantine": 256,
+    "f58_total": 256
+  }
+}
