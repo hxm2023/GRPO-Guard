@@ -120,6 +120,17 @@ checkpoint (seed 7) loaded into the server and re-sketch →
 **mismatch, drift=32 tokens** → the validator rejects with
 `P008_CANARY_MISMATCH` (fail closed).
 
+**Bounded off-policy ONLINE closed loop** (`artifacts/v0.1.0/second_wave/second_wave.json`,
+design doc §9.2, decision D10): v0 trajectories consumed with lag=1 under
+the bounded protocol (in-bound + declared correction → ALLOW), ONE
+committed update (8 rollouts, ratio p50 1.0 / max 1.18), **398 observed
+sync params**, v1 committed.  The committed manifest hash equals the Day-2
+v1 hash — expected, since both commits re-serialize the same v0≈ weights
+(loss≈0).  F1 gradient impact reported honestly as `undefined_near_zero`:
+F1 is a CONTRACT fault (policy lag), the tensors are identical, and the
+guard stops the stale consumption at validation (P004) before any optimizer
+step — no fabricated cosine (design doc §12.3).
+
 **Batch online matrix** (`artifacts/v0.1.0/batch_online/batch_online_matrix.json`,
 decision D9): 32 REAL rollouts (8 prompts × 4 gens), every fault family
 injected into EVERY generation —
