@@ -1,0 +1,20 @@
+{
+  "release": "v0.1.0",
+  "created_at_utc": "2026-08-22T02:32:52Z",
+  "commit": "",
+  "platform": {
+    "system": "Windows",
+    "python": "3.14.3"
+  },
+  "stages": {},
+  "updates": [
+    {
+      "updated_at_utc": "2026-08-22T02:33:09Z",
+      "commit": "7396e5c9d826fe94c2cc81be3645a7b40da9ca3f",
+      "platform": {
+        "system": "Windows",
+        "python": "3.14.3"
+      }
+    }
+  ]
+}

@@ -26,6 +26,6 @@ trainer_config:
   vllm_mode: server
 upstream_sync_adapter:
   python_qualname: trl.vllm.vllm_client.VLLMClient.update_named_param
-  source_file_sha256: ''
+  source_file_sha256: 309585812a1c440797a5e7a5595ffd240ad11ba30f4b94446bbc9915fa9f8011
   request_or_collective: http-single-request
 official_smoke_passed: true

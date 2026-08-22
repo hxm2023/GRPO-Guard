@@ -44,15 +44,21 @@ def run_smoke(config_path: Path, out_dir: Path, server: str = "autodl2") -> dict
     res = _run(["ssh", server, f"nohup bash -c '{script}' > {SMOKE_OUT_SERVER}/smoke_runner.log 2>&1 & echo LAUNCHED"], timeout=60)
     if "LAUNCHED" not in res.stdout:
         raise RuntimeError(f"smoke launch failed: {res.stdout} {res.stderr}")
-    # poll
+    # poll for a FRESH result: only accept a result file newer than launch
+    # (a stale result from an earlier run must not pass the gate)
     import time
 
+    launch_marker = f"{SMOKE_OUT_SERVER}/.launched_{int(time.time())}"
+    _run(["ssh", server, f"touch {launch_marker}"], timeout=60)
     deadline = time.time() + 45 * 60
     while time.time() < deadline:
         time.sleep(20)
-        r = _run(["ssh", server, f"tail -3 {SMOKE_OUT_SERVER}/smoke_runner.log 2>/dev/null; test -f {SMOKE_OUT_SERVER}/smoke_result.json && echo RESULT_READY"], timeout=60)
+        r = _run(["ssh", server,
+                  f"test -f {SMOKE_OUT_SERVER}/smoke_result.json && test {SMOKE_OUT_SERVER}/smoke_result.json -nt {launch_marker} && echo RESULT_READY"],
+                 timeout=60)
         if "RESULT_READY" in r.stdout:
             break
+    _run(["ssh", server, f"rm -f {launch_marker}"], timeout=60)
     if "RESULT_READY" not in r.stdout:
         tail = _run(["ssh", server, f"tail -20 {SMOKE_OUT_SERVER}/smoke_runner.log"], timeout=60)
         raise RuntimeError(f"smoke did not finish in 45min; tail:\n{tail.stdout[-2000:]}")

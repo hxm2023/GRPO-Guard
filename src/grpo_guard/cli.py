@@ -75,6 +75,15 @@ def _cmd_smoke(args) -> int:
 
 
 def _cmd_replay(args) -> int:
+    # prefer the committed real-model replay; fall back to the CPU surrogate
+    committed = Path(args.manifest).parent / "replay" / "gradient_replay.json"
+    if committed.exists():
+        payload = json.loads(committed.read_text(encoding="utf-8"))
+        for p in payload["pairs"]:
+            print(f"{p['fault_kind']:16s} cos={p['gradient_cosine']} rL2={p['relative_l2']:.4f} "
+                  f"norm_c={p['control_update_norm']:.3e} norm_f={p['fault_update_norm']:.3e}")
+        print(f"source: {committed}")
+        return 0
     from grpo_guard.replay.gradient_probe import run_replay
 
     manifest = run_replay(Path(args.manifest))
@@ -98,7 +107,7 @@ def _cmd_day3(args) -> int:
 def _cmd_report(args) -> int:
     from grpo_guard.report import build_report
 
-    report = build_report(Path(args.artifact_dir), commit=args.commit)
+    report = build_report(Path(args.artifact_dir), commit=args.commit, update=args.update)
     print(f"wrote {report['report_md']} + SHA256SUMS")
     return 0
 
@@ -151,6 +160,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("report", help="build run_manifest.json + REPORT.md + SHA256SUMS")
     p.add_argument("--artifact-dir", default="artifacts/v0.1.0")
     p.add_argument("--commit", default="")
+    p.add_argument("--update", action="store_true", help="merge manifest entry + regenerate SHA256SUMS")
     p.set_defaults(fn=_cmd_report)
 
     p = sub.add_parser("profile", help="freeze the compatibility profile (design doc §4.1.1)")
