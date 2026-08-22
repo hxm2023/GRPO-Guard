@@ -1,12 +1,12 @@
 """Real-model paired gradient probes (design doc §12).
 
 For each (control, fault) pair over the REAL closed-loop artifacts:
-  - control: the v0 generation's authoritative tokens/masks/logprobs;
+  - control: a real prompt group (4 v0 generations) with its actual rewards;
   - F2 fault: same tokens/masks, logprobs replaced by a different policy's
-    (deterministic perturbed checkpoint — the misbound-value case);
-  - F3 fault: same text re-tokenized WITHOUT the chat template (the actual
+    (deterministic perturbed values — the misbound-value case);
+  - F3 fault: same text with deterministically re-encoded tokens (the
     retokenization mechanism) → different token sequence;
-  - F4 fault: only the mask shifted by k tokens.
+  - F4 fault: only the masks shifted by one token window.
 The model forward is the trainer's own; gradients are real.  Metrics per
 design doc §12.4; `undefined_near_zero` when either norm ≈ 0.
 """
@@ -68,8 +68,8 @@ def rel_l2(a: torch.Tensor, b: torch.Tensor, eps: float = 1e-10) -> float:
     return float((b_c - a_c).norm().item() / (na + eps))
 
 
-def per_token_loss(model, seq, loss_mask, old_logps, reward, group_size=1, clip_epsilon=0.2):
-    """The guarded GRPO loss on one trajectory (mirrors grpo_loss)."""
+def per_token_loss(model, seq, loss_mask, old_logps, reward, group_size=4, clip_epsilon=0.2):
+    """The guarded GRPO loss on a batch (mirrors grpo_loss, design doc §7.9)."""
     seq = seq.to(model.device) if hasattr(seq, "to") else torch.as_tensor(seq, dtype=torch.int64, device=model.device)
     B, T = seq.shape
     V = model.config.vocab_size
@@ -87,7 +87,7 @@ def per_token_loss(model, seq, loss_mask, old_logps, reward, group_size=1, clip_
     old_padded[mask] = flat_real
     ratio = torch.exp(new_logps - old_padded)
     clipped = torch.clamp(ratio, 1.0 - clip_epsilon, 1.0 + clip_epsilon)
-    r = torch.as_tensor(reward, dtype=torch.float32, device=model.device).reshape(-1, group_size)
+    r = torch.as_tensor(reward, dtype=torch.float32, device=model.device).view(-1, group_size)
     mean = r.mean(dim=1, keepdim=True)
     std = r.var(dim=1, unbiased=False, keepdim=True).sqrt() + 1e-6
     adv = ((r - mean) / std).view(-1)
@@ -108,7 +108,7 @@ def per_token_loss(model, seq, loss_mask, old_logps, reward, group_size=1, clip_
 
 def load_events_and_store():
     sys.path.insert(0, str(REPO_DIR / "src"))
-    from grpo_guard.schema.events import GenerationEvent, event_from_payload
+    from grpo_guard.schema.events import GenerationEvent, RewardEvent, event_from_payload
     from grpo_guard.store.artifact_store import ArtifactStore
 
     events = {}
@@ -122,23 +122,43 @@ def load_events_and_store():
         (e for e in events.values() if isinstance(e, GenerationEvent) and e.behavior_policy_version == 0),
         key=lambda e: e.lifecycle_seq,
     )
-    return events, store, gens
+    rewards = {
+        e.source_generation_event.event_id: e.components.get("correctness", 0.0)
+        for e in events.values() if isinstance(e, RewardEvent)
+    }
+    return events, store, gens, rewards
 
 
-def probe_pair(model, store, gen, fault_kind: str, reward=None, group_size: int = 4) -> dict:
-    # a full reward group (design doc §12.4): mixed rewards give a nonzero
-    # group advantage so the gradients carry real signal
-    if reward is None:
-        reward = np.asarray([1.0, 1.0, 0.0, 0.0], dtype=np.float32)
-    seq = np.frombuffer(store.get(gen.sequence_token_ids), dtype=np.int32).copy()
-    target = np.frombuffer(store.get(gen.completion_target_mask), dtype=np.int8).copy()
-    loss_mask = np.frombuffer(store.get(gen.loss_mask), dtype=np.int8).copy()
-    lp = np.frombuffer(store.get(gen.service_behavior_logprobs), dtype=np.float32).copy()
-    P = gen.completion_span[0]
+def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4) -> dict:
+    """Paired probe over a REAL prompt group (B=group_size trajectories with
+    their actual rewards, design doc §12.2/§12.4)."""
+    prompt_id = gens[0].prompt_id
+    group = [g for g in gens if g.prompt_id == prompt_id][:group_size]
+    reward = np.asarray([rewards[g.event_id] for g in group], dtype=np.float32)
+    if reward.std() < 1e-6:
+        # degenerate group (all equal rewards): flip one so the advantage
+        # carries signal — documented replay choice for degenerate groups
+        reward[-1] = 1.0 - reward[-1]
 
-    seq_t = torch.as_tensor(seq[None, :], dtype=torch.int64, device=model.device)
-    mask_t = loss_mask[None, :]
-    lp_t = lp[None, :]
+    T_max = max(g.completion_span[1] for g in group)
+    C_max = max(g.completion_span[1] - g.completion_span[0] for g in group)
+    B = len(group)
+    seq = np.zeros((B, T_max), dtype=np.int32)
+    mask = np.zeros((B, T_max - 1), dtype=np.int8)
+    lp = np.zeros((B, C_max), dtype=np.float32)
+    Ps = []
+    for i, g in enumerate(group):
+        s = np.frombuffer(store.get(g.sequence_token_ids), dtype=np.int32)
+        m = np.frombuffer(store.get(g.loss_mask), dtype=np.int8)
+        l = np.frombuffer(store.get(g.service_behavior_logprobs), dtype=np.float32)
+        seq[i, :len(s)] = s
+        mask[i, :len(m)] = m
+        lp[i, :len(l)] = l
+        Ps.append(g.completion_span[0])
+
+    seq_t = torch.as_tensor(seq, dtype=torch.int64, device=model.device)
+    mask_t = mask
+    lp_t = lp
 
     def run(seq_use, mask_use, lp_use):
         model.zero_grad()
@@ -151,28 +171,31 @@ def probe_pair(model, store, gen, fault_kind: str, reward=None, group_size: int 
     loss_c, m_c, g_c = run(seq_t, mask_t, lp_t)
 
     if fault_kind == "f2_misbound":
-        # different policy's logprobs: deterministic perturbed checkpoint
+        # different policy's logprobs: deterministic perturbed values
         rng = np.random.RandomState(42)
         lp_fault = (lp * rng.normal(1.0, 0.15, size=lp.shape)).astype(np.float32)
-        loss_f, m_f, g_f = run(seq_t, mask_t, lp_fault[None, :])
+        loss_f, m_f, g_f = run(seq_t, mask_t, lp_fault)
     elif fault_kind == "f3_retokenized":
-        # re-encoded sequence: swap tokens deterministically (whitespace split
-        # artifacts of a template-less re-encode)
+        # re-encoded sequences: deterministic token swaps inside completions
         seq_fault = seq.copy()
-        seq_fault[P:P + 3] = np.roll(seq_fault[P:P + 3], 1)
-        seq_ft = torch.as_tensor(seq_fault[None, :], dtype=torch.int64, device=model.device)
+        for i, P in enumerate(Ps):
+            seq_fault[i, P:P + 3] = np.roll(seq_fault[i, P:P + 3], 1)
+        seq_ft = torch.as_tensor(seq_fault, dtype=torch.int64, device=model.device)
         loss_f, m_f, g_f = run(seq_ft, mask_t, lp_t)
     elif fault_kind == "f4_mask_shift":
-        mask_fault = np.zeros_like(loss_mask)
-        mask_fault[max(P - 1, 0):] = 1
-        mask_fault[P + 2:] = 0  # shifted window
-        loss_f, m_f, g_f = run(seq_t, mask_fault[None, :], lp_t)
+        mask_fault = np.zeros_like(mask)
+        for i, P in enumerate(Ps):
+            mask_fault[i, max(P - 1, 0):] = 1
+            mask_fault[i, P + 2:] = 0  # shifted window
+        loss_f, m_f, g_f = run(seq_t, mask_fault, lp_t)
     else:
         raise ValueError(fault_kind)
 
     return {
         "fault_kind": fault_kind,
-        "generation": gen.event_id,
+        "prompt": prompt_id,
+        "generations": [g.event_id for g in group],
+        "rewards": reward.tolist(),
         "gradient_cosine": cosine(g_c, g_f),
         "relative_l2": rel_l2(g_c, g_f),
         "control_update_norm": float(_to_host(g_c).norm().item()),
@@ -187,7 +210,7 @@ def main() -> int:
     import torch
     from transformers import AutoModelForCausalLM
 
-    events, store, gens = load_events_and_store()
+    events, store, gens, rewards = load_events_and_store()
     if not gens:
         raise RuntimeError("no v0 generation events in loop evidence")
 
@@ -213,19 +236,20 @@ def main() -> int:
     _drift(model)
 
     results = []
-    gen = gens[0]
     for kind in ("f2_misbound", "f3_retokenized", "f4_mask_shift"):
-        r = probe_pair(model, store, gen, kind)
+        r = probe_pair(model, store, gens, rewards, kind)
         results.append(r)
         print(f"{kind}: cos={r['gradient_cosine']} rL2={r['relative_l2']:.4f} "
               f"norm_c={r['control_update_norm']:.2e} norm_f={r['fault_update_norm']:.2e} "
-              f"loss_c={r['control']['loss']:.6f} loss_f={r['fault']['loss']:.6f}", flush=True)
+              f"loss_c={r['control']['loss']:.6f} loss_f={r['fault']['loss']:.6f} "
+              f"rewards={r['rewards']}", flush=True)
 
     OUT_PATH.mkdir(parents=True, exist_ok=True)
     (OUT_PATH / "gradient_replay.json").write_text(json.dumps({
         "source_loop": str(LOOP_DIR),
         "model": MODEL_PATH,
-        "generation": gen.event_id,
+        "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=0.02)",
+        "generation": results[0]["generations"][0] if results else "",
         "pairs": results,
     }, indent=2), encoding="utf-8")
     print("REPLAY_DONE")
