@@ -1,7 +1,7 @@
 """Batch online experiment on autodl2 (design doc §11, §13; decision D9).
 
 One GPU session:
-  1. 32 REAL rollouts (8 prompts x 4 gens) via trl vllm-serve;
+  1. 32 REAL rollouts (16 prompts x 4 gens) via trl vllm-serve;
   2. F1-F8 (canonical + variant) injected into EVERY v0 generation —
      decisions must be family-consistent across generations;
   3. normal set: all 32 real generations must validate ALLOW;
@@ -104,7 +104,7 @@ def main() -> int:
         sync_ref = EventRef(uri="", event_id=canary.event_id, event_sha256=canary.event_sha256)
 
         prompts = []
-        for i in range(8):
+        for i in range(16):
             tgt = [i % 7 + 1, (i * 2) % 7 + 1, (i * 3) % 7 + 1]
             goal = (tgt[0] + tgt[1]) * tgt[2] % 40 + 1
             prompts.append({
@@ -130,7 +130,7 @@ def main() -> int:
                     required_epoch=epoch,
                 )
                 gens.append((gen, p, text))
-        log(f"real rollouts: {len(gens)} GenerationEvents (8 prompts x 4 gens)")
+        log(f"real rollouts: {len(gens)} GenerationEvents (16 prompts x 4 gens)")
 
         def events_dict():
             from grpo_guard.schema.events import event_from_payload
@@ -337,7 +337,7 @@ def main() -> int:
 
         (OUT_DIR / "batch_online_matrix.json").write_text(json.dumps({
             "run_id": run_id,
-            "scope": "F1-F8 batch online matrix (32 real rollouts, per-generation injection)",
+            "scope": "F1-F8 batch online matrix (64 real rollouts, 16 prompts x 4 gens, per-generation injection)",
             "source": "autodl2 vLLM server",
             "normal": normals,
             "validator_timing_ms": {"mean": round(float(np.mean(timings)), 2),
