@@ -56,15 +56,16 @@ def now_utc() -> str:
 
 # ---------------------------------------------------------------- server
 
-def start_server(server_log: Path, port: int | None = None, model: str | None = None) -> subprocess.Popen:
+def start_server(server_log: Path, port: int | None = None, model: str | None = None,
+                 mem_util: float = 0.5) -> subprocess.Popen:
     port = port or VLLM_PORT
     model = model or MODEL_PATH
-    log(f"starting vLLM server (GPU1) at :{port} model={model}")
+    log(f"starting vLLM server (GPU1) at :{port} model={model} mem_util={mem_util}")
     trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
     proc = subprocess.Popen(
         [
             trl_bin, "vllm-serve", "--model", model, "--port", str(port),
-            "--gpu-memory-utilization", "0.5", "--max-model-len", "2048",
+            "--gpu-memory-utilization", str(mem_util), "--max-model-len", "2048",
         ],
         env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
         stdout=open(server_log, "w"), stderr=subprocess.STDOUT,

@@ -82,7 +82,7 @@ def main() -> int:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
     protocol = ProtocolConfig(name="strict_v01", mode="strict_on_policy")
 
-    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT)
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.35)
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                             connection_timeout=300)
