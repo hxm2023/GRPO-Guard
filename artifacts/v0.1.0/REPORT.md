@@ -120,6 +120,17 @@ checkpoint (seed 7) loaded into the server and re-sketch →
 **mismatch, drift=32 tokens** → the validator rejects with
 `P008_CANARY_MISMATCH` (fail closed).
 
+**Batch online matrix** (`artifacts/v0.1.0/batch_online/batch_online_matrix.json`,
+decision D9): 32 REAL rollouts (8 prompts × 4 gens), every fault family
+injected into EVERY generation —
+
+| family | across generations |
+|---|---|
+| F1-F4 | 128/128 reject (32/32 per family) |
+| F5-F8 | 128/128 reject/quarantine (32/32 per family) |
+| normal set | 32/32 ALLOW |
+| validator | 0.59 ms/envelope mean (0.55-0.98, n=32) |
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
