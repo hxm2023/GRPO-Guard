@@ -27,17 +27,19 @@ OUT_PATH = Path(os.environ.get("GRPO_GUARD_REPLAY_OUT", "/root/autodl-tmp/grpo-g
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/repo"))
 
 
-def _drift(model: torch.nn.Module, sigma: float = 0.02) -> None:
+def _drift(model: torch.nn.Module, sigma: float = 0.005) -> None:
     """Deterministic replay-time model drift (design doc §12.2).
 
-    The v0.1 single update moved weights by ~0 (loss=0 ⇒ ratio=1 ⇒ zero
+    The v0.1 single update moved weights by ~0 (loss=0 ⇒ ratio≈1 ⇒ zero
     gradients), so replaying at the committed checkpoint would measure
     nothing.  We simulate a later training state by perturbing the frozen
     weights with a FIXED seed — both the control and fault arms share the
     same perturbed state, so the paired comparison stays fair and the
-    gradients carry real signal.  sigma=0.02 is the smallest magnitude that
-    is representable in bf16 (mantissa ~8 bits).  This is a documented
-    replay-time choice, not a claim about v0/v1 weight distance.
+    gradients carry real signal.  sigma=0.005 is a small drift (~0.5% of a
+    typical unit-magnitude weight, ~1 bf16 representable step) that moves
+    the logprobs by a few percent without destroying the on-policy regime
+    (review finding: sigma=0.02 doubled weight norms).  This is a
+    documented replay-time choice, not a claim about v0/v1 weight distance.
     """
     torch.manual_seed(7)
     with torch.no_grad():
@@ -191,6 +193,9 @@ def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4
     else:
         raise ValueError(fault_kind)
 
+    # §12.4 mask metrics: tokens selected by the (control) completion mask
+    # that fall inside the prompt or padding spans
+    prompt_selected = int((mask[:, :Ps[0]].sum())) if Ps else 0
     return {
         "fault_kind": fault_kind,
         "prompt": prompt_id,
@@ -200,6 +205,8 @@ def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4
         "relative_l2": rel_l2(g_c, g_f),
         "control_update_norm": float(_to_host(g_c).norm().item()),
         "fault_update_norm": float(_to_host(g_f).norm().item()),
+        "selected_prompt_tokens": int(prompt_selected),
+        "selected_padding_tokens": 0,  # no padding in the v0.1 loop rollouts
         "control": {"loss": loss_c, **m_c},
         "fault": {"loss": loss_f, **m_f},
         "norm_near_zero": float(_to_host(g_c).norm().item()) < 1e-6 or float(_to_host(g_f).norm().item()) < 1e-6,
