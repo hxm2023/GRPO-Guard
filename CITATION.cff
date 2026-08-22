@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use GRPO-Guard, please cite it as follows."
+title: "GRPO-Guard: trajectory contract, lineage and fault-injection framework for online LLM post-training"
+version: 0.1.0
+date-released: 2026-08-22
+license: Apache-2.0
+keywords:
+  - grpo
+  - trl
+  - vllm
+  - lineage
+  - fault-injection
+  - post-training

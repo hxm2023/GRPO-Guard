@@ -67,8 +67,9 @@ green. See git history for the fix commits.
 - v1 rollout count reflects what the server returned per request
   (`run_manifest.json`).
 - The Day 2 loop's first run did not emit the `update_committed` event
-  (design doc §6.3 lineage gap, found in Day 4 review); fixed in the loop,
-  final run scheduled for the Day 5 release evidence.
+  (design doc §6.3 lineage gap, found in Day 4 review); fixed and re-run —
+  the committed `artifacts/v0.1.0/loop/` evidence is the FINAL loop run and
+  includes `upd-commit-update-1`.
 - Paired replay runs at v1 weights + a deterministic drift (seed 7,
   σ=0.005) because the v0.1 single update moved weights ~0 — the replay
   state is a documented simulation of a later training state, not a claim
@@ -114,9 +115,10 @@ GRPO losses) — loss-level metrics are indistinguishable while the contract
 rejects the misbound envelope with L003/L007. This is the exact legacy
 pattern (trainer loss/KL looked fine under a static rollout).
 
-**Overhead** (fixed workload: 8 real envelopes, 3 repeats, raw + mean ±
-stdev): guard-on 51.6 ± 0.2 ms vs guard-off 2.75 ± 0.5 ms per batch →
-48.9 ms/batch (~6.1 ms per envelope); all raw values in `overhead.json`.
+**Overhead** (fixed workload: 8 real envelopes from the FINAL loop evidence,
+3 repeats, raw + mean ± stdev): guard-on 42.8 ± 4.2 ms vs guard-off
+2.36 ± 0.34 ms per batch → 40.4 ms/batch (~5.1 ms per envelope); all raw
+values in `overhead.json`.
 
 **Stage timings** (`stage_timings.json`, from event timestamps): sync
 events span 53 s, rollout events 52 s, validation 16 s, reward 16 s (Day 2

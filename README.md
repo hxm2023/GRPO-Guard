@@ -1,24 +1,139 @@
 # GRPO-Guard
 
 Trajectory contract, lineage and fault-injection framework for online LLM
-post-training (TRL GRPO + vLLM server). v0.1 builds a machine-verifiable
-evidence chain between trainer / rollout / behavior scoring / reward /
-optimizer update, detecting silent errors: static rollout policy, misbound
-old-logprob, retokenization, and mask shift.
+post-training (TRL GRPO + vLLM server).
 
-> Status: **WIP — Day 1 of the five-day plan**. No gate has passed yet; nothing
-> here is a finished engineering claim. The authoritative design is
-> `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (project root, v1.0).
+GRPO-Guard builds a **machine-verifiable evidence chain** between the online
+training components — trainer / rollout / behavior scoring / reward /
+optimizer update — and uses it to detect the silent errors that training
+curves cannot reveal:
 
-## Quickstart (not yet public — placeholder)
+1. **static rollout policy** — the runtime keeps serving an old policy while
+   the trainer updates its weights;
+2. **misbound old-logprob** — "old" log-probs that were not produced by the
+   behavior policy that generated the trajectory;
+3. **retokenization** — the sequence the trainer optimizes is not the
+   sequence the server sampled;
+4. **mask shift** — completion/action masks that select prompt or padding
+   tokens.
 
-```bash
-uv sync --frozen
-uv run grpo-guard contract-check --cases tests/frozen/normal
+It does not reimplement TRL, vLLM or GRPO: it wraps them with content-addressed
+artifacts, append-only events, reason-coded validation and a single-use
+guarded update handle.
+
+> **Status: v0.1 release candidate.** All three gates (Compatibility /
+> Correctness / Impact+Overhead) have passed on autodl2 (2×RTX 6000D) with
+> Qwen/Qwen3-4B.  The authoritative design is
+> `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (v1.0).  Every number in this
+> README traces to `artifacts/v0.1.0/` + commit + SHA256SUMS.
+
+## Architecture
+
+```
+Dataset and Split Manifest → TRL GRPO Trainer
+  → committed policy v+1 → Checkpoint + PolicyManifest (content-hashed)
+  → upstream sync (observed update_named_param) → vLLM Runtime Adapter
+  → GenerationEvent + token artifacts (the server's OWN token ids)
+  → Append-only Event/Artifact Store
+  → Pre-reward Envelope (reference-only) → Identity Validator
+     → ALLOW → Reward Adapter → RewardEvent
+     → QUARANTINE/REJECT → reason-coded report (never consumed)
+  → Pre-update Envelope → Pre-update Validator → ALLOW
+  → Guarded Batch Materializer → single-use ValidatedBatchHandle
+  → GRPO update (real optimizer step) → UpdateCommitted
+  → canary check → v+1 rollout
 ```
 
-Documentation, architecture diagram, demo and release artifacts land after
-the Day 3/4/5 gates per the design doc §16/§23.
+Key invariants (design doc §6-§9):
+
+- **Producer ownership**: the runtime adapter is the only producer of
+  generation events and token artifacts; the control plane is the only
+  producer of sync/update events; the materializer is the only producer of
+  the update input.  No component may rewrite another's output.
+- **No re-tokenization**: the optimizer consumes the exact token ids the
+  server sampled (via TRL's `VLLMClient.generate` response), with canonical
+  masks reconstructed from spans (design doc §7.9).  Text is a read-only
+  view for the reward verifier.
+- **Reason-coded validation**: P/T/M/L/D/R rule tables; a decision is
+  `allow`, `quarantine` or `reject` with machine-readable codes
+  (e.g. `P004_STALE_POLICY_STRICT`, `T002_TOKENIZER_MISMATCH`,
+  `M004_CANONICAL_MASK_MISMATCH`, `L003_SCORER_POLICY_MISMATCH`).
+  Only envelopes with **both** identity and pre-update `ALLOW` may update
+  parameters; the guarded update adapter refuses anything else and any nonce
+  reuse.
+- **Deterministic paired replay**: fault pairs are derived from the same
+  frozen producer artifacts; gradients are compared with cosine / relative
+  L2 / update norm / ratio / clip metrics (`undefined_near_zero` when norms
+  ≈ 0 — never fabricated 0).
+
+## Quickstart
+
+```bash
+uv sync --frozen          # CPU contract deps (pydantic, numpy, pyyaml)
+uv run pytest tests/      # unit + contract + property tests
+```
+
+GPU (server mode) requires the compatibility matrix in
+`compatibility_profile.yaml` (autodl2: torch 2.11.0+cu130, trl 1.10.0,
+vllm 0.26.0, transformers 5.15.1, Qwen3-4B).
+
+```bash
+uv run grpo-guard contract-check --cases tests/frozen/f1_f4_v01   # frozen matrix
+uv run grpo-guard day3-matrix --loop-dir artifacts/v0.1.0/loop    # gate on real artifacts
+uv run grpo-guard replay --manifest artifacts/v0.1.0/run_manifest.json
+uv run grpo-guard report --artifact-dir artifacts/v0.1.0
+```
+
+## Single-fault demo
+
+```bash
+uv run python - <<'PY'
+from grpo_guard import testing
+from grpo_guard.faults import inject_f4_mask_shift
+from grpo_guard.validators.context import ProtocolConfig, ValidationContext
+from grpo_guard.validators.validator import validate_envelope
+
+t = testing.build_trajectory()                      # canonical happy path
+f = inject_f4_mask_shift(t, shift=1)                # shift the completion mask by 1
+ctx = ValidationContext(envelope=f.envelope, store=f.store, events=f.events,
+                        policy_manifest=f.policy_manifest, split_manifest=f.split_manifest,
+                        protocol=ProtocolConfig(name="strict_v01", mode="strict_on_policy"))
+d = validate_envelope(ctx, "identity_pre_reward").decision_payload
+print(d.decision, d.reason_codes)                   # reject ['M002_PROMPT_SELECTED', 'M004_CANONICAL_MASK_MISMATCH']
+PY
+```
+
+## Results (gate-passed, artifacts in `artifacts/v0.1.0/`)
+
+| Gate | Result | Evidence |
+|---|---|---|
+| Day 1 Compatibility | TRL+vLLM server-mode smoke green; 1 committed step; **398 observed weight-sync calls** | `smoke/`, `compatibility_profile.yaml` |
+| Day 2 Closed loop | v0 rollout → identity ALLOW 32/32 → pre-update ALLOW 32/32 → real update → sync → canary v1 pass → v1 rollout validated | `loop/` |
+| Day 3 Correctness | canonical F1–F4 **4/4 reject** (pre-registered codes); 12/12 variants; normal **32/32 ALLOW** (0 false reject); boundary 4/4; stale acceptance 0 | `fault_matrix.json` |
+| Day 4 Impact/Overhead | paired gradients: F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model); guard overhead 48.9 ms/batch (3 repeats); F1 update norm 0.0 measured | `replay/`, `overhead.json`, `day4_summary.json` |
+
+## Limitations (design doc §21)
+
+- The v0.1 update consumed its own policy's trajectories (loss ≈ 0,
+  ratio ≈ 1) — the gradient-impact evidence comes from the Day 4 paired
+  replay, which runs at v1 weights + a documented deterministic drift.
+- The canary is a behavior sketch (greedy tokens), not a per-byte proof.
+- Faults F5–F8 (split leakage, evaluator alias, event reorder, artifact
+  mutation) are deferred to v0.2; the validator's general checks cover
+  minimal F7/F8 fixtures but they are not part of the v0.1 matrix.
+- No cryptographic tamper-resistance against a malicious producer
+  (design doc §5.3).
+
+## Repository layout
+
+```
+src/grpo_guard/       schema, store, validators, adapters, faults, replay, CLI
+examples/countdown/   smoke + guarded closed-loop scripts
+configs/              frozen workload / protocol / fault-matrix configs
+tests/                unit, contract, property, frozen cases
+artifacts/v0.1.0/     gate evidence (manifests, matrices, checksums)
+DECISION_LOG.md       every deviation, recorded before first formal run
+```
 
 ## License
 

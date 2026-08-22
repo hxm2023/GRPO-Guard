@@ -1,8 +1,8 @@
 {
-  "run_id": "loop-1787355683",
+  "run_id": "loop-1787364111",
   "closed_loop": {
     "v0_rollout_sequences": 32,
-    "v1_rollout_sequences": 2,
+    "v1_rollout_sequences": 1,
     "identity_allowed": 32,
     "pre_update_allowed": 32,
     "committed_optimizer_steps": 1,
