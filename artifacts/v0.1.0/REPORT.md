@@ -79,21 +79,25 @@ green. See git history for the fix commits.
 Evidence: `artifacts/v0.1.0/replay/gradient_replay.json`, `overhead.json`.
 
 **Paired gradient replay** (real 4B model, v1 weights + deterministic drift
-seed=7 σ=0.02, real prompt group of 4 v0 trajectories with real rewards):
+seed=7 σ=0.005 — the smallest bf16-meaningful drift that keeps a sane
+on-policy loss regime; real prompt group of 4 v0 trajectories with real
+rewards [0,0,0,1]):
 
-| pair | gradient cosine | relative L2 | control norm | fault norm |
-|---|---|---|---|---|
-| F2 misbound logprobs | 0.999 | 0.044 | 2.23e-2 | 2.24e-2 |
-| F3 re-encoded tokens | **−0.094** | **139.0** | 2.23e-2 | **3.10** |
-| F4 mask shift | **−0.031** | **1.00** | 2.23e-2 | **3.7e-4** |
+| pair | gradient cosine | relative L2 | control norm | fault norm | loss_c | loss_f |
+|---|---|---|---|---|---|---|
+| F2 misbound logprobs | 0.989 | 0.148 | 6.92 | 6.96 | −0.0204 | −0.0193 |
+| F3 re-encoded tokens | **0.634** | **0.794** | 6.92 | **5.63** | −0.0204 | −0.0076 |
+| F4 mask shift | **0.238** | **4.69** | 6.92 | **33.4** | −0.0204 | −0.0336 |
 
-- F3 (retokenization): the update direction flips and the gradient norm
-  grows 140× — silent consumption would change the update completely.
-- F4 (mask shift): the shifted mask nearly zeroes the gradient (norm 60×
-  smaller) — the update silently loses its signal.
-- F2 (misbound logprobs with value-close values): gradient barely moves —
-  the contract (L003/L007) catches what values cannot; the replay shows
-  the limit of value-level detection honestly.
+- F4 (mask shift): cosine drops to 0.24 and the gradient norm grows ~5× —
+  the shifted mask changes both the update direction and scale.
+- F3 (retokenization): cosine 0.63 — the re-encoded sequence materially
+  shifts the update direction (loss changes 2.7×).
+- F2 (misbound logprobs with value-close values): cosine 0.99 — the
+  gradient barely moves; the contract (L003/L007) catches what values
+  cannot; the replay shows the limit of value-level detection honestly.
+- selected_prompt_tokens / selected_padding_tokens (§12.4): 0 / 0 for the
+  control mask (recorded in gradient_replay.json).
 
 **F1 guard-off accident**: `||θ_v1 − θ_v0|| = 0.0` measured from the
 committed checkpoint shards at fp32 precision (method + precision caveat in
@@ -105,10 +109,9 @@ tensors, so its update norm is the same 0.0; reported as measured, no
 fabricated cosine.
 
 **Counterexample (loss looks normal, contract fails)**: control loss
-6.9e-7 vs F2-fault loss 6.9e-7 (1% apart, ratio p50 both ≈ 1) — loss/ratio
-metrics are indistinguishable while the contract rejects the misbound
-envelope with L003/L007. Same for F4: the masked loss (5.5e-9) is still a
-"normal-looking" tiny number while M002/M004 fire. This is the exact legacy
+−0.0204 vs F2-fault loss −0.0193 (5% apart, both "normal-looking" negative
+GRPO losses) — loss-level metrics are indistinguishable while the contract
+rejects the misbound envelope with L003/L007. This is the exact legacy
 pattern (trainer loss/KL looked fine under a static rollout).
 
 **Overhead** (fixed workload: 8 real envelopes, 3 repeats, raw + mean ±

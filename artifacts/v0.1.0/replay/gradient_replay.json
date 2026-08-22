@@ -1,7 +1,7 @@
 {
   "source_loop": "/root/autodl-tmp/grpo-guard/loop_out",
   "model": "/root/autodl-tmp/models/Qwen3-4B",
-  "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=0.02)",
+  "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=0.005)",
   "generation": "gen-0-loop-1787355683-0004",
   "pairs": [
     {
@@ -23,7 +23,7 @@
       "relative_l2": 0.1476239357188761,
       "control_update_norm": 6.91621012450125,
       "fault_update_norm": 6.959430264797356,
-      "selected_prompt_tokens": 4,
+      "selected_prompt_tokens": 0,
       "selected_padding_tokens": 0,
       "control": {
         "loss": -0.020385028794407845,
@@ -60,7 +60,7 @@
       "relative_l2": 0.7935871426114358,
       "control_update_norm": 6.91621012450125,
       "fault_update_norm": 5.625148158810311,
-      "selected_prompt_tokens": 4,
+      "selected_prompt_tokens": 0,
       "selected_padding_tokens": 0,
       "control": {
         "loss": -0.020385028794407845,
@@ -97,7 +97,7 @@
       "relative_l2": 4.6943555289720855,
       "control_update_norm": 6.91621012450125,
       "fault_update_norm": 33.41395466347338,
-      "selected_prompt_tokens": 4,
+      "selected_prompt_tokens": 0,
       "selected_padding_tokens": 0,
       "control": {
         "loss": -0.020385028794407845,
