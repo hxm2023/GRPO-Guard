@@ -1,0 +1,923 @@
+{
+  "source_loop": "/root/autodl-tmp/grpo-guard/loop_out_final",
+  "model": "/root/autodl-tmp/models/Qwen3-4B",
+  "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=0.005)",
+  "generation": "gen-0-loop-1787364111-0004",
+  "summary": {
+    "pairs": 24,
+    "gradient_cosine": {
+      "mean": 0.5501,
+      "min": -0.029,
+      "max": 0.9978,
+      "count": 24
+    },
+    "relative_l2": {
+      "mean": 1.7834,
+      "min": 0.077,
+      "max": 7.0886,
+      "count": 24
+    },
+    "control_update_norm": {
+      "mean": 11.0419,
+      "min": 4.6858,
+      "max": 32.0517,
+      "count": 24
+    },
+    "fault_update_norm": {
+      "mean": 16.9516,
+      "min": 4.711,
+      "max": 60.9203,
+      "count": 24
+    }
+  },
+  "pairs": [
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0000",
+      "generations": [
+        "gen-0-loop-1787364111-0004",
+        "gen-0-loop-1787364111-0007",
+        "gen-0-loop-1787364111-0010",
+        "gen-0-loop-1787364111-0013"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9891906611853808,
+      "relative_l2": 0.1476239357188761,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 6.959430264797356,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
+      },
+      "fault": {
+        "loss": -0.019333306699991226,
+        "ratio_p50": 0.9820766448974609,
+        "ratio_p95": 1.321700930595398,
+        "ratio_max": 4.848557949066162,
+        "clip_fraction": 0.41015625
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0000",
+      "generations": [
+        "gen-0-loop-1787364111-0004",
+        "gen-0-loop-1787364111-0007",
+        "gen-0-loop-1787364111-0010",
+        "gen-0-loop-1787364111-0013"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.6342594406106493,
+      "relative_l2": 0.7935871426114358,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 5.625148158810311,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
+      },
+      "fault": {
+        "loss": -0.007561884820461273,
+        "ratio_p50": 0.9794530868530273,
+        "ratio_p95": 1.4095735549926758,
+        "ratio_max": 7.760762691497803,
+        "clip_fraction": 0.43359375
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0000",
+      "generations": [
+        "gen-0-loop-1787364111-0004",
+        "gen-0-loop-1787364111-0007",
+        "gen-0-loop-1787364111-0010",
+        "gen-0-loop-1787364111-0013"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.2384498754177057,
+      "relative_l2": 4.6943555289720855,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 33.41395466347338,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
+      },
+      "fault": {
+        "loss": -0.03358238935470581,
+        "ratio_p50": 0.4824734330177307,
+        "ratio_p95": 0.9753438234329224,
+        "ratio_max": 0.9866083860397339,
+        "clip_fraction": 0.75
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0001",
+      "generations": [
+        "gen-0-loop-1787364111-0016",
+        "gen-0-loop-1787364111-0019",
+        "gen-0-loop-1787364111-0022",
+        "gen-0-loop-1787364111-0025"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9977689139694663,
+      "relative_l2": 0.07697827648415886,
+      "control_update_norm": 32.051684833583714,
+      "fault_update_norm": 33.20840732959003,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.001118617132306099,
+        "ratio_p50": 0.8503113389015198,
+        "ratio_p95": 1.1933445930480957,
+        "ratio_max": 1213.620849609375,
+        "clip_fraction": 0.5390625
+      },
+      "fault": {
+        "loss": -0.001869676634669304,
+        "ratio_p50": 0.8481001853942871,
+        "ratio_p95": 1.211447834968567,
+        "ratio_max": 2882.907470703125,
+        "clip_fraction": 0.5390625
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0001",
+      "generations": [
+        "gen-0-loop-1787364111-0016",
+        "gen-0-loop-1787364111-0019",
+        "gen-0-loop-1787364111-0022",
+        "gen-0-loop-1787364111-0025"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.2497632341185845,
+      "relative_l2": 0.9722608479638223,
+      "control_update_norm": 32.051684833583714,
+      "fault_update_norm": 10.812889925492156,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.001118617132306099,
+        "ratio_p50": 0.8503113389015198,
+        "ratio_p95": 1.1933445930480957,
+        "ratio_max": 1213.620849609375,
+        "clip_fraction": 0.5390625
+      },
+      "fault": {
+        "loss": -0.0029685497283935547,
+        "ratio_p50": 0.7342005968093872,
+        "ratio_p95": 1.2822022438049316,
+        "ratio_max": 1074.9486083984375,
+        "clip_fraction": 0.58203125
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0001",
+      "generations": [
+        "gen-0-loop-1787364111-0016",
+        "gen-0-loop-1787364111-0019",
+        "gen-0-loop-1787364111-0022",
+        "gen-0-loop-1787364111-0025"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.04852292071876744,
+      "relative_l2": 1.1929255882667418,
+      "control_update_norm": 32.051684833583714,
+      "fault_update_norm": 22.46085128167054,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.001118617132306099,
+        "ratio_p50": 0.8503113389015198,
+        "ratio_p95": 1.1933445930480957,
+        "ratio_max": 1213.620849609375,
+        "clip_fraction": 0.5390625
+      },
+      "fault": {
+        "loss": -0.04556475207209587,
+        "ratio_p50": 0.9647249579429626,
+        "ratio_p95": 1.112868070602417,
+        "ratio_max": 1.131126046180725,
+        "clip_fraction": 0.4166666865348816
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0002",
+      "generations": [
+        "gen-0-loop-1787364111-0028",
+        "gen-0-loop-1787364111-0031",
+        "gen-0-loop-1787364111-0034",
+        "gen-0-loop-1787364111-0037"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.7862488887885166,
+      "relative_l2": 0.6179106826220342,
+      "control_update_norm": 10.860746099811857,
+      "fault_update_norm": 8.528805220747007,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.03643255680799484,
+        "ratio_p50": 0.8631632328033447,
+        "ratio_p95": 1.3601624965667725,
+        "ratio_max": 3.7043986320495605,
+        "clip_fraction": 0.515625
+      },
+      "fault": {
+        "loss": -0.04032840579748154,
+        "ratio_p50": 0.8688371181488037,
+        "ratio_p95": 1.3776758909225464,
+        "ratio_max": 8.4130220413208,
+        "clip_fraction": 0.51953125
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0002",
+      "generations": [
+        "gen-0-loop-1787364111-0028",
+        "gen-0-loop-1787364111-0031",
+        "gen-0-loop-1787364111-0034",
+        "gen-0-loop-1787364111-0037"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.5510575028251511,
+      "relative_l2": 0.838998402078196,
+      "control_update_norm": 10.860746099811857,
+      "fault_update_norm": 6.930634532804337,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.03643255680799484,
+        "ratio_p50": 0.8631632328033447,
+        "ratio_p95": 1.3601624965667725,
+        "ratio_max": 3.7043986320495605,
+        "clip_fraction": 0.515625
+      },
+      "fault": {
+        "loss": -0.030294258147478104,
+        "ratio_p50": 0.8333631753921509,
+        "ratio_p95": 1.308112621307373,
+        "ratio_max": 4.326830863952637,
+        "clip_fraction": 0.54296875
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0002",
+      "generations": [
+        "gen-0-loop-1787364111-0028",
+        "gen-0-loop-1787364111-0031",
+        "gen-0-loop-1787364111-0034",
+        "gen-0-loop-1787364111-0037"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": -0.028962404677982948,
+      "relative_l2": 1.101487151019491,
+      "control_update_norm": 10.860746099811857,
+      "fault_update_norm": 4.710965976844192,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.03643255680799484,
+        "ratio_p50": 0.8631632328033447,
+        "ratio_p95": 1.3601624965667725,
+        "ratio_max": 3.7043986320495605,
+        "clip_fraction": 0.515625
+      },
+      "fault": {
+        "loss": -0.04674887657165527,
+        "ratio_p50": 0.9421327114105225,
+        "ratio_p95": 1.3610209226608276,
+        "ratio_max": 1.362070083618164,
+        "clip_fraction": 0.6666666865348816
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0003",
+      "generations": [
+        "gen-0-loop-1787364111-0040",
+        "gen-0-loop-1787364111-0043",
+        "gen-0-loop-1787364111-0046",
+        "gen-0-loop-1787364111-0049"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.8458463029489504,
+      "relative_l2": 0.5499970562508221,
+      "control_update_norm": 7.392442819161473,
+      "fault_update_norm": 7.243367566216181,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.007087100297212601,
+        "ratio_p50": 0.8745502829551697,
+        "ratio_p95": 1.0794202089309692,
+        "ratio_max": 16.383831024169922,
+        "clip_fraction": 0.49609375
+      },
+      "fault": {
+        "loss": -0.006940077990293503,
+        "ratio_p50": 0.8592017889022827,
+        "ratio_p95": 1.0612819194793701,
+        "ratio_max": 26.81381607055664,
+        "clip_fraction": 0.4921875
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0003",
+      "generations": [
+        "gen-0-loop-1787364111-0040",
+        "gen-0-loop-1787364111-0043",
+        "gen-0-loop-1787364111-0046",
+        "gen-0-loop-1787364111-0049"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.5376046947387126,
+      "relative_l2": 1.0914286261751065,
+      "control_update_norm": 7.392442819161473,
+      "fault_update_norm": 9.097101521243406,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.007087100297212601,
+        "ratio_p50": 0.8745502829551697,
+        "ratio_p95": 1.0794202089309692,
+        "ratio_max": 16.383831024169922,
+        "clip_fraction": 0.49609375
+      },
+      "fault": {
+        "loss": 0.0012892093509435654,
+        "ratio_p50": 0.8608436584472656,
+        "ratio_p95": 1.0679717063903809,
+        "ratio_max": 4.079371452331543,
+        "clip_fraction": 0.48828125
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0003",
+      "generations": [
+        "gen-0-loop-1787364111-0040",
+        "gen-0-loop-1787364111-0043",
+        "gen-0-loop-1787364111-0046",
+        "gen-0-loop-1787364111-0049"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.04444846658983629,
+      "relative_l2": 3.2004605695067196,
+      "control_update_norm": 7.392442819161473,
+      "fault_update_norm": 22.80564954125414,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.007087100297212601,
+        "ratio_p50": 0.8745502829551697,
+        "ratio_p95": 1.0794202089309692,
+        "ratio_max": 16.383831024169922,
+        "clip_fraction": 0.49609375
+      },
+      "fault": {
+        "loss": -0.0727216824889183,
+        "ratio_p50": 0.22880926728248596,
+        "ratio_p95": 8.210132598876953,
+        "ratio_max": 16.383831024169922,
+        "clip_fraction": 1.0
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0004",
+      "generations": [
+        "gen-0-loop-1787364111-0052",
+        "gen-0-loop-1787364111-0055",
+        "gen-0-loop-1787364111-0058",
+        "gen-0-loop-1787364111-0061"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9766098954186914,
+      "relative_l2": 0.21833467091711334,
+      "control_update_norm": 9.726450062945199,
+      "fault_update_norm": 9.86764480554203,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.03739004582166672,
+        "ratio_p50": 0.675839900970459,
+        "ratio_p95": 1.5765386819839478,
+        "ratio_max": 26.259197235107422,
+        "clip_fraction": 0.61328125
+      },
+      "fault": {
+        "loss": 0.041225582361221313,
+        "ratio_p50": 0.6780110597610474,
+        "ratio_p95": 1.5303775072097778,
+        "ratio_max": 162.28036499023438,
+        "clip_fraction": 0.6171875
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0004",
+      "generations": [
+        "gen-0-loop-1787364111-0052",
+        "gen-0-loop-1787364111-0055",
+        "gen-0-loop-1787364111-0058",
+        "gen-0-loop-1787364111-0061"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.47333613315902223,
+      "relative_l2": 0.9487046103349712,
+      "control_update_norm": 9.726450062945199,
+      "fault_update_norm": 8.030125429400819,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.03739004582166672,
+        "ratio_p50": 0.675839900970459,
+        "ratio_p95": 1.5765386819839478,
+        "ratio_max": 26.259197235107422,
+        "clip_fraction": 0.61328125
+      },
+      "fault": {
+        "loss": 0.022304492071270943,
+        "ratio_p50": 0.6205353736877441,
+        "ratio_p95": 1.5612514019012451,
+        "ratio_max": 913.5242309570312,
+        "clip_fraction": 0.63671875
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0004",
+      "generations": [
+        "gen-0-loop-1787364111-0052",
+        "gen-0-loop-1787364111-0055",
+        "gen-0-loop-1787364111-0058",
+        "gen-0-loop-1787364111-0061"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.254877548763951,
+      "relative_l2": 6.0858027540902295,
+      "control_update_norm": 9.726450062945199,
+      "fault_update_norm": 60.92033630204957,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.03739004582166672,
+        "ratio_p50": 0.675839900970459,
+        "ratio_p95": 1.5765386819839478,
+        "ratio_max": 26.259197235107422,
+        "clip_fraction": 0.61328125
+      },
+      "fault": {
+        "loss": 0.14685624837875366,
+        "ratio_p50": 0.5694791674613953,
+        "ratio_p95": 3.3877511024475098,
+        "ratio_max": 5.625089168548584,
+        "clip_fraction": 0.75
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0005",
+      "generations": [
+        "gen-0-loop-1787364111-0064",
+        "gen-0-loop-1787364111-0067",
+        "gen-0-loop-1787364111-0070",
+        "gen-0-loop-1787364111-0073"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9189025137738984,
+      "relative_l2": 0.3944981643350312,
+      "control_update_norm": 9.178077845541122,
+      "fault_update_norm": 8.46368482508005,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.002876579761505127,
+        "ratio_p50": 0.7536411285400391,
+        "ratio_p95": 1.101028323173523,
+        "ratio_max": 5.051665306091309,
+        "clip_fraction": 0.56640625
+      },
+      "fault": {
+        "loss": 0.0011312421411275864,
+        "ratio_p50": 0.7585530877113342,
+        "ratio_p95": 1.151896595954895,
+        "ratio_max": 6.680976390838623,
+        "clip_fraction": 0.56640625
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0005",
+      "generations": [
+        "gen-0-loop-1787364111-0064",
+        "gen-0-loop-1787364111-0067",
+        "gen-0-loop-1787364111-0070",
+        "gen-0-loop-1787364111-0073"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.6018733462490005,
+      "relative_l2": 0.8392906777953635,
+      "control_update_norm": 9.178077845541122,
+      "fault_update_norm": 7.893697962441991,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.002876579761505127,
+        "ratio_p50": 0.7536411285400391,
+        "ratio_p95": 1.101028323173523,
+        "ratio_max": 5.051665306091309,
+        "clip_fraction": 0.56640625
+      },
+      "fault": {
+        "loss": -0.00400648545473814,
+        "ratio_p50": 0.6155900955200195,
+        "ratio_p95": 1.1453254222869873,
+        "ratio_max": 121.00590515136719,
+        "clip_fraction": 0.62109375
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0005",
+      "generations": [
+        "gen-0-loop-1787364111-0064",
+        "gen-0-loop-1787364111-0067",
+        "gen-0-loop-1787364111-0070",
+        "gen-0-loop-1787364111-0073"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.2641651517764584,
+      "relative_l2": 3.647069828606302,
+      "control_update_norm": 9.178077845541122,
+      "fault_update_norm": 34.70593218096065,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.002876579761505127,
+        "ratio_p50": 0.7536411285400391,
+        "ratio_p95": 1.101028323173523,
+        "ratio_max": 5.051665306091309,
+        "clip_fraction": 0.56640625
+      },
+      "fault": {
+        "loss": -0.08860021829605103,
+        "ratio_p50": 0.6311120986938477,
+        "ratio_p95": 1.259790301322937,
+        "ratio_max": 1.3415868282318115,
+        "clip_fraction": 0.6666666865348816
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0006",
+      "generations": [
+        "gen-0-loop-1787364111-0076",
+        "gen-0-loop-1787364111-0079",
+        "gen-0-loop-1787364111-0082",
+        "gen-0-loop-1787364111-0085"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9930638124602119,
+      "relative_l2": 0.1233839273949102,
+      "control_update_norm": 4.6857590327502034,
+      "fault_update_norm": 4.828540767775952,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.007234531454741955,
+        "ratio_p50": 0.9160627126693726,
+        "ratio_p95": 1.1726324558258057,
+        "ratio_max": 59.92143249511719,
+        "clip_fraction": 0.45703125
+      },
+      "fault": {
+        "loss": 0.006921331398189068,
+        "ratio_p50": 0.9353958368301392,
+        "ratio_p95": 1.1496241092681885,
+        "ratio_max": 209.8571319580078,
+        "clip_fraction": 0.45703125
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0006",
+      "generations": [
+        "gen-0-loop-1787364111-0076",
+        "gen-0-loop-1787364111-0079",
+        "gen-0-loop-1787364111-0082",
+        "gen-0-loop-1787364111-0085"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.6206858495029609,
+      "relative_l2": 0.9728565011545465,
+      "control_update_norm": 4.6857590327502034,
+      "fault_update_norm": 5.607075210919219,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.007234531454741955,
+        "ratio_p50": 0.9160627126693726,
+        "ratio_p95": 1.1726324558258057,
+        "ratio_max": 59.92143249511719,
+        "clip_fraction": 0.45703125
+      },
+      "fault": {
+        "loss": 0.0018258746713399887,
+        "ratio_p50": 0.8996052742004395,
+        "ratio_p95": 1.2029931545257568,
+        "ratio_max": 50.71732711791992,
+        "clip_fraction": 0.48828125
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0006",
+      "generations": [
+        "gen-0-loop-1787364111-0076",
+        "gen-0-loop-1787364111-0079",
+        "gen-0-loop-1787364111-0082",
+        "gen-0-loop-1787364111-0085"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.4304962163936129,
+      "relative_l2": 7.088624399823691,
+      "control_update_norm": 4.6857590327502034,
+      "fault_update_norm": 34.962427429720314,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": 0.007234531454741955,
+        "ratio_p50": 0.9160627126693726,
+        "ratio_p95": 1.1726324558258057,
+        "ratio_max": 59.92143249511719,
+        "clip_fraction": 0.45703125
+      },
+      "fault": {
+        "loss": 0.06064348295331001,
+        "ratio_p50": 0.6217788457870483,
+        "ratio_p95": 1.6795504093170166,
+        "ratio_max": 2.563730239868164,
+        "clip_fraction": 0.8333333730697632
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f2_misbound",
+      "prompt": "countdown-0007",
+      "generations": [
+        "gen-0-loop-1787364111-0088",
+        "gen-0-loop-1787364111-0091",
+        "gen-0-loop-1787364111-0094",
+        "gen-0-loop-1787364111-0097"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.9071013639601249,
+      "relative_l2": 0.42209379003897607,
+      "control_update_norm": 7.523904029815912,
+      "fault_update_norm": 7.062400223789585,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.07031485438346863,
+        "ratio_p50": 0.856648862361908,
+        "ratio_p95": 1.2564586400985718,
+        "ratio_max": 109.05232238769531,
+        "clip_fraction": 0.53515625
+      },
+      "fault": {
+        "loss": -0.06924334913492203,
+        "ratio_p50": 0.8668630719184875,
+        "ratio_p95": 1.2442179918289185,
+        "ratio_max": 100.9055404663086,
+        "clip_fraction": 0.5234375
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f3_retokenized",
+      "prompt": "countdown-0007",
+      "generations": [
+        "gen-0-loop-1787364111-0088",
+        "gen-0-loop-1787364111-0091",
+        "gen-0-loop-1787364111-0094",
+        "gen-0-loop-1787364111-0097"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.5852096449592279,
+      "relative_l2": 0.8629699762530819,
+      "control_update_norm": 7.523904029815912,
+      "fault_update_norm": 6.624684298156815,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.07031485438346863,
+        "ratio_p50": 0.856648862361908,
+        "ratio_p95": 1.2564586400985718,
+        "ratio_max": 109.05232238769531,
+        "clip_fraction": 0.53515625
+      },
+      "fault": {
+        "loss": -0.06686083972454071,
+        "ratio_p50": 0.8922648429870605,
+        "ratio_p95": 1.56329345703125,
+        "ratio_max": 154.33534240722656,
+        "clip_fraction": 0.546875
+      },
+      "norm_near_zero": false
+    },
+    {
+      "fault_kind": "f4_mask_shift",
+      "prompt": "countdown-0007",
+      "generations": [
+        "gen-0-loop-1787364111-0088",
+        "gen-0-loop-1787364111-0091",
+        "gen-0-loop-1787364111-0094",
+        "gen-0-loop-1787364111-0097"
+      ],
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "gradient_cosine": 0.28301907944816157,
+      "relative_l2": 5.91904766136632,
+      "control_update_norm": 7.523904029815912,
+      "fault_update_norm": 46.07520767242232,
+      "selected_prompt_tokens": 0,
+      "selected_padding_tokens": 0,
+      "control": {
+        "loss": -0.07031485438346863,
+        "ratio_p50": 0.856648862361908,
+        "ratio_p95": 1.2564586400985718,
+        "ratio_max": 109.05232238769531,
+        "clip_fraction": 0.53515625
+      },
+      "fault": {
+        "loss": 0.024210333824157715,
+        "ratio_p50": 0.5865371227264404,
+        "ratio_p95": 0.9725471138954163,
+        "ratio_max": 0.9866083860397339,
+        "clip_fraction": 0.6666666865348816
+      },
+      "norm_near_zero": false
+    }
+  ]
+}

@@ -131,6 +131,20 @@ injected into EVERY generation —
 | normal set | 32/32 ALLOW |
 | validator | 0.59 ms/envelope mean (0.55-0.98, n=32) |
 
+**Full paired gradient replay** (`artifacts/v0.1.0/replay_all/gradient_replay.json`):
+ALL 8 prompt groups × F2/F3/F4 = **24 pairs** (real model, v1 weights +
+deterministic drift seed 7 σ=0.005).  Gradient-cosine distribution:
+
+| family | n | cos mean | cos min | cos max |
+|---|---|---|---|---|
+| F2 misbound logprobs | 8 | 0.927 | 0.786 | 0.998 |
+| F3 re-encoded tokens | 8 | 0.532 | 0.250 | 0.634 |
+| F4 mask shift | 8 | 0.192 | **−0.029** | 0.431 |
+
+overall relative L2 mean 1.78 (0.08-7.09).  The distributions quantify what
+values cannot show: value-close misbound logprobs barely move gradients
+(cos ≈ 0.93) while token/mask faults shift or flip the update direction.
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
