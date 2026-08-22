@@ -2,7 +2,7 @@
   "matrix_id": "f1_f4_v01",
   "protocol": "strict_on_policy",
   "source": {
-    "loop_dir": "artifacts\\v0.1.0\\loop",
+    "loop_dir": "artifacts/v0.1.0/loop",
     "generations_used": [
       "gen-0-loop-1787364111-0004",
       "gen-0-loop-1787364111-0007",

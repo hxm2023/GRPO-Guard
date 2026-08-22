@@ -82,7 +82,11 @@ Evidence: `artifacts/v0.1.0/replay/gradient_replay.json`, `overhead.json`.
 **Paired gradient replay** (real 4B model, v1 weights + deterministic drift
 seed=7 σ=0.005 — the smallest bf16-meaningful drift that keeps a sane
 on-policy loss regime; real prompt group of 4 v0 trajectories with real
-rewards [0,0,0,1]):
+rewards [0,0,0,1]; one value flipped in degenerate all-equal groups,
+disclosed in day4_summary.json).  The replay ran against the FIRST loop
+run (loop-1787355683); its inputs are preserved in git history (commit
+31c3c39), while the published `loop/` is the FINAL run (loop-1787364111)
+with identical gate results.
 
 | pair | gradient cosine | relative L2 | control norm | fault norm | loss_c | loss_f |
 |---|---|---|---|---|---|---|
@@ -120,8 +124,8 @@ pattern (trainer loss/KL looked fine under a static rollout).
 2.36 ± 0.34 ms per batch → 40.4 ms/batch (~5.1 ms per envelope); all raw
 values in `overhead.json`.
 
-**Stage timings** (`stage_timings.json`, from event timestamps): sync
-events span 53 s, rollout events 52 s, validation 16 s, reward 16 s (Day 2
-loop).  Note: the loop's first run did NOT emit an `update_committed` event
-(gap found in review); the loop now emits it (rerun for the Day 5 release
-evidence).
+**Stage timings** (`stage_timings.json`, from event timestamps of the FINAL
+loop): sync 53.4 s, rollout 53.1 s, validation 16.4 s, reward 16.1 s,
+update_committed event present.  (The first loop run lacked the
+`update_committed` event — gap found in review, fixed; the published
+`loop/` is the rerun.)

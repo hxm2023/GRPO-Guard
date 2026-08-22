@@ -110,7 +110,7 @@ PY
 | Day 1 Compatibility | TRL+vLLM server-mode smoke green; 1 committed step; **398 observed weight-sync calls** | `smoke/`, `compatibility_profile.yaml` |
 | Day 2 Closed loop | v0 rollout → identity ALLOW 32/32 → pre-update ALLOW 32/32 → real update → sync → canary v1 pass → v1 rollout validated | `loop/` |
 | Day 3 Correctness | canonical F1–F4 **4/4 reject** (pre-registered codes); 12/12 variants; normal **32/32 ALLOW** (0 false reject); boundary 4/4; stale acceptance 0 | `fault_matrix.json` |
-| Day 4 Impact/Overhead | paired gradients: F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model); guard overhead 48.9 ms/batch (3 repeats); F1 update norm 0.0 measured | `replay/`, `overhead.json`, `day4_summary.json` |
+| Day 4 Impact/Overhead | paired gradients: F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model); guard overhead 40.4 ms/batch (3 repeats); F1 update norm 0.0 measured | `replay/`, `overhead.json`, `day4_summary.json` |
 
 ## Limitations (design doc §21)
 
