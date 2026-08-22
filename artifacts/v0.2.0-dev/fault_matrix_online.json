@@ -1,0 +1,43 @@
+{
+  "run_id": "online-1787372613",
+  "scope": "F5-F8 online (v0.2-preview)",
+  "source": "autodl2 vLLM server",
+  "results": [
+    {
+      "case_id": "f5_split_leakage",
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ]
+    },
+    {
+      "case_id": "f6_evaluator_alias",
+      "decision": "quarantine",
+      "reason_codes": [
+        "P003_MISSING_SYNC_EVENT",
+        "R006_EVALUATOR_ALIAS"
+      ]
+    },
+    {
+      "case_id": "f7_event_reorder",
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f8_artifact_mutation",
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ]
+    }
+  ],
+  "summary": {
+    "matched": 4,
+    "total": 4
+  }
+}

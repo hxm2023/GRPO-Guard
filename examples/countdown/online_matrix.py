@@ -248,7 +248,24 @@ def main() -> int:
         split_held = {"split_id": "split-held_out", "split_name": "held_out",
                       "prompt_ids": [prompts[0]["prompt_id"]]}
 
-        sync_ref = EventRef(uri="", event_id="sync-canary", event_sha256="0" * 64)
+        # a REAL canary_passed sync event (P003 requires a terminal-success
+        # sync referenced by every generation)
+        from grpo_guard.schema.events import SyncEvent
+
+        canary = SyncEvent(
+            event_id="sync-online-canary", event_type="canary_passed",
+            run_id=run_id, component_id="trl_control", lifecycle_seq=next_lifecycle(),
+            created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            sync_id="sync-online", attempt=1, lease_epoch=epoch,
+            idempotency_key=f"{run_id}:0:rollout-gpu1",
+            source_policy_version=0, source_checkpoint_manifest_sha256=ckpt_sha,
+            target_runtime_id="rollout-gpu1", observed_runtime_load_epoch=1,
+            observed_policy_version=0, upstream_adapter_id="trl-vllm-server",
+            upstream_operation="update_named_param",
+            compatibility_profile_sha256="online", status_detail="online matrix canary",
+        ).seal()
+        log_.append(canary, required_epoch=epoch)
+        sync_ref = EventRef(uri="", event_id=canary.event_id, event_sha256=canary.event_sha256)
         gens = []
         for p in prompts[:4]:
             for g in range(2):
