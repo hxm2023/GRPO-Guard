@@ -19,28 +19,35 @@ def _cmd_contract_check(args) -> int:
 
 def _cmd_freeze_cases(args) -> int:
     from grpo_guard.frozen import write_case
-    from grpo_guard.matrix import FAULTS
     from grpo_guard import testing
 
     cfg = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
     root = Path(args.out)
     root.mkdir(parents=True, exist_ok=True)
     written = []
+    from grpo_guard.day3 import INJECTORS
+
     for case in cfg["cases"]:
-        injector = FAULTS[case["fault"]]
+        injector = INJECTORS[case["fault"]]
         for variant in case["variants"]:
             t = testing.build_trajectory(policy_version=0)
             ft = injector(t, variant)
+            expected = variant.get("expected_decision", case["expected_decision"])
             required = variant.get("required_reason_codes", case["required_reason_codes"])
             path = write_case(
                 root, f"{case['id']}_{variant['name']}",
-                case["expected_decision"], required, ft,
+                expected, required, ft,
                 notes=json.dumps(variant),
             )
             written.append(str(path))
     for i in range(cfg["normal_cases"]["count"]):
         t = testing.build_trajectory(policy_version=0, run_id=f"run-normal-{i}")
         path = write_case(root, f"normal_{i}", "allow", [], t, notes="normal neighbor")
+        written.append(str(path))
+    for spec in cfg.get("boundary_cases", []):
+        t = testing.build_trajectory(policy_version=0, run_id=f"run-{spec['id']}", **spec.get("kwargs", {}))
+        path = write_case(root, spec["id"], spec["expected_decision"], spec.get("required_reason_codes", []), t,
+                          notes="boundary")
         written.append(str(path))
     print(f"froze {len(written)} cases under {root}")
     return 0
@@ -73,6 +80,19 @@ def _cmd_replay(args) -> int:
     manifest = run_replay(Path(args.manifest))
     print(json.dumps(manifest, indent=2))
     return 0
+
+
+def _cmd_day3(args) -> int:
+    from grpo_guard.day3 import run_day3_matrix
+
+    matrix = run_day3_matrix(Path(args.loop_dir), Path(args.config), Path(args.out))
+    s = matrix["summary"]
+    print(f"day3 matrix: canonical {s['canonical_matched']}/{s['canonical_total']}; "
+          f"normal allow {s['normal_allow']}/{s['normal_total']} "
+          f"(q={s['normal_quarantine']}, r={s['normal_reject']}); "
+          f"boundary {s['boundary_matched']}/{s['boundary_total']}")
+    print(f"GATE: {'PASS' if s['gate_pass'] else 'FAIL'}")
+    return 0 if s["gate_pass"] else 1
 
 
 def _cmd_report(args) -> int:
@@ -121,6 +141,12 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("replay", help="deterministic paired gradient replay (Day 4)")
     p.add_argument("--manifest", required=True, help="run manifest json")
     p.set_defaults(fn=_cmd_replay)
+
+    p = sub.add_parser("day3-matrix", help="F1-F4 matrix over real loop artifacts (Correctness Gate)")
+    p.add_argument("--loop-dir", required=True, help="Day 2 loop evidence dir")
+    p.add_argument("--config", default="configs/faults/f1_f4_v01.yaml")
+    p.add_argument("--out", default="artifacts/v0.1.0")
+    p.set_defaults(fn=_cmd_day3)
 
     p = sub.add_parser("report", help="build run_manifest.json + REPORT.md + SHA256SUMS")
     p.add_argument("--artifact-dir", default="artifacts/v0.1.0")

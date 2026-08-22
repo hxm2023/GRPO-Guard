@@ -70,24 +70,40 @@ class ValidatedBatchHandle:
 
 
 class GuardedUpdateAdapter:
-    """Update adapter whose ONLY input is a ValidatedBatchHandle."""
+    """Update adapter whose ONLY input is a ValidatedBatchHandle.
 
-    def __init__(self, store: ArtifactStore):
+    Fail-closed preconditions:
+    1. the handle is a ValidatedBatchHandle (no text fallback);
+    2. the referenced pre-update validation decision is ALLOW (verified via
+       the decision verifier — the adapter cannot confirm ALLOW without it,
+       so the verifier is REQUIRED and absence is a hard error);
+    3. the nonce was never consumed before (in-process registry raises
+       NonceReuseError — reuse must fail BEFORE the optimizer);
+    4. the update event says the tokenizer was never called;
+    5. the referenced artifacts still match their content hashes.
+    """
+
+    def __init__(self, store: ArtifactStore, decision_verifier=None):
         self._store = store
+        self._decision_verifier = decision_verifier
+        self._consumed_nonces: set[str] = set()
 
     def update(self, handle: ValidatedBatchHandle) -> None:
-        """Execute one optimizer step from the handle's sealed event.
-
-        Fail-closed checks, in order:
-        1. handle not consumed yet (consume() raises otherwise);
-        2. update event says tokenizer was never called;
-        3. authoritative logprob event matches the sealed event ref.
-        """
+        """Execute one optimizer step from the handle's sealed event."""
         if not isinstance(handle, ValidatedBatchHandle):
             raise TypeError("guarded update only accepts ValidatedBatchHandle (no text fallback)")
         ev = handle.input_event
+        if self._decision_verifier is None:
+            raise RuntimeError("guarded update requires a decision verifier (ALLOW precondition)")
+        if not self._decision_verifier(ev.preupdate_validation_decision):
+            raise RuntimeError(
+                f"update input {ev.event_id} references a validation decision that is not ALLOW"
+            )
+        if ev.single_use_nonce_sha256 in self._consumed_nonces:
+            raise NonceReuseError(f"nonce {ev.single_use_nonce_sha256[:12]} already consumed")
         if ev.tokenizer_called:
             raise RuntimeError("tokenizer was called during materialization — refusing update")
+        self._consumed_nonces.add(ev.single_use_nonce_sha256)
         batch = handle.consume()
         self._verify_artifacts(ev, batch)
 

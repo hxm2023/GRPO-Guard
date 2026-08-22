@@ -44,20 +44,52 @@ def test_handle_single_use():
         handle.consume()
 
 
+def _allow_verifier(ref):
+    return ref is not None and ref.event_id == "vdec-x" or getattr(ref, "event_id", "").startswith("vdec-")
+
+
 def test_update_rejects_text_input():
     t = testing.build_trajectory()
-    adapter = GuardedUpdateAdapter(t.store)
+    adapter = GuardedUpdateAdapter(t.store, decision_verifier=_allow_verifier)
     with pytest.raises(TypeError):
         adapter.update("prompt+completion text")  # no text fallback
+
+
+def test_update_requires_decision_verifier():
+    t = testing.build_trajectory()
+    handle = _handle(t)
+    adapter = GuardedUpdateAdapter(t.store)  # no verifier -> fail closed
+    with pytest.raises(RuntimeError):
+        adapter.update(handle)
+
+
+def test_update_rejects_non_allow_decision():
+    t = testing.build_trajectory()
+    handle = _handle(t)
+    adapter = GuardedUpdateAdapter(t.store, decision_verifier=lambda ref: False)
+    with pytest.raises(RuntimeError):
+        adapter.update(handle)
 
 
 def test_update_consumes_handle_once():
     t = testing.build_trajectory()
     handle = _handle(t)
-    adapter = GuardedUpdateAdapter(t.store)
+    adapter = GuardedUpdateAdapter(t.store, decision_verifier=_allow_verifier)
     adapter.update(handle)
-    with pytest.raises(HandleConsumedError):
+    # the nonce registry fires before the handle-consume check: reuse must
+    # fail BEFORE the optimizer (design doc §7.3.3)
+    with pytest.raises(NonceReuseError):
         adapter.update(handle)
+
+
+def test_nonce_reuse_rejected():
+    t = testing.build_trajectory()
+    adapter = GuardedUpdateAdapter(t.store, decision_verifier=_allow_verifier)
+    h1 = _handle(t, nonce="nonce-dup")
+    h2 = _handle(t, nonce="nonce-dup")  # same nonce, different event
+    adapter.update(h1)
+    with pytest.raises(NonceReuseError):
+        adapter.update(h2)
 
 
 def test_update_fails_closed_on_tokenizer_call():
@@ -86,7 +118,7 @@ def test_update_fails_closed_on_tokenizer_call():
         layout_sha256="0" * 64,
     )
     handle = ValidatedBatchHandle(ev, batch)
-    adapter = GuardedUpdateAdapter(t.store)
+    adapter = GuardedUpdateAdapter(t.store, decision_verifier=_allow_verifier)
     with pytest.raises(RuntimeError):
         adapter.update(handle)
 

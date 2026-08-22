@@ -442,7 +442,11 @@ def main() -> int:
         log(f"pre-update ALLOW on {len(handles)} envelopes; handles materialized")
 
         # ---- guarded update: one real optimizer step ------------------------
-        adapter = GuardedUpdateAdapter(store)
+        def decision_is_allow(ref):
+            ev = all_events().get(ref.event_id)
+            return ev is not None and getattr(getattr(ev, "decision_payload", None), "decision", None) == "allow"
+
+        adapter = GuardedUpdateAdapter(store, decision_verifier=decision_is_allow)
         optimizer.zero_grad()
         loss_res = grpo_loss(model, handles, group_size=N_GENS)
         loss_res.loss.backward()
@@ -472,7 +476,8 @@ def main() -> int:
         res = client.generate([p["text"]], n=2, temperature=1.0, top_p=1.0,
                                              top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
         pid, cid, lps, _ = _unpack_gen(res)
-        for g in range(len(pid)):
+        v1_count = len(pid)
+        for g in range(v1_count):
             gen1 = runtime.emit_generation(
                 pid[g], cid[g], [lp[0] for lp in lps[g]] if lps else None,
                 behavior_policy_version=1, checkpoint_manifest_sha256=ckpt_v1["checkpoint_manifest_sha256"],
@@ -496,7 +501,7 @@ def main() -> int:
             "run_id": run_id,
             "closed_loop": {
                 "v0_rollout_sequences": len(identity_events),
-                "v1_rollout_sequences": 2,
+                "v1_rollout_sequences": len(pid),
                 "identity_allowed": len(identity_events),
                 "pre_update_allowed": len(handles),
                 "committed_optimizer_steps": 1,

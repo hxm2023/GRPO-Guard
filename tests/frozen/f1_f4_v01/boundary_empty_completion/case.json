@@ -1,0 +1,1 @@
+{"case_id":"boundary_empty_completion","envelope_id":"env-0-10-pre_reward","expected_decision":"quarantine","generation_event_id":"gen-0-10","notes":"boundary","required_reason_codes":["M005_EMPTY_COMPLETION"],"run_id":"run-boundary_empty_completion"}

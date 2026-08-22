@@ -12,8 +12,8 @@ from pathlib import Path
 import yaml
 
 from grpo_guard import testing
-from grpo_guard.frozen import FAULTS, write_case
-from grpo_guard.schema.decisions import PRE_UPDATE_STAGE_RULES
+from grpo_guard.day3 import INJECTORS
+from grpo_guard.frozen import write_case
 from grpo_guard.validators.context import ProtocolConfig, ValidationContext
 from grpo_guard.validators.validator import validate_envelope
 
@@ -37,21 +37,22 @@ def run_fault_matrix(
     total = 0
 
     for case in cfg["cases"]:
-        injector = FAULTS[case["fault"]]
+        injector = INJECTORS[case["fault"]]
         for variant in case["variants"]:
             t = testing.build_trajectory(policy_version=0)
             ft = injector(t, variant)
             decision, stage = _validate_with_stage(ft, protocol)
+            expected = variant.get("expected_decision", case["expected_decision"])
             required = variant.get("required_reason_codes", case["required_reason_codes"])
             match = (
-                decision.decision == case["expected_decision"]
+                decision.decision == expected
                 and set(required).issubset(set(decision.reason_codes))
             )
             total += 1
             passes += 1 if match else 0
             results.append({
                 "case_id": f"{case['id']}:{variant['name']}",
-                "expected_decision": case["expected_decision"],
+                "expected_decision": expected,
                 "decision": decision.decision,
                 "reason_codes": decision.reason_codes,
                 "required_reason_codes": required,
@@ -61,7 +62,7 @@ def run_fault_matrix(
                 write_case(
                     freeze_dir,
                     f"{case['id']}_{variant['name']}",
-                    case["expected_decision"],
+                    expected,
                     required,
                     ft,
                     notes=json.dumps(variant),
@@ -78,18 +79,15 @@ def run_fault_matrix(
         if freeze_dir is not None:
             write_case(freeze_dir, f"normal_{i}", "allow", [], t, notes="normal neighbor")
 
-    # boundary cases (predefined expectations per design doc §16.2)
-    boundary_specs = [
-        ("boundary_empty_completion", dict(completion_span=[4, 4]), "quarantine", ["M005_EMPTY_COMPLETION"]),
-        ("boundary_left_padding", dict(padding_spans=[[0, 2]]), "allow", []),
-        ("boundary_truncation", dict(truncation_applied=True), "allow", []),
-        ("boundary_dual_source_diagnostic", dict(diagnostic_non_authoritative_allowed=True), "allow", []),
-    ]
+    # boundary cases (pre-registered in the faults config, §16.2)
     boundaries = []
-    for case_id, kwargs, expected, codes in boundary_specs:
-        t = testing.build_trajectory(policy_version=0, run_id=f"run-{case_id}", **kwargs)
+    for spec in cfg.get("boundary_cases", []):
+        case_id = spec["id"]
+        codes = spec.get("required_reason_codes", [])
+        expected = spec["expected_decision"]
+        t = testing.build_trajectory(policy_version=0, run_id=f"run-{case_id}", **spec.get("kwargs", {}))
         decision, _ = _validate_with_stage(t, protocol)
-        match = decision.decision == expected and set(codes).issubset(set(decision.reason_codes)) if codes else decision.decision == expected
+        match = decision.decision == expected and (not codes or set(codes).issubset(set(decision.reason_codes)))
         total += 1
         passes += 1 if match else 0
         boundaries.append({
@@ -115,7 +113,7 @@ def run_fault_matrix(
             "normal_total": len(normals),
             "normal_quarantine_count": sum(1 for n in normals if n["decision"] == "quarantine"),
             "normal_reject_count": sum(1 for n in normals if n["decision"] == "reject"),
-            "strict_stale_acceptance": 0,
+            "strict_stale_acceptance": sum(1 for r in results if r["decision"] == "allow"),
         },
     }
     out_dir.mkdir(parents=True, exist_ok=True)

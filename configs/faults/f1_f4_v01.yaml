@@ -8,7 +8,7 @@ cases:
     variants:
       - {name: canonical, runtime_version: 0, claimed_parent: 1}
       - {name: boundary, runtime_version: 0, claimed_parent: 2}
-      - {name: held_out, runtime_version: 0, claimed_parent: 3}
+      - {name: held_out, kind: stale_sync, expected_decision: quarantine, required_reason_codes: [P003_MISSING_SYNC_EVENT]}
     expected_decision: reject
     required_reason_codes: [P004_STALE_POLICY_STRICT]
 
@@ -17,7 +17,7 @@ cases:
     variants:
       - {name: canonical, scorer_policy_version: 1}
       - {name: boundary, scorer_policy_version: 2}
-      - {name: held_out, scorer_policy_version: 3}
+      - {name: held_out, kind: wrong_generation, expected_decision: quarantine, required_reason_codes: [L006_UNSUPPORTED_PROVENANCE]}
     expected_decision: reject
     required_reason_codes: [L003_SCORER_POLICY_MISMATCH]
 
@@ -35,7 +35,7 @@ cases:
     variants:
       - {name: canonical, shift: 1}
       - {name: boundary, shift: 3}
-      - {name: held_out, shift: 2}
+      - {name: held_out, shift: -1}
     expected_decision: reject
     required_reason_codes: [M004_CANONICAL_MASK_MISMATCH]
 
@@ -44,5 +44,10 @@ normal_cases:
   expected_decision: allow
   allowed_reason_codes_prefix: []
 
+# Pre-registered boundary expectations (design doc §16.2) — evaluated at
+# identity_pre_reward against the same validator.
 boundary_cases:
-  count: 4
+  - {id: boundary_empty_completion, kwargs: {completion_span: [4, 4]}, expected_decision: quarantine, required_reason_codes: [M005_EMPTY_COMPLETION]}
+  - {id: boundary_left_padding, kwargs: {padding_spans: [[0, 2]]}, expected_decision: allow, required_reason_codes: []}
+  - {id: boundary_truncation, kwargs: {truncation_applied: true}, expected_decision: allow, required_reason_codes: []}
+  - {id: boundary_dual_source_diagnostic, kwargs: {diagnostic_non_authoritative_allowed: true}, expected_decision: allow, required_reason_codes: []}

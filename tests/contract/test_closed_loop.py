@@ -79,7 +79,7 @@ def test_full_guarded_loop_commits_new_policy():
         )
         log.append(handle.input_event, required_epoch=epoch)
 
-        adapter = GuardedUpdateAdapter(store)
+        adapter = GuardedUpdateAdapter(store, decision_verifier=lambda ref: ref.event_id == d1.event_id)
         adapter.update(handle)  # one optimizer step (CPU contract: bookkeeping)
 
         # commit v1 and verify the reducer

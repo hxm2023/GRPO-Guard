@@ -7,14 +7,15 @@ from grpo_guard.store.append_log import AppendLog
 
 
 def _adapter(tmp_path):
-    store = testing.ArtifactStoreTmp()
-    with store as s:
-        log = AppendLog(tmp_path / "log", run_id="run-x", lease_id="rt")
-        epoch = log.acquire_lease()
-        rt = VLLMRuntimeAdapter(s, log, "run-x", "rollout-gpu1",
-                                seq_provider=lambda: max([e["lifecycle_seq"] for e in log.iterate()] + [-1]) + 1)
-        sync = EventRef(uri="", event_id="sync-x", event_sha256="0" * 64)
-        return s, log, rt, epoch, sync
+    from grpo_guard.store.artifact_store import ArtifactStore
+
+    store = ArtifactStore(tmp_path / "store")
+    log = AppendLog(tmp_path / "log", run_id="run-x", lease_id="rt")
+    epoch = log.acquire_lease()
+    rt = VLLMRuntimeAdapter(store, log, "run-x", "rollout-gpu1",
+                            seq_provider=lambda: max([e["lifecycle_seq"] for e in log.iterate()] + [-1]) + 1)
+    sync = EventRef(uri="", event_id="sync-x", event_sha256="0" * 64)
+    return store, log, rt, epoch, sync
 
 
 def test_emit_generation_shapes_and_seqs(tmp_path):

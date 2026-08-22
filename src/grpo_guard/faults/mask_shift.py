@@ -63,11 +63,13 @@ def inject_f4_mask_shift(
 
     from grpo_guard.schema.artifacts import EventRef
 
+    new_ref = EventRef(uri=f"event://{new_gen.event_id}", event_id=new_gen.event_id, event_sha256=new_gen.event_sha256)
     env = t.envelope.model_copy(deep=True).model_copy(
         update={
             "envelope_id": f"{t.envelope.envelope_id}-f4",
-            "generation_event": EventRef(
-                uri=f"event://{new_gen.event_id}", event_id=new_gen.event_id, event_sha256=new_gen.event_sha256
+            "generation_event": new_ref,
+            "training_contract": t.envelope.training_contract.model_copy(
+                update={"authoritative_behavior_logprob_event": new_ref}
             ),
         }
     )
