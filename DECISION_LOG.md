@@ -153,3 +153,16 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if the second loop diverges from the first (e.g. canary
   or validation fails), the discrepancy is investigated and disclosed
   before any release claim.
+
+## D11 — Further real-load experiments (2026-08-23, user-directed)
+
+- **Decision**: run a 128-rollout online matrix (32 prompts x 4 gens, the
+  largest real-load batch on the same server setup) and a canary stress
+  check (more prompts + longer greedy sketches), staying within the 80
+  GPU·h cap (~17 h remain).  Extends D9's batch methodology; all
+  pre-registered expectations unchanged.
+- **Evidence**: machine-readable JSON with run_id, committed under
+  artifacts/; honest reporting (every generation reported).
+- **Falsification**: if the 128-rollout results diverge from the 64-rollout
+  results (any family stops firing), the claim is narrowed and the
+  discrepancy investigated before release claims.
