@@ -1,5 +1,5 @@
 {
-  "run_id": "online-1787372613",
+  "run_id": "online-1787372893",
   "scope": "F1-F4 online (real server rollouts)",
   "source": "autodl2 vLLM server",
   "results": [
@@ -36,26 +36,26 @@
   ],
   "normal": [
     {
-      "generation": "gen-0-online-1787372613-0000",
-      "decision": "quarantine"
+      "generation": "gen-0-online-1787372893-0001",
+      "decision": "allow"
     },
     {
-      "generation": "gen-0-online-1787372613-0001",
-      "decision": "quarantine"
+      "generation": "gen-0-online-1787372893-0002",
+      "decision": "allow"
     },
     {
-      "generation": "gen-0-online-1787372613-0002",
-      "decision": "quarantine"
+      "generation": "gen-0-online-1787372893-0003",
+      "decision": "allow"
     },
     {
-      "generation": "gen-0-online-1787372613-0003",
-      "decision": "quarantine"
+      "generation": "gen-0-online-1787372893-0004",
+      "decision": "allow"
     }
   ],
   "summary": {
     "matched": 4,
     "total": 4,
-    "normal_allow": 0,
+    "normal_allow": 4,
     "normal_total": 4
   }
 }

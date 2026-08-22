@@ -1,5 +1,5 @@
 {
-  "run_id": "online-1787372613",
+  "run_id": "online-1787372893",
   "scope": "F5-F8 online (v0.2-preview)",
   "source": "autodl2 vLLM server",
   "results": [
@@ -14,7 +14,6 @@
       "case_id": "f6_evaluator_alias",
       "decision": "quarantine",
       "reason_codes": [
-        "P003_MISSING_SYNC_EVENT",
         "R006_EVALUATOR_ALIAS"
       ]
     },

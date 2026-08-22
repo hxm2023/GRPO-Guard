@@ -74,6 +74,33 @@ v0.2 matrix over the REAL loop artifacts: **4/4 matched**, normal 4/4 allow.
 Explicitly v0.2-preview per design doc §11 — NOT part of the v0.1 matrix;
 no GPU budget spent.
 
+## Online matrix + release reproducibility (2026-08-22, autodl2)
+
+**F1-F8 online matrix** (`artifacts/v0.1.0/online/fault_matrix_online.json`,
+`artifacts/v0.2.0-dev/fault_matrix_online.json`): all eight fault families
+injected into GenerationEvents produced by a REAL vLLM server in the same
+run (8 real rollouts); validator decides live:
+
+| family | decision | reason codes |
+|---|---|---|
+| F1 static rollout | reject | P004_STALE_POLICY_STRICT |
+| F2 misbound logprob | reject | L003_SCORER_POLICY_MISMATCH |
+| F3 retokenization | reject | T002_TOKENIZER_MISMATCH |
+| F4 mask shift | reject | M002_PROMPT_SELECTED + M004 |
+| F5 split leakage | reject | D003_SPLIT_OVERLAP |
+| F6 evaluator alias | quarantine | R006_EVALUATOR_ALIAS |
+| F7 event reorder | reject | L005_SCORING_AFTER_UPDATE |
+| F8 artifact mutation | reject | T001_ARTIFACT_HASH_MISMATCH |
+
+normal set (real generations): 4/4 ALLOW.  F5-F8 remain v0.2-preview per
+design doc §11.
+
+**Release reproducibility**: tag `v0.1.0` checked out and the official
+server-mode smoke re-run on autodl2 from that exact commit →
+`artifacts/v0.1.0/smoke_v010/smoke_result.json` (committed_steps=1,
+398 observed sync calls) — COMPATIBILITY GATE SMOKE PASSED on the release
+commit.
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
