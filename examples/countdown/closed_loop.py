@@ -455,6 +455,16 @@ def main() -> int:
 
         # ---- commit v1 + observed sync + canary check -----------------------
         ckpt_v1 = commit_checkpoint(model, 1, OUT_DIR / "ckpt_v1")
+        upd_input_refs = [EventRef(uri="", event_id=h.input_event.event_id, event_sha256=h.input_event.event_sha256)
+                          for h in handles]
+        control.update_committed(
+            update_id="update-1", transaction_id="txn-1", lease_epoch=epoch,
+            parent_policy_version=0, output_policy_version=1,
+            input_envelope_sha256s=[h.input_event.preupdate_envelope.envelope_sha256 for h in handles],
+            checkpoint_manifest_sha256=ckpt_v1["checkpoint_manifest_sha256"],
+            update_input_event=upd_input_refs[0] if upd_input_refs else None,
+            required_epoch=epoch,
+        )
         sync_v1 = control.sync_chain(1, ckpt_v1["checkpoint_manifest_sha256"], epoch, required_epoch=epoch)
         client.init_communicator(device=torch.device("cuda:0"))
         sync_calls = []

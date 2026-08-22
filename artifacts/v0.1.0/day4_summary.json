@@ -1,0 +1,25 @@
+{
+  "f1_update_norm": {
+    "value": 0.0,
+    "method": "||theta_v1 - theta_v0||_2 over all params, computed from the committed safetensors shards (v0: /root/autodl-tmp/models/Qwen3-4B, v1: loop ckpt_v1)",
+    "precision": "fp32 (safetensors float32 shards); gradient ~1e-6-scale from bf16 rounding is below fp32 weight resolution",
+    "reported_at": "2026-08-22"
+  },
+  "replay_state": {
+    "model": "Qwen3-4B v1 weights + deterministic drift seed=7 sigma=0.005 (bf16-representable; ~0.5% of unit weights)",
+    "why": "v0.1 single update moved weights ~0 (loss=0, ratio~1) so the committed checkpoint alone yields zero gradients",
+    "pairs": [
+      "f2_misbound",
+      "f3_retokenized",
+      "f4_mask_shift"
+    ],
+    "rewards": "real correctness rewards from the loop RewardEvents; degenerate all-equal groups get one flipped value (documented)"
+  },
+  "gate_conditions": {
+    "paired_metrics": true,
+    "f1_update_norm_reported": true,
+    "counterexample": "control vs F2-fault loss 1% apart; contract rejects (L003/L007)",
+    "stage_timing": "stage_timings.json",
+    "overhead_3_repeats": true
+  }
+}

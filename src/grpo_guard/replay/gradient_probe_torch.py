@@ -194,8 +194,10 @@ def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4
         raise ValueError(fault_kind)
 
     # §12.4 mask metrics: tokens selected by the (control) completion mask
-    # that fall inside the prompt or padding spans
-    prompt_selected = int((mask[:, :Ps[0]].sum())) if Ps else 0
+    # that fall strictly inside the prompt (positions < P-1) or padding.
+    # mask index j predicts token j+1, so a one at j < P-1 selects a prompt
+    # token (design doc §7.9).
+    prompt_selected = int(mask[:, : Ps[0] - 1].sum()) if Ps else 0
     return {
         "fault_kind": fault_kind,
         "prompt": prompt_id,
@@ -255,7 +257,7 @@ def main() -> int:
     (OUT_PATH / "gradient_replay.json").write_text(json.dumps({
         "source_loop": str(LOOP_DIR),
         "model": MODEL_PATH,
-        "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=0.02)",
+        "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=" + str(_drift.__defaults__[0]) + ")",
         "generation": results[0]["generations"][0] if results else "",
         "pairs": results,
     }, indent=2), encoding="utf-8")

@@ -66,6 +66,13 @@ green. See git history for the fix commits.
   (design doc §5.3, §10).
 - v1 rollout count reflects what the server returned per request
   (`run_manifest.json`).
+- The Day 2 loop's first run did not emit the `update_committed` event
+  (design doc §6.3 lineage gap, found in Day 4 review); fixed in the loop,
+  final run scheduled for the Day 5 release evidence.
+- Paired replay runs at v1 weights + a deterministic drift (seed 7,
+  σ=0.005) because the v0.1 single update moved weights ~0 — the replay
+  state is a documented simulation of a later training state, not a claim
+  about v0/v1 distance (day4_summary.json).
 
 ## Day 4 — Paired replay + overhead + Impact/Overhead Gate (PASSED)
 
@@ -88,21 +95,28 @@ seed=7 σ=0.02, real prompt group of 4 v0 trajectories with real rewards):
   the contract (L003/L007) catches what values cannot; the replay shows
   the limit of value-level detection honestly.
 
-**F1 guard-off accident**: `||θ_v1 − θ_v0|| = 0.0` (computed from the
-committed checkpoints) — the Day 2 update had zero gradient (behavior==
-policy ⇒ ratio≈1), so the stale-trajectory accident would also produce a
-0.0 update norm. Reported as measured; no fabricated cosine.
+**F1 guard-off accident**: `||θ_v1 − θ_v0|| = 0.0` measured from the
+committed checkpoint shards at fp32 precision (method + precision caveat in
+`day4_summary.json`). The Day 2 update's gradient was ~1e-6-scale (bf16
+rounding made ratio ≠ 1 on ~2.2% of tokens, cf. manifest ratio_max 2.434 /
+clip 2.2%), which is below fp32 weight resolution — the committed weights
+are identical at fp32. The stale-trajectory accident consumes the same
+tensors, so its update norm is the same 0.0; reported as measured, no
+fabricated cosine.
 
 **Counterexample (loss looks normal, contract fails)**: control loss
-6.9e-7 vs F4-fault loss 5.5e-9 and F2-fault 6.9e-7 — loss/ratio metrics are
-indistinguishable, while the contract rejects the faulted envelopes with
-M004/L003. This is the exact legacy pattern (trainer loss/KL looked fine
-under a static rollout).
+6.9e-7 vs F2-fault loss 6.9e-7 (1% apart, ratio p50 both ≈ 1) — loss/ratio
+metrics are indistinguishable while the contract rejects the misbound
+envelope with L003/L007. Same for F4: the masked loss (5.5e-9) is still a
+"normal-looking" tiny number while M002/M004 fire. This is the exact legacy
+pattern (trainer loss/KL looked fine under a static rollout).
 
 **Overhead** (fixed workload: 8 real envelopes, 3 repeats, raw + mean ±
-stdev): guard-on 51.6 ± 0.2 ms vs guard-off 2.8 ± 0.3 ms per batch →
-48.9 ms/batch (~6.1 ms per envelope), all three repeats reported in
-`overhead.json`.
+stdev): guard-on 51.6 ± 0.2 ms vs guard-off 2.75 ± 0.5 ms per batch →
+48.9 ms/batch (~6.1 ms per envelope); all raw values in `overhead.json`.
 
-**Stage timings** (from event timestamps): sync 53 s, rollout 52 s,
-validation 16 s, reward 16 s, update+commit ~40 s (Day 2 loop).
+**Stage timings** (`stage_timings.json`, from event timestamps): sync
+events span 53 s, rollout events 52 s, validation 16 s, reward 16 s (Day 2
+loop).  Note: the loop's first run did NOT emit an `update_committed` event
+(gap found in review); the loop now emits it (rerun for the Day 5 release
+evidence).

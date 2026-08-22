@@ -19,23 +19,25 @@
         0.0,
         1.0
       ],
-      "gradient_cosine": 0.9990379951640643,
-      "relative_l2": 0.04389459009706883,
-      "control_update_norm": 0.022334053241631704,
-      "fault_update_norm": 0.02235524182390104,
+      "gradient_cosine": 0.9891906611853808,
+      "relative_l2": 0.1476239357188761,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 6.959430264797356,
+      "selected_prompt_tokens": 4,
+      "selected_padding_tokens": 0,
       "control": {
-        "loss": 6.952599278520211e-07,
-        "ratio_p50": 1.3523449027275092e-09,
-        "ratio_p95": 2.1254413695714902e-06,
-        "ratio_max": 0.00015295701450668275,
-        "clip_fraction": 1.0
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
       },
       "fault": {
-        "loss": 6.883738024043851e-07,
-        "ratio_p50": 1.3523449027275092e-09,
-        "ratio_p95": 2.0361740098451264e-06,
-        "ratio_max": 0.00015295672346837819,
-        "clip_fraction": 1.0
+        "loss": -0.019333306699991226,
+        "ratio_p50": 0.9820766448974609,
+        "ratio_p95": 1.321700930595398,
+        "ratio_max": 4.848557949066162,
+        "clip_fraction": 0.41015625
       },
       "norm_near_zero": false
     },
@@ -54,23 +56,25 @@
         0.0,
         1.0
       ],
-      "gradient_cosine": -0.09350317867463255,
-      "relative_l2": 138.98855009342162,
-      "control_update_norm": 0.022334053241631704,
-      "fault_update_norm": 3.1020097431744054,
+      "gradient_cosine": 0.6342594406106493,
+      "relative_l2": 0.7935871426114358,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 5.625148158810311,
+      "selected_prompt_tokens": 4,
+      "selected_padding_tokens": 0,
       "control": {
-        "loss": 6.952599278520211e-07,
-        "ratio_p50": 1.3523449027275092e-09,
-        "ratio_p95": 2.1254413695714902e-06,
-        "ratio_max": 0.00015295701450668275,
-        "clip_fraction": 1.0
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
       },
       "fault": {
-        "loss": -7.842473860364407e-05,
-        "ratio_p50": 1.6942596214875039e-09,
-        "ratio_p95": 2.4264286366815213e-06,
-        "ratio_max": 0.01176843699067831,
-        "clip_fraction": 1.0
+        "loss": -0.007561884820461273,
+        "ratio_p50": 0.9794530868530273,
+        "ratio_p95": 1.4095735549926758,
+        "ratio_max": 7.760762691497803,
+        "clip_fraction": 0.43359375
       },
       "norm_near_zero": false
     },
@@ -89,23 +93,25 @@
         0.0,
         1.0
       ],
-      "gradient_cosine": -0.030600192942016886,
-      "relative_l2": 1.0006493567400288,
-      "control_update_norm": 0.022334053241631704,
-      "fault_update_norm": 0.0003725554552242558,
+      "gradient_cosine": 0.2384498754177057,
+      "relative_l2": 4.6943555289720855,
+      "control_update_norm": 6.91621012450125,
+      "fault_update_norm": 33.41395466347338,
+      "selected_prompt_tokens": 4,
+      "selected_padding_tokens": 0,
       "control": {
-        "loss": 6.952599278520211e-07,
-        "ratio_p50": 1.3523449027275092e-09,
-        "ratio_p95": 2.1254413695714902e-06,
-        "ratio_max": 0.00015295701450668275,
-        "clip_fraction": 1.0
+        "loss": -0.020385028794407845,
+        "ratio_p50": 0.9754712581634521,
+        "ratio_p95": 1.2965837717056274,
+        "ratio_max": 3.6537649631500244,
+        "clip_fraction": 0.4140625
       },
       "fault": {
-        "loss": 5.501006317132351e-09,
-        "ratio_p50": 1.0918592696640417e-09,
-        "ratio_p95": 5.9494727366882216e-08,
-        "ratio_max": 1.1204429029021412e-07,
-        "clip_fraction": 1.0
+        "loss": -0.03358238935470581,
+        "ratio_p50": 0.4824734330177307,
+        "ratio_p95": 0.9753438234329224,
+        "ratio_max": 0.9866083860397339,
+        "clip_fraction": 0.75
       },
       "norm_near_zero": false
     }
