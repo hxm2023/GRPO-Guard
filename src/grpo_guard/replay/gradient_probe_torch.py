@@ -53,7 +53,9 @@ def grad_vector(module: torch.nn.Module) -> torch.Tensor:
 
 
 def _to_host(t: torch.Tensor) -> torch.Tensor:
-    return t.double().cpu()  # 3.9B-d vectors: metric math in host RAM
+    # move the float16 vector to CPU FIRST, then widen: doubling on GPU
+    # allocates 31 GB per 3.9B-d vector and stalls the batch replay
+    return t.cpu().double()
 
 
 def cosine(a: torch.Tensor, b: torch.Tensor, eps: float = 1e-10) -> float | str:
