@@ -1,12 +1,9 @@
 """Second-wave GPU experiments on autodl2 (decision D10, 2026-08-23).
 
 One GPU session runs:
-  Phase A — guarded closed loop #2: v1 -> v2 (two consecutive committed
-            updates; 32 v1 rollouts validated + consumed, 398-param sync,
-            canary v2 pass, v2 rollout).
   Phase B — bounded off-policy ONLINE closed loop: v0 trajectories consumed
             with lag=1 under the bounded protocol (P005 in-bound -> ALLOW,
-            real update to v1).
+            one committed update + observed sync + checkpoint commit).
   Phase C — F1 online gradient impact: gradient of a STALE trajectory
             (behavior=0 claimed as parent 1) vs a correct v1 trajectory at
             the v1 weights.
@@ -209,123 +206,10 @@ def main() -> int:
         model.train()
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-6)
 
-        # ============ Phase A: closed loop #2 (v1 -> v2) ====================
-        log("Phase A: v1 rollout (32 sequences)")
-        ckpt_v1 = hash_existing_checkpoint(1) if False else None
-        # v1 weights: reuse the Day-2 committed v1 checkpoint if present
-        from safetensors.torch import load_file
-
-        v1_dir = Path("/root/autodl-tmp/grpo-guard/loop_out_final/ckpt_v1")
-        if v1_dir.exists():
-            state = {}
-            for sh in sorted(v1_dir.glob("model-*.safetensors")):
-                state.update(load_file(sh))
-            model.load_state_dict({k: torch.as_tensor(v, dtype=torch.bfloat16) for k, v in state.items()},
-                                  strict=True)
-            v1_ckpt_sha = "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70"
-            log("loaded committed v1 weights for loop #2")
-        else:
-            v1_ckpt_sha = ckpt_sha_v0
-            log("WARNING: no v1 checkpoint found; using v0 weights (loop #2 starts from v0)")
-
-        canary1 = SyncEvent(
-            event_id="sync-sw-canary1", event_type="canary_passed",
-            run_id=run_id, component_id="trl_control", lifecycle_seq=next_lifecycle(),
-            created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            sync_id="sync-sw-1", attempt=1, lease_epoch=epoch,
-            idempotency_key=f"{run_id}:1:rollout-gpu1",
-            source_policy_version=1, source_checkpoint_manifest_sha256=v1_ckpt_sha,
-            target_runtime_id="rollout-gpu1", observed_runtime_load_epoch=2,
-            observed_policy_version=1, upstream_adapter_id="trl-vllm-server",
-            upstream_operation="update_named_param",
-            compatibility_profile_sha256="second-wave", status_detail="canary v1 (loop #2 start)",
-        ).seal()
-        log_.append(canary1, required_epoch=epoch)
-        sync_ref1 = EventRef(uri="", event_id=canary1.event_id, event_sha256=canary1.event_sha256)
-        runtime.set_load_epoch(2)
-
-        rollouts_v1 = rollout(prompts, 1, v1_ckpt_sha, sync_ref1)
-        log(f"Phase A: {len(rollouts_v1)} v1 rollouts")
-
-        # identity + pre-update validation for every v1 trajectory
-        handles_v1 = []
-        rewards_v1 = []
-        for gen, p, text in rollouts_v1:
-            env_id = envelope(gen, "pre_reward", 1, "update-2")
-            d = validate(env_id, strict, ckpt_sha=v1_ckpt_sha)
-            if d.decision != "allow":
-                raise RuntimeError(f"loop#2 identity FAIL {d.reason_codes}")
-            r = countdown_rule_verifier(text, p["target_numbers"], p["goal"])
-            rew = RewardEvent(
-                event_id=f"reward-{gen.event_id}-sw", event_type="reward_finished",
-                run_id=run_id, component_id="countdown_reward",
-                lifecycle_seq=next_lifecycle(),
-                created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                input_events=[EventRef(uri="", event_id=gen.event_id, event_sha256=gen.event_sha256)],
-                reward_version="countdown-rule-v1", evaluator_protocol_sha256=reward_protocol_sha256(),
-                source_generation_event=EventRef(uri="", event_id=gen.event_id,
-                                                 event_sha256=gen.event_sha256),
-                components=r, terminal_status="success", latency_ms=0.0,
-            ).seal()
-            log_.append(rew, required_epoch=epoch)
-            rewards_v1.append(rew)
-            h = materialize(
-                store=store, run_id=run_id, update_id="update-2",
-                preupdate_envelope=env_id.ref(),
-                validation_decision=EventRef(uri="", event_id="vdec-x", event_sha256="0" * 64),
-                sequence_ref=gen.sequence_token_ids, loss_mask_ref=gen.loss_mask,
-                logprob_event_ref=env_id.training_contract.authoritative_behavior_logprob_event,
-                logprob_ref=gen.service_behavior_logprobs,
-                reward_event_ref=EventRef(uri="", event_id=rew.event_id, event_sha256=rew.event_sha256),
-                nonce=f"nonce2-{gen.event_id}",
-                rewards=np.asarray([rew.components["correctness"]], dtype=np.float32),
-                lifecycle_seq=next_lifecycle(),
-            )
-            log_.append(h.input_event, required_epoch=epoch)
-            handles_v1.append(h)
-        log(f"Phase A: {len(handles_v1)} v1 handles materialized")
-
-        optimizer.zero_grad()
-        res2 = grpo_loss(model, handles_v1, group_size=N_GENS)
-        res2.loss.backward()
-        optimizer.step()
-        log(f"Phase A: loop#2 update loss={res2.metrics['loss']:.6f} ratios={res2.metrics['ratio_p50']:.3f}/{res2.metrics['ratio_max']:.3f}")
-
-        ckpt_v2 = commit_checkpoint(model, 2, OUT_DIR / "ckpt_v2")
-        # observed sync v1 -> v2 (communicator needed for the NCCL broadcast)
-        client.init_communicator(device=torch.device("cuda:0"))
-        sync_calls = 0
-        for name, param in model.named_parameters():
-            client.update_named_param(name, param.data)
-            sync_calls += 1
-        log(f"Phase A: synced {sync_calls} params (v2)")
-        canary2 = SyncEvent(
-            event_id="sync-sw-canary2", event_type="canary_passed",
-            run_id=run_id, component_id="trl_control", lifecycle_seq=next_lifecycle(),
-            created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            sync_id="sync-sw-2", attempt=1, lease_epoch=epoch,
-            idempotency_key=f"{run_id}:2:rollout-gpu1",
-            source_policy_version=2, source_checkpoint_manifest_sha256=ckpt_v2["checkpoint_manifest_sha256"],
-            target_runtime_id="rollout-gpu1", observed_runtime_load_epoch=3,
-            observed_policy_version=2, upstream_adapter_id="trl-vllm-server",
-            upstream_operation="update_named_param",
-            compatibility_profile_sha256="second-wave", status_detail="canary v2",
-        ).seal()
-        log_.append(canary2, required_epoch=epoch)
-        sync_ref2 = EventRef(uri="", event_id=canary2.event_id, event_sha256=canary2.event_sha256)
-        runtime.set_load_epoch(3)
-        rollouts_v2 = rollout(prompts[:2], 2, ckpt_v2["checkpoint_manifest_sha256"], sync_ref2, n_gens=2)
-        log(f"Phase A: {len(rollouts_v2)} v2 rollouts emitted")
-        phase_a = {
-            "loop2_v1_rollouts": len(rollouts_v1),
-            "loop2_handles": len(handles_v1),
-            "loop2_update": res2.metrics,
-            "loop2_sync_params": sync_calls,
-            "v2_rollouts": len(rollouts_v2),
-            "v2_checkpoint_sha": ckpt_v2["checkpoint_manifest_sha256"],
-        }
-
-        # ============ Phase B: bounded off-policy closed loop ===============
+        # ============ Phase B: bounded off-policy online closed loop =========
+        # design doc §9.2: the loop is locked to ONE committed
+        # update-sync-rollout cycle; the bounded protocol is the v0.1 path
+        # for consuming lag=1 trajectories (in-bound + declared correction).
         log("Phase B: bounded off-policy closed loop (lag=1 consuming v0)")
         # reload v0 weights for a clean bounded run
         model2 = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16,
@@ -379,7 +263,17 @@ def main() -> int:
         res_b.loss.backward()
         opt2.step()
         log(f"Phase B: bounded loop update loss={res_b.metrics['loss']:.6f} ratios={res_b.metrics['ratio_p50']:.3f}")
-        phase_b = {"bounded_rollouts": len(b_rollouts), "bounded_update": res_b.metrics}
+        # ONE committed update + observed sync (the bounded cycle's commit)
+        ckpt_b = commit_checkpoint(model2, 1, OUT_DIR / "ckpt_b")
+        client.init_communicator(device=torch.device("cuda:0"))
+        sync_calls_b = 0
+        for name, param in model2.named_parameters():
+            client.update_named_param(name, param.data)
+            sync_calls_b += 1
+        log(f"Phase B: synced {sync_calls_b} params; committed v1 via bounded path")
+        phase_b = {"bounded_rollouts": len(b_rollouts), "bounded_update": res_b.metrics,
+                   "bounded_sync_params": sync_calls_b,
+                   "bounded_committed_checkpoint_sha": ckpt_b["checkpoint_manifest_sha256"]}
 
         # ============ Phase C: F1 stale-trajectory gradient impact ==========
         log("Phase C: F1 stale-trajectory gradient impact at v1 weights")
@@ -423,7 +317,7 @@ def main() -> int:
 
         (OUT_DIR / "second_wave.json").write_text(json.dumps({
             "run_id": run_id,
-            "phase_a_loop2": phase_a,
+            "scope": "bounded off-policy online closed loop (§9.2, ONE committed update) + F1 gradient impact",
             "phase_b_bounded": phase_b,
             "phase_c_f1_gradient": phase_c,
         }, indent=2), encoding="utf-8")
