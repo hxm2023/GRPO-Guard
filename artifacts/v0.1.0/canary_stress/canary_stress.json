@@ -1,0 +1,21 @@
+{
+  "run_id": "canary-stress-1787423483",
+  "scope": "canary determinism under repeated load (8 prompts, 32 tokens, 10 repeats)",
+  "prompts": 8,
+  "repeats": 10,
+  "per_repeat_max_drift": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "max_drift_any_repeat": 0,
+  "deterministic": true,
+  "interpretation": "greedy canary sketches are deterministic on a fixed weight set (drift 0 across 10 repeats) \u2014 any nonzero drift would indicate environment nondeterminism"
+}

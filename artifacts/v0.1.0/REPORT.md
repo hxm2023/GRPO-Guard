@@ -154,6 +154,13 @@ decisions with zero misses; validator 0.76 ms/env mean (0.73-1.04, n=128).
 The per-family results are consistent across the 32-, 64- and 128-rollout
 batches.
 
+**Canary stress — determinism under load** (`artifacts/v0.1.0/canary_stress/`,
+decision D11): 8 canary prompts (incl. a near-max-context prompt, ~900 words)
+× 32 greedy tokens × **10 repeated sketches** against the real server in one
+run: **max drift = 0 across all 10 repeats → deterministic**.  A nonzero
+drift under repeated load would indicate environment nondeterminism
+(e.g. shared-card interference); the fixed weight set is bit-stable.
+
 **Full paired gradient replay** (`artifacts/v0.1.0/replay_all/gradient_replay.json`):
 ALL 8 prompt groups × F2/F3/F4 = **24 pairs** (real model, v1 weights +
 deterministic drift seed 7 σ=0.005).  Gradient-cosine distribution:
