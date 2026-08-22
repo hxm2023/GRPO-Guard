@@ -1,8 +1,13 @@
-"""Guarded GRPO loss contract (design doc §7.3.3, §9.1)."""
+"""Guarded GRPO loss contract (design doc §7.3.3, §9.1).
+
+Requires torch (the `gpu` extra); skipped on minimal CPU installs so
+`uv sync --frozen --extra test` still reproduces the CPU contract suite.
+"""
 
 import numpy as np
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")
 
 from grpo_guard import testing
 from grpo_guard.adapters.guarded_update import ValidatedBatchHandle, materialize
