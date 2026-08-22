@@ -56,12 +56,13 @@ def now_utc() -> str:
 
 # ---------------------------------------------------------------- server
 
-def start_server(server_log: Path) -> subprocess.Popen:
-    log(f"starting vLLM server (GPU1) at :{VLLM_PORT}")
+def start_server(server_log: Path, port: int | None = None) -> subprocess.Popen:
+    port = port or VLLM_PORT
+    log(f"starting vLLM server (GPU1) at :{port}")
     trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
     proc = subprocess.Popen(
         [
-            trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(VLLM_PORT),
+            trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(port),
             "--gpu-memory-utilization", "0.5", "--max-model-len", "2048",
         ],
         env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
@@ -70,7 +71,7 @@ def start_server(server_log: Path) -> subprocess.Popen:
     )
     for _ in range(120):
         time.sleep(2)
-        if _health() and proc.poll() is None:
+        if health_at(port) and proc.poll() is None:
             log("server healthy")
             return proc
         if proc.poll() is not None:
@@ -83,6 +84,16 @@ def _health() -> bool:
         import urllib.request
 
         with urllib.request.urlopen(f"http://127.0.0.1:{VLLM_PORT}/health", timeout=5) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
+def health_at(port: int) -> bool:
+    try:
+        import urllib.request
+
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as r:
             return r.status == 200
     except Exception:
         return False

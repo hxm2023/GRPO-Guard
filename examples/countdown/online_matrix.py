@@ -207,7 +207,7 @@ def main() -> int:
     from transformers import AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
-    from examples.countdown.closed_loop import start_server, stop_server
+    from examples.countdown.closed_loop import health_at, start_server, stop_server
     from grpo_guard.adapters.countdown_reward import reward_protocol_sha256
     from grpo_guard.adapters.vllm_runtime import VLLMRuntimeAdapter
     from grpo_guard.schema.artifacts import EventRef
@@ -229,7 +229,7 @@ def main() -> int:
     runtime = VLLMRuntimeAdapter(store, log_, run_id, "rollout-gpu1", seq_provider=next_lifecycle)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
 
-    server = start_server(OUT_DIR / "vllm_server.log")
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT)
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                             connection_timeout=300)
