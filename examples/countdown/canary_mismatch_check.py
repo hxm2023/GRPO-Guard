@@ -58,7 +58,7 @@ def main() -> int:
     def generate_fn(client):
         return lambda prompts, **kw: (
             client.generate(prompts, n=1, temperature=0.0, top_p=1.0, top_k=1,
-                            max_tokens=8, logprobs=0)
+                            max_tokens=kw.get("max_tokens", 32), logprobs=0)
         )
 
     # ---- phase 1: baseline on the REAL v0 weights --------------------------
