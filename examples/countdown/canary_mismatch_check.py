@@ -38,6 +38,8 @@ def log(msg: str) -> None:
 
 
 def main() -> int:
+    import torch
+
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
@@ -75,8 +77,6 @@ def main() -> int:
     PERTURBED_DIR.mkdir(parents=True, exist_ok=True)
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16,
                                                  device_map="cuda:0")
-    import torch
-
     torch.manual_seed(7)
     with torch.no_grad():
         for p in model.parameters():
