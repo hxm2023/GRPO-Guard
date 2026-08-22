@@ -131,10 +131,11 @@ def load_events_and_store():
     return events, store, gens, rewards
 
 
-def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4) -> dict:
+def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4,
+               prompt_id: str | None = None) -> dict:
     """Paired probe over a REAL prompt group (B=group_size trajectories with
     their actual rewards, design doc §12.2/§12.4)."""
-    prompt_id = gens[0].prompt_id
+    prompt_id = prompt_id or gens[0].prompt_id
     group = [g for g in gens if g.prompt_id == prompt_id][:group_size]
     reward = np.asarray([rewards[g.event_id] for g in group], dtype=np.float32)
     if reward.std() < 1e-6:
@@ -245,20 +246,37 @@ def main() -> int:
     _drift(model)
 
     results = []
-    for kind in ("f2_misbound", "f3_retokenized", "f4_mask_shift"):
-        r = probe_pair(model, store, gens, rewards, kind)
-        results.append(r)
-        print(f"{kind}: cos={r['gradient_cosine']} rL2={r['relative_l2']:.4f} "
-              f"norm_c={r['control_update_norm']:.2e} norm_f={r['fault_update_norm']:.2e} "
-              f"loss_c={r['control']['loss']:.6f} loss_f={r['fault']['loss']:.6f} "
-              f"rewards={r['rewards']}", flush=True)
+    prompt_ids = sorted({g.prompt_id for g in gens})
+    for pid in prompt_ids:
+        for kind in ("f2_misbound", "f3_retokenized", "f4_mask_shift"):
+            r = probe_pair(model, store, gens, rewards, kind, prompt_id=pid)
+            results.append(r)
+            print(f"{pid} {kind}: cos={r['gradient_cosine']} rL2={r['relative_l2']:.4f} "
+                  f"norm_c={r['control_update_norm']:.2e} norm_f={r['fault_update_norm']:.2e} "
+                  f"loss_c={r['control']['loss']:.6f} loss_f={r['fault']['loss']:.6f}",
+                  flush=True)
 
     OUT_PATH.mkdir(parents=True, exist_ok=True)
+    import statistics as _st
+
+    def _col(key, fn):
+        vals = [fn(r[key]) for r in results if isinstance(r[key], (int, float))]
+        return {"mean": round(_st.mean(vals), 4), "min": round(min(vals), 4),
+                "max": round(max(vals), 4), "count": len(vals)} if vals else None
+
+    summary = {
+        "pairs": len(results),
+        "gradient_cosine": _col("gradient_cosine", float),
+        "relative_l2": _col("relative_l2", float),
+        "control_update_norm": _col("control_update_norm", float),
+        "fault_update_norm": _col("fault_update_norm", float),
+    }
     (OUT_PATH / "gradient_replay.json").write_text(json.dumps({
         "source_loop": str(LOOP_DIR),
         "model": MODEL_PATH,
         "replay_model_state": "v1 weights + deterministic drift(seed=7, sigma=" + str(_drift.__defaults__[0]) + ")",
         "generation": results[0]["generations"][0] if results else "",
+        "summary": summary,
         "pairs": results,
     }, indent=2), encoding="utf-8")
     print("REPLAY_DONE")
