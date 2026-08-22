@@ -114,6 +114,12 @@ Fixed with a regression test.  NOTE: the Day 2 loop's canary calibration and
 v1 check used the `_unpack_gen` wrapper (tuple path) and were NOT affected;
 the fix only affects direct-dict callers (the online mismatch check).
 
+**P008 canary-mismatch online** (`artifacts/v0.1.0/canary/canary_mismatch_online.json`):
+baseline greedy sketch on the REAL v0 weights; a deterministically perturbed
+checkpoint (seed 7) loaded into the server and re-sketch →
+**mismatch, drift=32 tokens** → the validator rejects with
+`P008_CANARY_MISMATCH` (fail closed).
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy
