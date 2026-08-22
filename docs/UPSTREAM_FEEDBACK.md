@@ -18,10 +18,15 @@ issues — honest contribution signal, no duplicate issue reports.
   class of bug.  Our patch remains a documented workaround for the pinned
   matrix (trl 1.10.0 / vllm 0.26.0) until we verify the merged fixes are
   present in a release we pin.
-- **Still-open verification**: whether the merged fixes cover the exact
-  "unindexed `accelerator.device` passed by the trainer client" path in a
-  released TRL.  If a future pinned TRL still reproduces it, we file an
-  issue with a minimal repro.
+- **Verification (2026-08-23)**: checked huggingface/trl PR **#3774** diff
+  directly — it changes exactly the failing call in `grpo_trainer.py`:
+  `init_communicator(device=self.accelerator.device)` →
+  `device=torch.cuda.current_device()`.  That is the same normalization our
+  patch applies, so the merged fix covers our scenario as a strict
+  replacement.  The pinned trl 1.10.0 still contains the unpatched call
+  (`trl/generation/vllm_generation.py`), so our workaround stays for the
+  pinned matrix and can be dropped when a release containing #3774 is
+  pinned.  No new issue needed.
 
 ## 2. torchcodec `.so` load failure (environment, not upstream bug)
 
