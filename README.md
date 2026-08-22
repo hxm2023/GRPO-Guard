@@ -125,6 +125,8 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | tag v0.1.0 clean smoke | 1 committed step, 398 sync calls (release commit reproduced) | `smoke_v010/smoke_result.json` |
 | Day 2/5 guarded closed loop | 32/32 ALLOW → real update → 398-param sync → canary v1 pass → v1 rollout | `loop/` |
 | Day 4 paired replay | F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model) | `replay/gradient_replay.json` |
+| P008 canary mismatch | perturbed weights → canary drift 32 tokens → validator reject | `canary/canary_mismatch_online.json` |
+| v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |
 
 ## v0.2-preview: fault families F5-F8
 
