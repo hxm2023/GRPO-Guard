@@ -58,16 +58,14 @@ def _to_host(t: torch.Tensor) -> torch.Tensor:
     return t.cpu().double()
 
 
-def cosine(a: torch.Tensor, b: torch.Tensor, eps: float = 1e-10) -> float | str:
-    a_c, b_c = _to_host(a), _to_host(b)
+def cosine(a_c: torch.Tensor, b_c: torch.Tensor, eps: float = 1e-10) -> float | str:
     na, nb = float(a_c.norm().item()), float(b_c.norm().item())
     if na < eps or nb < eps:
         return "undefined_near_zero"
     return float((a_c @ b_c).item() / (na * nb))
 
 
-def rel_l2(a: torch.Tensor, b: torch.Tensor, eps: float = 1e-10) -> float:
-    a_c, b_c = _to_host(a), _to_host(b)
+def rel_l2(a_c: torch.Tensor, b_c: torch.Tensor, eps: float = 1e-10) -> float:
     na = float(a_c.norm().item())
     return float((b_c - a_c).norm().item() / (na + eps))
 
@@ -201,20 +199,22 @@ def probe_pair(model, store, gens, rewards, fault_kind: str, group_size: int = 4
     # mask index j predicts token j+1, so a one at j < P-1 selects a prompt
     # token (design doc §7.9).
     prompt_selected = int(mask[:, : Ps[0] - 1].sum()) if Ps else 0
+    # move each 3.9B-d vector to host exactly ONCE (widening on CPU)
+    g_c_host, g_f_host = _to_host(g_c), _to_host(g_f)
     return {
         "fault_kind": fault_kind,
         "prompt": prompt_id,
         "generations": [g.event_id for g in group],
         "rewards": reward.tolist(),
-        "gradient_cosine": cosine(g_c, g_f),
-        "relative_l2": rel_l2(g_c, g_f),
-        "control_update_norm": float(_to_host(g_c).norm().item()),
-        "fault_update_norm": float(_to_host(g_f).norm().item()),
+        "gradient_cosine": cosine(g_c_host, g_f_host),
+        "relative_l2": rel_l2(g_c_host, g_f_host),
+        "control_update_norm": float(g_c_host.norm().item()),
+        "fault_update_norm": float(g_f_host.norm().item()),
         "selected_prompt_tokens": int(prompt_selected),
         "selected_padding_tokens": 0,  # no padding in the v0.1 loop rollouts
         "control": {"loss": loss_c, **m_c},
         "fault": {"loss": loss_f, **m_f},
-        "norm_near_zero": float(_to_host(g_c).norm().item()) < 1e-6 or float(_to_host(g_f).norm().item()) < 1e-6,
+        "norm_near_zero": float(g_c_host.norm().item()) < 1e-6 or float(g_f_host.norm().item()) < 1e-6,
     }
 
 
