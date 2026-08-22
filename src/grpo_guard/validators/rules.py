@@ -523,6 +523,41 @@ def r005_parent_identity_not_allowed(ctx: ValidationContext) -> RuleResult | Non
     return None
 
 
+# ---------------------------------------------------------- v0.2: F5-F8
+
+def d003_split_overlap(ctx: ValidationContext) -> RuleResult | None:
+    """F5 — split leakage (v0.2-preview, design doc §11).
+
+    The trajectory's prompt appears in MORE than one split manifest
+    (e.g. held-out prompt also listed in train) — train/eval separation is
+    broken.  Reject with an overlap report.
+    """
+    gen = _gen(ctx)
+    if gen is None or ctx.split_registry is None:
+        return None
+    memberships = [name for name, sm in ctx.split_registry.items() if gen.prompt_id in sm.prompt_ids]
+    if len(memberships) > 1:
+        return RuleResult("D003_SPLIT_OVERLAP", "reject",
+                          f"prompt {gen.prompt_id} in splits {sorted(memberships)} (overlap)")
+    return None
+
+
+def r006_evaluator_alias(ctx: ValidationContext) -> RuleResult | None:
+    """F6 — evaluator alias (v0.2-preview, design doc §11).
+
+    The training reward event uses the DECLARED EVAL protocol — the same
+    judge/calibration is serving both train and eval.  Quarantine until the
+    independence report resolves the alias.
+    """
+    reward = _reward(ctx)
+    if reward is None or ctx.eval_protocol_sha256 is None:
+        return None
+    if reward.evaluator_protocol_sha256 == ctx.eval_protocol_sha256:
+        return RuleResult("R006_EVALUATOR_ALIAS", "quarantine",
+                          "train reward uses the declared eval protocol")
+    return None
+
+
 ALL_RULES: dict[str, RuleFn] = {
     "P001_MISSING_POLICY_MANIFEST": p001_missing_policy_manifest,
     "P002_CHECKPOINT_HASH_MISMATCH": p002_checkpoint_hash_mismatch,
@@ -557,6 +592,8 @@ ALL_RULES: dict[str, RuleFn] = {
     "R003_REWARD_MISSING_PRE_UPDATE": r003_reward_missing_pre_update,
     "R004_REWARD_PRESENT_PRE_REWARD": r004_reward_present_pre_reward,
     "R005_PARENT_IDENTITY_NOT_ALLOWED": r005_parent_identity_not_allowed,
+    "D003_SPLIT_OVERLAP": d003_split_overlap,
+    "R006_EVALUATOR_ALIAS": r006_evaluator_alias,
 }
 
 

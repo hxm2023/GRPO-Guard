@@ -104,6 +104,16 @@ def _cmd_day3(args) -> int:
     return 0 if s["gate_pass"] else 1
 
 
+def _cmd_v02(args) -> int:
+    from grpo_guard.matrix_v02 import run_v02_matrix
+
+    matrix = run_v02_matrix(Path(args.loop_dir), Path(args.config), Path(args.out))
+    s = matrix["summary"]
+    print(f"v0.2 matrix: {s['matched']}/{s['total']} matched; normal allow {s['normal_allow']}/{s['normal_total']}")
+    print(f"GATE: {'PASS' if s['gate_pass'] else 'FAIL'}")
+    return 0 if s["gate_pass"] else 1
+
+
 def _cmd_report(args) -> int:
     from grpo_guard.report import build_report
 
@@ -156,6 +166,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--config", default="configs/faults/f1_f4_v01.yaml")
     p.add_argument("--out", default="artifacts/v0.1.0")
     p.set_defaults(fn=_cmd_day3)
+
+    p = sub.add_parser("v02-matrix", help="v0.2-preview F5-F8 matrix over real loop artifacts")
+    p.add_argument("--loop-dir", required=True)
+    p.add_argument("--config", default="configs/faults/f5_f8_v02.yaml")
+    p.add_argument("--out", default="artifacts/v0.2.0-dev")
+    p.set_defaults(fn=_cmd_v02)
 
     p = sub.add_parser("report", help="build run_manifest.json + REPORT.md + SHA256SUMS")
     p.add_argument("--artifact-dir", default="artifacts/v0.1.0")

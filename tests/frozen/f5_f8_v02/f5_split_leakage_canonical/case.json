@@ -1,0 +1,1 @@
+{"case_id":"f5_split_leakage_canonical","envelope_id":"env-0-10-pre_reward","expected_decision":"reject","generation_event_id":"gen-0-10","notes":"v0.2-preview","required_reason_codes":["D003_SPLIT_OVERLAP"],"run_id":"run-test-0001"}

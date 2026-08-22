@@ -34,7 +34,11 @@ def load_case(case_dir: Path) -> tuple[dict, dict]:
         from grpo_guard.schema.artifacts import ArtifactRef
 
         bogus = ArtifactRef(**json.loads((inputs / "bogus_sequence_ref.json").read_text(encoding="utf-8")))
-    return spec, {"envelope": envelope, "policy_manifest": policy, "split_manifest": split, "events": events, "store": store, "bogus_sequence_ref": bogus}
+    context = {}
+    if (inputs / "context.json").exists():
+        context = json.loads((inputs / "context.json").read_text(encoding="utf-8"))
+    return spec, {"envelope": envelope, "policy_manifest": policy, "split_manifest": split,
+                  "events": events, "store": store, "bogus_sequence_ref": bogus, "context": context}
 
 
 def run_contract_check(cases_root: Path, out_dir: Path) -> dict:
@@ -51,6 +55,32 @@ def run_contract_check(cases_root: Path, out_dir: Path) -> dict:
             policy_manifest=payload["policy_manifest"], split_manifest=payload["split_manifest"],
             protocol=protocol,
         )
+        if payload.get("context", {}).get("split_registry"):
+            from grpo_guard.schema.manifests import SplitManifest
+
+            ctx.split_registry = {
+                name: SplitManifest(**data) for name, data in payload["context"]["split_registry"].items()
+            }
+        if payload.get("context", {}).get("eval_protocol_sha256"):
+            ctx.eval_protocol_sha256 = payload["context"]["eval_protocol_sha256"]
+        if payload.get("context", {}).get("requires_update_input"):
+            from grpo_guard.schema.artifacts import EventRef
+            from grpo_guard.schema.events import UpdateInputEvent
+
+            gen = payload["events"][payload["envelope"].generation_event.event_id]
+            ctx.update_input_event = UpdateInputEvent(
+                event_id=f"uinput-{payload['envelope'].envelope_id}",
+                run_id=payload["envelope"].run_id, component_id="materializer",
+                lifecycle_seq=gen.lifecycle_seq + 100, created_at_utc=gen.created_at_utc,
+                update_id="update-1", preupdate_envelope=payload["envelope"].ref(),
+                preupdate_validation_decision=EventRef(uri="", event_id="vdec-x", event_sha256="0" * 64),
+                sequence_token_ids=gen.sequence_token_ids, loss_mask=gen.loss_mask,
+                authoritative_behavior_logprob_event=payload["envelope"].training_contract.authoritative_behavior_logprob_event,
+                authoritative_behavior_logprobs=gen.service_behavior_logprobs,
+                reward_event=EventRef(uri="", event_id="reward-x", event_sha256="0" * 64),
+                materialized_layout_sha256="0" * 64, single_use_nonce_sha256="0" * 64,
+                tokenizer_called=False,
+            ).seal()
         if payload.get("bogus_sequence_ref") is not None:
             from grpo_guard.schema.artifacts import EventRef
             from grpo_guard.schema.events import UpdateInputEvent
@@ -72,7 +102,14 @@ def run_contract_check(cases_root: Path, out_dir: Path) -> dict:
                 single_use_nonce_sha256="0" * 64,
                 tokenizer_called=False,
             ).seal()
-        stage = "full_pre_update" if (payload["envelope"].envelope_stage == "pre_update" or payload.get("bogus_sequence_ref")) else "identity_pre_reward"
+        needs_full = (
+            payload["envelope"].envelope_stage == "pre_update"
+            or payload.get("bogus_sequence_ref") is not None
+            or bool(payload.get("context", {}).get("split_registry"))
+            or bool(payload.get("context", {}).get("eval_protocol_sha256"))
+            or bool(payload.get("context", {}).get("requires_update_input"))
+        )
+        stage = "full_pre_update" if needs_full else "identity_pre_reward"
         decision = validate_envelope(ctx, stage).decision_payload
         expected = spec["expected_decision"]
         required = set(spec.get("required_reason_codes", []))

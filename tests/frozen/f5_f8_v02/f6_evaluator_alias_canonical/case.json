@@ -1,0 +1,1 @@
+{"case_id":"f6_evaluator_alias_canonical","envelope_id":"env-0-10-pre_update-parented-f6","expected_decision":"quarantine","generation_event_id":"gen-0-10","notes":"v0.2-preview","required_reason_codes":["R006_EVALUATOR_ALIAS"],"run_id":"run-test-0001"}

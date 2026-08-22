@@ -71,6 +71,20 @@ def write_case(
             (inputs_dir / "bogus_sequence_ref.json").write_text(
                 canonical_dumps(t.bogus_sequence_ref.model_dump(mode="json")).decode("utf-8"), encoding="utf-8"
             )
+    # v0.2: validation-time context (split registry, eval protocol) for F5/F6
+    ctx_extra = {}
+    if getattr(t, "split_registry", None):
+        ctx_extra["split_registry"] = {
+            name: sm.model_dump(mode="json") for name, sm in t.split_registry.items()
+        }
+    if getattr(t, "eval_protocol_sha256", None):
+        ctx_extra["eval_protocol_sha256"] = t.eval_protocol_sha256
+    if getattr(t, "requires_update_input", False):
+        ctx_extra["requires_update_input"] = True
+    if ctx_extra:
+        (inputs_dir / "context.json").write_text(
+            canonical_dumps(ctx_extra).decode("utf-8"), encoding="utf-8"
+        )
 
     sha_lines = sorted(
         f"{_hash_file(p)}  {p.relative_to(case_dir).as_posix()}" for p in inputs_dir.iterdir()

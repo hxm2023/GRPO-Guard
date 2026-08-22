@@ -1,0 +1,40 @@
+# F5-F8 canonical fault matrix — v0.2-preview (design doc §11)
+# NOT part of the v0.1 matrix. Pre-registered expectations; run via
+# `grpo-guard day3-matrix --config configs/faults/f5_f8_v02.yaml`.
+matrix_id: f5_f8_v02
+protocol: strict_v01
+
+cases:
+  - id: f5_split_leakage
+    fault: f5_split_leakage
+    variants:
+      - {name: canonical, other_split: held_out}
+    expected_decision: reject
+    required_reason_codes: [D003_SPLIT_OVERLAP]
+
+  - id: f6_evaluator_alias
+    fault: f6_evaluator_alias
+    variants:
+      - {name: canonical, eval_protocol: declared}
+    expected_decision: quarantine
+    required_reason_codes: [R006_EVALUATOR_ALIAS]
+
+  - id: f7_event_reorder
+    fault: f7_event_reorder
+    variants:
+      - {name: canonical}
+    expected_decision: reject
+    required_reason_codes: [L005_SCORING_AFTER_UPDATE]
+
+  - id: f8_artifact_mutation
+    fault: f8_artifact_mutation
+    variants:
+      - {name: canonical}
+    expected_decision: reject
+    required_reason_codes: [T001_ARTIFACT_HASH_MISMATCH]
+
+normal_cases:
+  count: 4
+  expected_decision: allow
+
+boundary_cases: []

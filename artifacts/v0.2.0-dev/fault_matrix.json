@@ -1,0 +1,252 @@
+{
+  "matrix_id": "f5_f8_v02",
+  "protocol": "strict_on_policy",
+  "scope": "v0.2-preview — NOT part of the v0.1 matrix (design doc §11)",
+  "source": {
+    "loop_dir": "artifacts/v0.1.0/loop"
+  },
+  "results": [
+    {
+      "case_id": "f5_split_leakage:canonical",
+      "fault": "f5_split_leakage",
+      "variant": {
+        "name": "canonical",
+        "other_split": "held_out"
+      },
+      "expected_decision": "reject",
+      "required_reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ],
+      "decision": "reject",
+      "reason_codes": [
+        "D003_SPLIT_OVERLAP"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f6_evaluator_alias:canonical",
+      "fault": "f6_evaluator_alias",
+      "variant": {
+        "name": "canonical",
+        "eval_protocol": "a253c7a22dd25fc23c4d5f03400cfd60164ef314281234278e9197bc048a7802"
+      },
+      "expected_decision": "quarantine",
+      "required_reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ],
+      "decision": "quarantine",
+      "reason_codes": [
+        "R006_EVALUATOR_ALIAS"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f7_event_reorder:canonical",
+      "fault": "f7_event_reorder",
+      "variant": {
+        "name": "canonical"
+      },
+      "expected_decision": "reject",
+      "required_reason_codes": [
+        "L005_SCORING_AFTER_UPDATE"
+      ],
+      "decision": "reject",
+      "reason_codes": [
+        "L005_SCORING_AFTER_UPDATE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f8_artifact_mutation:canonical",
+      "fault": "f8_artifact_mutation",
+      "variant": {
+        "name": "canonical"
+      },
+      "expected_decision": "reject",
+      "required_reason_codes": [
+        "T001_ARTIFACT_HASH_MISMATCH"
+      ],
+      "decision": "reject",
+      "reason_codes": [
+        "M001_MASK_SHAPE_MISMATCH",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    }
+  ],
+  "normal": [
+    {
+      "case_id": "normal_0",
+      "decision": "allow",
+      "reason_codes": [
+        "D001_SPLIT_MANIFEST_MISSING",
+        "D002_PROMPT_NOT_IN_DECLARED_SPLIT",
+        "D003_SPLIT_OVERLAP",
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R001_REWARD_PROTOCOL_MISSING",
+        "R002_INFRA_ERROR_AS_TASK_FAIL",
+        "R003_REWARD_MISSING_PRE_UPDATE",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "R005_PARENT_IDENTITY_NOT_ALLOWED",
+        "R006_EVALUATOR_ALIAS",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ]
+    },
+    {
+      "case_id": "normal_1",
+      "decision": "allow",
+      "reason_codes": [
+        "D001_SPLIT_MANIFEST_MISSING",
+        "D002_PROMPT_NOT_IN_DECLARED_SPLIT",
+        "D003_SPLIT_OVERLAP",
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R001_REWARD_PROTOCOL_MISSING",
+        "R002_INFRA_ERROR_AS_TASK_FAIL",
+        "R003_REWARD_MISSING_PRE_UPDATE",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "R005_PARENT_IDENTITY_NOT_ALLOWED",
+        "R006_EVALUATOR_ALIAS",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ]
+    },
+    {
+      "case_id": "normal_2",
+      "decision": "allow",
+      "reason_codes": [
+        "D001_SPLIT_MANIFEST_MISSING",
+        "D002_PROMPT_NOT_IN_DECLARED_SPLIT",
+        "D003_SPLIT_OVERLAP",
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R001_REWARD_PROTOCOL_MISSING",
+        "R002_INFRA_ERROR_AS_TASK_FAIL",
+        "R003_REWARD_MISSING_PRE_UPDATE",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "R005_PARENT_IDENTITY_NOT_ALLOWED",
+        "R006_EVALUATOR_ALIAS",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ]
+    },
+    {
+      "case_id": "normal_3",
+      "decision": "allow",
+      "reason_codes": [
+        "D001_SPLIT_MANIFEST_MISSING",
+        "D002_PROMPT_NOT_IN_DECLARED_SPLIT",
+        "D003_SPLIT_OVERLAP",
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R001_REWARD_PROTOCOL_MISSING",
+        "R002_INFRA_ERROR_AS_TASK_FAIL",
+        "R003_REWARD_MISSING_PRE_UPDATE",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "R005_PARENT_IDENTITY_NOT_ALLOWED",
+        "R006_EVALUATOR_ALIAS",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ]
+    }
+  ],
+  "summary": {
+    "matched": 4,
+    "total": 4,
+    "normal_allow": 4,
+    "normal_total": 4,
+    "gate_pass": true
+  }
+}
