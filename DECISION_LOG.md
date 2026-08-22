@@ -133,3 +133,23 @@ Alternative · Why rejected · Falsification.
   (e.g. a fault family stops firing on some generation), the matrix claim
   is narrowed to the observed subset and the discrepancy is investigated
   before any release claim.
+
+## D10 — Second-wave GPU experiments (2026-08-23, user-directed)
+
+- **Decision**: spend remaining GPU budget (~25/80 GPU·h) on: (1) a SECOND
+  guarded closed loop (v1 -> v2, two consecutive committed updates — shows
+  repeatability); (2) a bounded off-policy ONLINE closed loop (lag=1
+  consuming v0 trajectories to commit v1 — the full §9.2 path); (3) F1
+  online gradient impact (gradients of a stale trajectory being silently
+  consumed); (4) a 64-rollout online matrix (16 prompts x 4 gens); (5) a
+  LoRA-variant closed loop if budget allows (base/adapter hashed
+  separately).
+- **Evidence**: all results machine-readable with run_id, committed under
+  artifacts/, honest reporting (every pair/step reported).
+- **Alternative**: stop at the current v0.2.0 — rejected: the user directed
+  further GPU experiments for stronger resume evidence.
+- **Why rejected others**: multi-machine consensus and cryptographic
+  tamper-resistance remain explicitly out of scope (design doc §5.3, §7.3.4).
+- **Falsification**: if the second loop diverges from the first (e.g. canary
+  or validation fails), the discrepancy is investigated and disclosed
+  before any release claim.
