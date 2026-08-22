@@ -12,59 +12,65 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
+
+import numpy as np
 
 MODEL_PATH = os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B")
 OUT_DIR = Path(os.environ.get("GRPO_GUARD_OUT", "/root/autodl-tmp/grpo-guard/bounded_out"))
 VLLM_PORT = int(os.environ.get("GRPO_GUARD_VLLM_PORT", "8003"))
 GROUP_PORT = int(os.environ.get("GRPO_GUARD_GROUP_PORT", "51218"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/repo"))
+MAX_COMPLETION = 64
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
 
-from examples.countdown.online_matrix import (  # noqa: E402
-    ckpt_sha,
-    epoch,
-    log_,
-    make_envelope,
-    next_lifecycle,
-    run_id,
-    sampling_sha,
-    store,
-    template_sha,
-    tokenizer_sha,
-    trajectory,
-    validate_identity,
-)
-from grpo_guard.schema.artifacts import EventRef  # noqa: E402
-from grpo_guard.schema.events import SyncEvent  # noqa: E402
-from grpo_guard.store.append_log import AppendLog  # noqa: E402
-from grpo_guard.store.artifact_store import ArtifactStore  # noqa: E402
-from grpo_guard.validators.context import ProtocolConfig, ValidationContext  # noqa: E402
-from grpo_guard.validators.validator import validate_envelope  # noqa: E402
+ckpt_sha = "1371204785c657d6138cfd25ea0516b1cc0a45b1cad205c2ec250f01ce3f6c3a"
+tokenizer_sha = "tok-sha-bounded"
+template_sha = "tpl-sha-bounded"
+sampling_sha = "samp-sha-bounded"
+
+store = None
+log_ = None
+epoch = None
+run_id = "bounded"
 
 
 def log(msg: str) -> None:
     print(f"[bounded] {msg}", flush=True)
 
 
+def next_lifecycle() -> int:
+    return max([e["lifecycle_seq"] for e in log_.iterate()] + [-1]) + 1
+
+
 def main() -> int:
+    global store, log_, epoch, run_id
+
+    import torch  # noqa: F401  (keeps torch import parity with the loop)
     from transformers import AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
     from examples.countdown.closed_loop import start_server, stop_server
     from grpo_guard.adapters.vllm_runtime import VLLMRuntimeAdapter
-
-    import shutil
+    from grpo_guard.schema.artifacts import EventRef, ManifestRef
+    from grpo_guard.schema.envelope import TrajectoryEnvelope, TrainingContract
+    from grpo_guard.schema.events import SyncEvent
+    from grpo_guard.schema.manifests import PolicyManifest, SplitManifest
+    from grpo_guard.store.append_log import AppendLog
+    from grpo_guard.store.artifact_store import ArtifactStore
+    from grpo_guard.store.canonical_json import canonical_sha256
+    from grpo_guard.validators.context import ProtocolConfig, ValidationContext
+    from grpo_guard.validators.validator import validate_envelope
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     shutil.rmtree(OUT_DIR / "events", ignore_errors=True)
     shutil.rmtree(OUT_DIR / "store", ignore_errors=True)
 
-    global store, log_, epoch, run_id
     run_id = f"bounded-{int(time.time())}"
     store = ArtifactStore(OUT_DIR / "store")
     log_ = AppendLog(OUT_DIR / "events", run_id=run_id, lease_id="guard-bounded")
@@ -98,7 +104,7 @@ def main() -> int:
             "target_numbers": [4, 5, 6], "goal": 30, "prompt_id": "countdown-0000",
         }
         res = client.generate([p["text"]], n=1, temperature=1.0, top_p=1.0,
-                              top_k=0, max_tokens=64, logprobs=0)
+                              top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
         pid, cid, lps = res["prompt_ids"], res["completion_ids"], res["logprobs"]
         gen = runtime.emit_generation(
             pid[0], cid[0], [lp[0] for lp in lps[0]] if lps else None,
@@ -109,44 +115,51 @@ def main() -> int:
         )
         log(f"real generation: {gen.event_id}")
 
-        t = trajectory(gen)
+        # ---- rebuild a Trajectory from the real generation ------------------
+        seq = np.frombuffer(store.get(gen.sequence_token_ids), dtype=np.int32).copy()
+        target = np.frombuffer(store.get(gen.completion_target_mask), dtype=np.int8).copy()
+        loss = np.frombuffer(store.get(gen.loss_mask), dtype=np.int8).copy()
+        lp = np.frombuffer(store.get(gen.service_behavior_logprobs), dtype=np.float32).copy()
 
-        def bounded_decide(contract_parent, max_lag, correction):
-            from grpo_guard.schema.envelope import TrajectoryEnvelope, TrainingContract
-            from grpo_guard.schema.manifests import SplitManifest
+        def events_dict():
+            from grpo_guard.schema.events import event_from_payload
 
-            env = make_envelope(gen)
-            contract = TrainingContract(
-                protocol="bounded_off_policy", trainer_parent_policy_version=contract_parent,
-                consuming_update_id="update-1", max_policy_lag_versions=max_lag,
-                importance_correction=correction,
-                behavior_logprob_source="generation_service",
-                authoritative_behavior_logprob_event=EventRef(
-                    uri="", event_id=gen.event_id, event_sha256=gen.event_sha256),
-                diagnostic_non_authoritative_logprobs_allowed=False,
+            return {e["event_id"]: event_from_payload(e) for e in log_.iterate()}
+
+        def envelope_for(contract):
+            split = {"split_id": "split-train", "split_name": "train", "prompt_ids": ["countdown-0000"]}
+            return TrajectoryEnvelope(
+                envelope_id=f"env-{gen.event_id}-bounded",
+                envelope_stage="pre_reward", run_id=run_id, request_id=gen.request_id,
+                generation_event=EventRef(uri="", event_id=gen.event_id, event_sha256=gen.event_sha256),
+                policy_manifest=ManifestRef(uri="", manifest_id="pm-0", sha256=ckpt_sha),
+                split_manifest=ManifestRef(uri="", manifest_id="split-train",
+                                           sha256=canonical_sha256(split)),
+                training_contract=contract,
+            ).seal()
+
+        from grpo_guard import testing
+
+        def decide(contract, protocol):
+            env = envelope_for(contract)
+            t = testing.Trajectory(
+                run_id=run_id, events=events_dict(),
+                policy_manifest=PolicyManifest(manifest_id="pm-0", model_id="Qwen/Qwen3-4B",
+                                               model_revision="r", policy_version=0, weights=[],
+                                               checkpoint_manifest_sha256=ckpt_sha,
+                                               tokenizer_sha256=tokenizer_sha,
+                                               chat_template_sha256=template_sha,
+                                               precision="bf16", adapter_kind="full",
+                                               code_commit_sha="c", config_sha256=sampling_sha),
+                split_manifest=SplitManifest(split_id="split-train", split_name="train",
+                                             prompt_ids=["countdown-0000"]),
+                envelope=env, store=store, sequence=seq, target_mask=target, loss_mask=loss,
+                logprobs=lp, completion_text="", goal=0, target_numbers=[],
+                reward_components={}, sequence_ref=gen.sequence_token_ids,
             )
-            env = env.model_copy(deep=True).model_copy(update={
-                "envelope_id": f"{env.envelope_id}-bounded",
-                "training_contract": contract,
-            })
-            env.envelope_sha256 = ""
-            env = env.seal()
-            from grpo_guard import testing
-
-            t2 = testing.Trajectory(
-                run_id=t.run_id, events=t.events, policy_manifest=t.policy_manifest,
-                split_manifest=t.split_manifest, envelope=env, store=t.store,
-                sequence=t.sequence, target_mask=t.target_mask, loss_mask=t.loss_mask,
-                logprobs=t.logprobs, completion_text=t.completion_text, goal=t.goal,
-                target_numbers=t.target_numbers, reward_components=t.reward_components,
-                sync_events=t.sync_events, sequence_ref=t.sequence_ref,
-            )
-            protocol = ProtocolConfig(name="bounded_v01", mode="bounded_off_policy",
-                                      max_policy_lag_versions=max_lag,
-                                      importance_correction=correction)
             ctx = ValidationContext(
-                envelope=t2.envelope, store=t2.store, events=t2.events,
-                policy_manifest=t2.policy_manifest, split_manifest=t2.split_manifest,
+                envelope=t.envelope, store=t.store, events=t.events,
+                policy_manifest=t.policy_manifest, split_manifest=t.split_manifest,
                 protocol=protocol,
             )
             return validate_envelope(ctx, "identity_pre_reward").decision_payload
@@ -157,12 +170,23 @@ def main() -> int:
             ("lag5_exceeds_bound", 5, 2, "importance-ratio-v1", "reject"),
             ("bounded_without_correction", 1, 2, None, "reject"),
         ]:
-            d = bounded_decide(parent, max_lag, correction)
-            codes = d.reason_codes[:3]
+            contract = TrainingContract(
+                protocol="bounded_off_policy", trainer_parent_policy_version=parent,
+                consuming_update_id="update-1", max_policy_lag_versions=max_lag,
+                importance_correction=correction,
+                behavior_logprob_source="generation_service",
+                authoritative_behavior_logprob_event=EventRef(
+                    uri="", event_id=gen.event_id, event_sha256=gen.event_sha256),
+                diagnostic_non_authoritative_logprobs_allowed=False,
+            )
+            protocol = ProtocolConfig(name="bounded_v01", mode="bounded_off_policy",
+                                      max_policy_lag_versions=max_lag,
+                                      importance_correction=correction)
+            d = decide(contract, protocol)
             results.append({"case_id": case_id, "decision": d.decision,
-                            "reason_codes": codes, "expected": expect,
+                            "reason_codes": d.reason_codes[:3], "expected": expect,
                             "match": d.decision == expect})
-            log(f"{case_id}: {d.decision} {codes}")
+            log(f"{case_id}: {d.decision} {d.reason_codes[:3]}")
 
         (OUT_DIR / "bounded_online.json").write_text(json.dumps({
             "run_id": run_id, "scope": "bounded off-policy online (design doc §9.2)",
