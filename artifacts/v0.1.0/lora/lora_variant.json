@@ -1,0 +1,12 @@
+{
+  "run_id": "lora-1787418763",
+  "scope": "LoRA-variant manifest/identity check (design doc \u00a721, \u00a77.2)",
+  "generation": "gen-0-lora-1787418763-0001",
+  "identity_decision": "allow",
+  "lora_update_loss": -1.0078433752059937,
+  "adapter_params": 5898240,
+  "adapter_kind": "lora",
+  "base_model_sha256": "4063d213cd948fc41a633d7445caade15308df9e40dce5842789cfed9361743b",
+  "adapter_sha256": "62c12c71affa87a7c7cc3a998e668ba9c17e78eef84c8071bb8ec73b75919b57",
+  "checkpoint_manifest_sha256": "5c016e4dae7823a710ae6f260ebc9da3e50010e945374f227a573ae120fe89bf"
+}

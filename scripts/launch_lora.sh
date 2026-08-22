@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Launch the LoRA-variant check on autodl2 (user-directed).
+set -euo pipefail
+cd /root/autodl-tmp/grpo-guard/repo
+nohup bash -c '
+cd /root/autodl-tmp/grpo-guard/repo
+GRPO_GUARD_MODEL_PATH=/root/autodl-tmp/models/Qwen3-4B \
+GRPO_GUARD_OUT=/root/autodl-tmp/grpo-guard/lora_out \
+GRPO_GUARD_REPO=/root/autodl-tmp/grpo-guard/repo \
+PYTHONPATH=/root/autodl-tmp/grpo-guard/repo/src \
+CUDA_VISIBLE_DEVICES=0 \
+/root/autodl-tmp/grpo-guard/.venv/bin/python examples/countdown/lora_variant.py \
+  > /root/autodl-tmp/grpo-guard/lora.log 2>&1
+' > /dev/null 2>&1 &
+echo LORA_LAUNCHED
