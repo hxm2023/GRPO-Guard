@@ -111,3 +111,25 @@ Alternative · Why rejected · Falsification.
   refusal in ~3 minutes, no GPU required (design doc §23 demo requirement).
 - **Falsification**: if the demo output diverges from the gate results, the
   demo is fixed or removed before any claim uses it.
+
+## D9 — Batch online experiments on autodl2 (2026-08-22, user-directed)
+
+- **Decision**: run batch online experiments on the rented autodl2 GPUs:
+  (1) F1-F8 online matrix over 32 REAL rollouts (8 prompts × 4 gens) with
+  per-family multi-generation injection and normal-set 32/32 ALLOW plus
+  online validator timing; (2) paired gradient replay over ALL 8 prompt
+  groups × F2/F3/F4 (24 pairs) for metric distributions instead of single
+  points.
+- **Evidence**: pre-registered expectations from configs/faults/*.yaml;
+  results written as machine-readable JSON with run_id and committed under
+  artifacts/; honest reporting (no cherry-picking — every pair reported).
+- **Alternative**: keep the single-point online matrices — rejected: the
+  user directed batch-scale experiments, and batch statistics are stronger
+  evidence than single points.
+- **Why rejected others**: the closed loop is intentionally ONE committed
+  update-sync cycle (design doc §17); a second loop would burn budget for
+  no new evidence class.  Budget check: ~40/80 GPU·h used, ~40 remain.
+- **Falsification**: if batch results contradict the single-point results
+  (e.g. a fault family stops firing on some generation), the matrix claim
+  is narrowed to the observed subset and the discrepancy is investigated
+  before any release claim.
