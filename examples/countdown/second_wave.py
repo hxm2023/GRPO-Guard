@@ -143,12 +143,13 @@ def main() -> int:
             ),
         ).seal()
 
-    def validate(env, protocol, update_input=None, split_registry=None, eval_proto=None):
+    def validate(env, protocol, update_input=None, split_registry=None, eval_proto=None,
+                 ckpt_sha=ckpt_sha_v0):
         ctx = ValidationContext(
             envelope=env, store=store, events=events_dict(),
             policy_manifest=manifest_model({"manifest_id": "pm", "model_id": "Qwen/Qwen3-4B",
                                             "model_revision": "r", "policy_version": 0, "weights": [],
-                                            "checkpoint_manifest_sha256": ckpt_sha_v0,
+                                            "checkpoint_manifest_sha256": ckpt_sha,
                                             "tokenizer_sha256": "t", "chat_template_sha256": "m",
                                             "precision": "bf16", "adapter_kind": "full",
                                             "code_commit_sha": "c", "config_sha256": "s"}),
@@ -251,7 +252,7 @@ def main() -> int:
         rewards_v1 = []
         for gen, p, text in rollouts_v1:
             env_id = envelope(gen, "pre_reward", 1, "update-2")
-            d = validate(env_id, strict)
+            d = validate(env_id, strict, ckpt_sha=v1_ckpt_sha)
             if d.decision != "allow":
                 raise RuntimeError(f"loop#2 identity FAIL {d.reason_codes}")
             r = countdown_rule_verifier(text, p["target_numbers"], p["goal"])
