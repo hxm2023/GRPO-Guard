@@ -58,6 +58,22 @@ REVISE round found shared-base contamination, missing ALLOW verification,
 hardcoded stale-acceptance, overclaimed v1 count — all fixed and re-run
 green. See git history for the fix commits.
 
+## v0.2-preview — F5-F8 fault families (2026-08-22)
+
+Evidence: `artifacts/v0.2.0-dev/fault_matrix.json`, `tests/frozen/f5_f8_v02/`
+(pre-registered expectations in `configs/faults/f5_f8_v02.yaml`).
+
+| family | rule | decision |
+|---|---|---|
+| F5 split leakage | D003_SPLIT_OVERLAP | reject (overlap report) |
+| F6 evaluator alias | R006_EVALUATOR_ALIAS | quarantine |
+| F7 event reorder | L005_SCORING_AFTER_UPDATE | reject |
+| F8 artifact mutation | T001_ARTIFACT_HASH_MISMATCH | reject |
+
+v0.2 matrix over the REAL loop artifacts: **4/4 matched**, normal 4/4 allow.
+Explicitly v0.2-preview per design doc §11 — NOT part of the v0.1 matrix;
+no GPU budget spent.
+
 ## Limitations (honest, design doc §21)
 
 - loss = 0.0 on the Day 2 update because behavior policy == new policy

@@ -80,3 +80,34 @@ Alternative · Why rejected · Falsification.
   layer of the two-layer evidence (§10).
 - **Falsification**: if a stale HF cache served different weights, the canary
   mismatch or manifest hash mismatch aborts the loop.
+
+## D7 — v0.2-preview extension: F5-F8 fault families (2026-08-22)
+
+- **Decision**: implement F5 (split leakage → `D003_SPLIT_OVERLAP`, reject +
+  overlap report), F6 (evaluator alias → `R006_EVALUATOR_ALIAS`, quarantine),
+  F7 (event reorder → L005/P007 with explicit fixtures), F8 (artifact
+  mutation → T001 with isolated-store injection) as **v0.2-preview** —
+  explicitly NOT part of the v0.1 matrix (design doc §11: F7/F8 upgrade to
+  formal families only in v0.2 with a frozen injection protocol).
+- **Evidence**: v0.2 matrix over the REAL loop artifacts: 4/4 matched
+  (pre-registered expectations in configs/faults/f5_f8_v02.yaml), normal
+  4/4 allow; frozen fixtures under tests/frozen/f5_f8_v02 with
+  no-overwrite; unit tests green; full suite green (126 tests).
+- **Alternative**: leave F5-F8 unimplemented until v0.2 — rejected: the
+  user asked to continue upgrading; the rule + fixture work is CPU-only and
+  de-risks the v0.2 freeze.
+- **Why rejected others**: no GPU budget spent; v0.1 release (tag v0.1.0)
+  is untouched and remains the authoritative gate-passed release.
+- **Falsification**: if the v0.2 matrix cannot run against real loop
+  artifacts or the fixtures drift from pre-registered expectations, the
+  v0.2-preview claim is withdrawn.
+
+## D8 — v0.2-preview demo artifact (2026-08-22)
+
+- **Decision**: add a CPU-only 3-5 minute demo (`examples/countdown/demo.py`
+  + `docs/demo.md`) covering happy path, F1-F4, F5-F8, and the fail-closed
+  guarded update.
+- **Evidence**: demo output verifies all eight fault families + text-input
+  refusal in ~3 minutes, no GPU required (design doc §23 demo requirement).
+- **Falsification**: if the demo output diverges from the gate results, the
+  demo is fixed or removed before any claim uses it.

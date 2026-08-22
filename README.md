@@ -112,6 +112,21 @@ PY
 | Day 3 Correctness | canonical F1–F4 **4/4 reject** (pre-registered codes); 12/12 variants; normal **32/32 ALLOW** (0 false reject); boundary 4/4; stale acceptance 0 | `fault_matrix.json` |
 | Day 4 Impact/Overhead | paired gradients: F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model); guard overhead 40.4 ms/batch (3 repeats); F1 update norm 0.0 measured | `replay/`, `overhead.json`, `day4_summary.json` |
 
+## v0.2-preview: fault families F5-F8
+
+Implemented as preview (CPU-only, clearly scoped — NOT part of the v0.1
+matrix; design doc §11 upgrades them to formal families in v0.2):
+
+| Fault | Rule | Decision | Evidence |
+|---|---|---|---|
+| F5 split leakage | `D003_SPLIT_OVERLAP` (+ overlap report) | reject | `tests/frozen/f5_f8_v02/`, `artifacts/v0.2.0-dev/fault_matrix.json` |
+| F6 evaluator alias | `R006_EVALUATOR_ALIAS` | quarantine | same |
+| F7 event reorder | `L005_SCORING_AFTER_UPDATE` (+P007) | reject | same |
+| F8 artifact mutation | `T001_ARTIFACT_HASH_MISMATCH` (isolated store) | reject | same |
+
+`uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop` → 4/4 matched,
+normal 4/4 allow, GATE PASS (v0.2-preview).
+
 ## Limitations (design doc §21)
 
 - The v0.1 update consumed its own policy's trajectories (loss ≈ 0,
