@@ -15,17 +15,23 @@ artifact).
   **32/32 身份验证 ALLOW**、**32/32 预更新验证 ALLOW**、1 次真实 optimizer
   step、canary v1 pass（5 次重载校准，tolerance 0）。
 - 对预先冻结的 8 类故障（F1-F4 canonical + F5-F8 v0.2）在**真实 server
-  rollout 上**完成注入矩阵：**批量在线矩阵 32 rollouts —— F1-F4 128/128
+  rollout 上**完成注入矩阵：批量在线矩阵 32 rollouts —— F1-F4 128/128
   reject、F5-F8 128/128 reject/quarantine、normal 32/32 ALLOW（0 false
-  reject）**；单点在线矩阵 4/4 + 4/4；v0.2 变体矩阵 12/12。
+  reject）；扩展至 64 rollouts —— F1-F4 256/256 reject、F5-F8 256/256
+  reject/quarantine、normal 64/64 ALLOW**；单点在线矩阵 4/4 + 4/4；
+  v0.2 变体矩阵 12/12。
 - 从同一 producer artifact 确定性派生 fault pairs，量化梯度影响（**24 对
   配对梯度**，v1 权重 + 确定性漂移）：F2 misbound logprobs 平均 cosine
   **0.93**（值相近时梯度几乎不动——合同检测的边界被如实量化）、F3
   retokenization **0.53**、F4 mask shift **0.19**（部分组方向翻转，min
   -0.03）；F1 guard-off update norm 0.0 如实报告（fp32 精度测得）。
-- Guard 开销：在线 validator **0.59 ms/envelope**（n=32）；离线 3 次重复
-  raw+mean±sd 全报；P008 canary-mismatch 在线验证（drift 32 tokens →
-  reject）。
+- **bounded off-policy 在线闭环**（§9.2）：lag=1 消费 v0 轨迹（界内 +
+  声明 correction → ALLOW），一次 committed update + **398 参数同步 +
+  v1 提交**；F1 梯度影响如实报告 undefined_near_zero（合同故障在 P004
+  optimizer 前拦截，不造 cosine）。
+- Guard 开销：在线 validator **0.59–0.63 ms/envelope**（n=32/64）；离线
+  3 次重复 raw+mean±sd 全报；P008 canary-mismatch 在线验证（drift 32
+  tokens → reject）。
 
 ## 门控状态
 
