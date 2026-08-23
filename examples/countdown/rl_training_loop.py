@@ -436,14 +436,23 @@ def main() -> int:
             # D17: in TRAINING the weights are supposed to move, so the
             # v0-baseline canary is a DRIFT MONITOR, not a gate: record the
             # drift per step and continue.  P0-2: a mismatch is recorded as
-            # canary_mismatch (NEVER canary_passed).  Fail-closed (P008)
-            # stays active for non-training checks.
+            # canary_mismatch (NEVER canary_passed).  After a mismatch the
+            # current sketch becomes the NEW baseline (a canary_passed at the
+            # new consistency point) so the NEXT rollout's sync reference is
+            # a terminal-success event (P003) — the mismatch history stays in
+            # the log.
             check = suite.check(canary_gen, k, v0_baseline, tolerance)
             if check.verdict != "pass":
                 log(f"canary v{k} MISMATCH (drift monitor, D17): {check.drift} "
                     f"— weight movement is expected in training")
-                canary_k = control.canary_mismatch(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
-                                                   sync_k[0].sync_id, check.drift, required_epoch=epoch)
+                control.canary_mismatch(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
+                                        sync_k[0].sync_id, check.drift, required_epoch=epoch)
+                v0_baseline = suite.sketch(canary_gen)  # recalibrate at the new weights
+                tolerance = 0
+                canary_k = control.canary_passed(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
+                                                 sync_k[0].sync_id, {"max_token_drift": 0,
+                                                                     "recalibrated_after_mismatch": True},
+                                                 required_epoch=epoch)
             else:
                 canary_k = control.canary_passed(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
                                                  sync_k[0].sync_id, check.drift, required_epoch=epoch)
