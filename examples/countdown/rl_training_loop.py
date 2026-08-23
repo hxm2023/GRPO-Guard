@@ -55,7 +55,6 @@ compute_identity_hashes = cl.compute_identity_hashes
 patch_device_normalization = cl.patch_device_normalization
 _token_diff = cl._token_diff
 now_utc = cl.now_utc
-N_GENS = cl.N_GENS
 N_PROMPTS = cl.N_PROMPTS
 
 
