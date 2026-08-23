@@ -200,6 +200,28 @@ class ValidationDecisionEvent(EventBase):
     decision_payload: ValidationDecision
 
 
+class TrainingStepEvent(EventBase):
+    """Per-step training metrics persisted to the event stream (D15 infra).
+
+    Makes a training run fully recoverable from the event log alone
+    (PM-2 prevention): loss / ratio / success / weight-delta are no
+    longer only in the run log.
+    """
+
+    event_type: Literal["training_step_finished"] = "training_step_finished"
+    update_id: str
+    parent_policy_version: int
+    output_policy_version: int
+    rollout_sequences: int
+    consumed_sequences: int
+    success_rate: float
+    loss: float
+    ratio_p50: float
+    ratio_max: float
+    clip_fraction: float | None = None
+    weight_delta_fp32_vs_v0: float | None = None
+
+
 def event_from_payload(payload: dict) -> EventBase:
     """Rehydrate a typed event from its canonical JSON payload."""
     kind = payload["event_type"]
@@ -221,6 +243,8 @@ def event_from_payload(payload: dict) -> EventBase:
         model = ScoringEvent
     elif kind == "reward_finished":
         model = RewardEvent
+    elif kind == "training_step_finished":
+        model = TrainingStepEvent
     else:
         raise ValueError(f"unknown event_type {kind}")
     return model(**payload)

@@ -133,6 +133,16 @@ def _cmd_alert_scan(args) -> int:
     return 0 if summary["failed"] == 0 else 1
 
 
+def _cmd_resume(args) -> int:
+    from grpo_guard.resume import write_recovery_plan
+
+    plan = write_recovery_plan(Path(args.events), Path(args.out))
+    print(f"last completed step: {plan['last_step']} (next: {plan['next_step']})")
+    print(f"checkpoint: {plan['checkpoint_dir']} sha={plan['checkpoint_manifest_sha256']}")
+    print(f"recovery plan -> {args.out}")
+    return 0 if plan["ok"] else 1
+
+
 def _cmd_verify(args) -> int:
     from grpo_guard.verify import verify_artifact_dir
 
@@ -216,6 +226,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dir", required=True, help="events dir")
     p.add_argument("--webhook", required=True, help="webhook URL (generic JSON or Slack-compatible)")
     p.set_defaults(fn=_cmd_alert_scan)
+
+    p = sub.add_parser("resume", help="training recovery plan from the event log")
+    p.add_argument("--events", required=True, help="events dir")
+    p.add_argument("--out", default="recovery_plan.json", help="output recovery plan json")
+    p.set_defaults(fn=_cmd_resume)
 
     p = sub.add_parser("verify", help="verify the evidence chain (checksums + event seals/order/refs)")
     p.add_argument("--artifact-dir", required=True, help="artifact dir with SHA256SUMS")
