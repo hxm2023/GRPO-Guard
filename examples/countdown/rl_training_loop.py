@@ -424,6 +424,7 @@ def main() -> int:
             step_res = guarded_optimizer_step(
                 handles, model, optimizer, store=store, decision_verifier=decision_is_allow,
                 nonce_registry=nonce_registry, group_size=N_GENS, clip_epsilon=0.1,
+                max_micro_batch=8,  # D18: bound per-forward memory (64-seq peak OOMs one 84GB card)
                 commit_fn=commit_step,
             )
             ckpt_k = step_res.checkpoint

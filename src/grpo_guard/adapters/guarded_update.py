@@ -250,6 +250,7 @@ def guarded_optimizer_step(
     loss_fn=None,
     clip_epsilon: float = 0.2,
     beta: float = 0.04,
+    max_micro_batch: int | None = None,
     commit_fn=None,
 ) -> GuardedStepResult:
     """THE single, unbypassable optimizer entry (P0-1).
@@ -298,7 +299,8 @@ def guarded_optimizer_step(
         from grpo_guard.adapters.grpo_loss import _loss_from_batches
 
         loss_fn = _loss_from_batches
-    result = loss_fn(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta)
+    result = loss_fn(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta,
+                     max_micro_batch=max_micro_batch)
     optimizer.zero_grad()
     result.loss.backward()
     optimizer.step()

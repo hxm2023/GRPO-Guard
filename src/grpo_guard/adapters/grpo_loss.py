@@ -62,17 +62,61 @@ def _loss_from_batches(
     group_size: int,
     clip_epsilon: float = 0.2,
     beta: float = 0.04,
+    max_micro_batch: int | None = None,
 ) -> GuardedLossResult:
     """GRPO loss over ALREADY-materialized batches (consumed handles).
 
     Internal shared path for ``grpo_loss`` and ``guarded_optimizer_step``:
     the optimizer may only reach the loss through validated, consumed
     handles — never through raw tensors taken out by the caller.
+
+    ``max_micro_batch`` bounds the per-forward batch size (memory: a
+    64-sequence batch of 4B weights peaks ~83GB on one 84GB card; chunks
+    of 8 bring the peak well under control).  The loss accumulates over
+    chunks; ratios/clips are concatenated for the reported metrics.
     """
     if not batches:
         raise ValueError("no materialized batches")
-    seq_np, mask_np, lp_np, rewards_np = _stack_batches(batches)
+    if max_micro_batch is None:
+        max_micro_batch = len(batches)
+    if max_micro_batch <= 0:
+        raise ValueError("max_micro_batch must be positive")
     device = next(model.parameters()).device
+
+    def _one_chunk(chunk):
+        seq_np, mask_np, lp_np, rewards_np = _stack_batches(chunk)
+        return _forward_chunk(model, seq_np, mask_np, lp_np, rewards_np,
+                              group_size, clip_epsilon, beta, device)
+
+    first = _one_chunk(batches[:max_micro_batch])
+    loss = first["loss"]
+    ratios = first["ratios"]
+    masked_count = first["masked_count"]
+    for i in range(max_micro_batch, len(batches), max_micro_batch):
+        c = _one_chunk(batches[i:i + max_micro_batch])
+        loss = loss + c["loss"]
+        ratios = torch.cat([ratios, c["ratios"]])
+        masked_count = masked_count + c["masked_count"]
+    loss = loss / (masked_count + 1e-9)
+
+    masked_ratio = ratios
+    metrics = {
+        "ratio_p50": float(torch.quantile(masked_ratio, 0.5).item()),
+        "ratio_p95": float(torch.quantile(masked_ratio, 0.95).item()),
+        "ratio_max": float(masked_ratio.max().item()),
+        "clip_fraction": float(
+            ((masked_ratio < 1.0 - clip_epsilon) | (masked_ratio > 1.0 + clip_epsilon)).float().mean().item()
+        ),
+        "loss": float(loss.item()),
+        "B": int(len(batches)),
+        "group_size": int(group_size),
+    }
+    return GuardedLossResult(loss=loss, metrics=metrics)
+
+
+def _forward_chunk(model, seq_np, mask_np, lp_np, rewards_np,
+                   group_size, clip_epsilon, beta, device) -> dict:
+    """One forward over a chunk; returns accumulated loss, ratios, mask count."""
     seq = _as_tensor(seq_np).to(device)
     loss_mask = _as_tensor(mask_np).to(device)
     old_logps = _as_tensor(lp_np).to(device)
@@ -108,22 +152,12 @@ def _loss_from_batches(
 
     per_token = -torch.min(ratio, clipped) * advantage.unsqueeze(1)
     per_token = per_token * mask.float()
-    loss = per_token.sum() / (mask.float().sum() + 1e-9)
-
     masked_ratio = ratio[mask]
-    metrics = {
-        "ratio_p50": float(torch.quantile(masked_ratio, 0.5).item()),
-        "ratio_p95": float(torch.quantile(masked_ratio, 0.95).item()),
-        "ratio_max": float(masked_ratio.max().item()),
-        "clip_fraction": float(
-            ((masked_ratio < 1.0 - clip_epsilon) | (masked_ratio > 1.0 + clip_epsilon)).float().mean().item()
-        ),
-        "loss": float(loss.item()),
-        "B": int(B),
-        "T": int(T),
-        "group_size": int(group_size),
+    return {
+        "loss": per_token.sum(),          # unnormalized; caller divides by total count
+        "ratios": masked_ratio,
+        "masked_count": mask.float().sum(),
     }
-    return GuardedLossResult(loss=loss, metrics=metrics)
 
 
 def grpo_loss(
