@@ -188,3 +188,24 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if any F5-F8 case is later found mis-classified
   (missed fault or false reject), the formal status is withdrawn and the
   discrepancy is disclosed before any further claim.
+
+## D13 — Final real-load experiment: 256-rollout batch matrix (2026-08-23, user-approved)
+
+- **Decision**: run the largest real-load batch online matrix — 256 REAL
+  rollouts (64 countdown prompts x 4 gens) with F1-F8 injected into EVERY
+  generation (1024 F1-F4 decisions + 1024 F5-F8 decisions + 256 normal
+  ALLOW checks), on autodl2 GPU1 sharing the card with agent-ttrl
+  (recorded as parallel-with in the manifest; validator timing is CPU-side
+  and not degraded).  Final GPU experiment under the 80 GPU·h cap
+  (~66/80 used before this run; expected <= 3 GPU·h).
+- **Evidence**: machine-readable JSON with run_id, committed under
+  artifacts/v0.1.0/batch_online_256/; every generation reported; parallel
+  load observed via nvidia-smi in the manifest.
+- **Alternative**: stop at 128 rollouts — rejected: user directed a final
+  larger real-load run; 256 is the largest practical batch on one session.
+- **Why rejected others**: a second closed loop is forbidden by design doc
+  §17 (ONE committed update-sync cycle); the 256 matrix is the maximum
+  density of fault-decision evidence per GPU·h.
+- **Falsification**: if any family stops firing or any normal generation is
+  rejected, the claim is narrowed to the observed subset and the
+  discrepancy is investigated before any release claim.
