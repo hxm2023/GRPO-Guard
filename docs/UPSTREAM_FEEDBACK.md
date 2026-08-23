@@ -40,12 +40,16 @@ issues — honest contribution signal, no duplicate issue reports.
 - `trl 1.10.0`'s `scripts/vllm_serve.py` calls `FastAPI(lifespan=...)` in a
   way that breaks with **starlette >= 1.0** (`TypeError: Router.__init__()
   got an unexpected keyword argument 'on_startup'`) — starlette 1.x
-  removed that kwarg.  Meanwhile `vllm 0.26.0` *declares*
-  `starlette>=1.0.1`, so a plain `pip install vllm==0.26.0` in the same
-  env upgrades starlette and silently breaks trl's server.  Our pinned
-  matrix works with starlette 0.37.2 (fastapi 0.110.3); the venv drifts
-  when either package is re-resolved.  Environment/tooling trap, noted
-  for future pins — no upstream issue filed.
+  removed that kwarg.  Root cause (2026-08-23): the venv carried fastapi
+  0.110.3 (pins starlette<0.38) while vllm 0.26.0 declares
+  `fastapi>=0.133,<0.137` + `starlette>=1.0.1` — a stale fastapi under a
+  re-resolved vllm silently produces the broken pair.
+- **Upstream PR (2026-08-23)**: opened huggingface/trl **#6873** — pin
+  `fastapi>=0.133` in the `[vllm]` extra (trl main still declares an
+  unconstrained `fastapi`), so resolvers in dirty venvs upgrade fastapi
+  instead of leaving the broken combination.  Local fix meanwhile: upgrade
+  fastapi to 0.136.3 (satisfies vllm's floor); `trl vllm-serve` verified
+  working on fastapi 0.136.3 + starlette 1.6.0.
 
 ## 4. TRL `VLLMClient.generate` return shape
 
