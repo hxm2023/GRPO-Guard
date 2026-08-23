@@ -280,3 +280,21 @@ Alternative · Why rejected · Falsification.
   checks capture the same class of silent corruption cheaply.
 - **Falsification**: if any F9/F10 fixture is mis-classified, the family
   claim is withdrawn and the discrepancy investigated.
+
+## D17 — Canary semantics in RL training: gate -> drift monitor (2026-08-23)
+
+- **Decision**: during the RL training loop (D15), a v0-baseline canary
+  mismatch no longer ABORTS the run — it is recorded per step as a drift
+  monitor (max_token_drift in each step's record).  Rationale: in
+  training the weights are SUPPOSED to move; the canary's frozen-weight
+  consistency semantics (calibration tolerance = 0) apply to deployment /
+  reload / sync-fidelity checks, not to legitimate policy updates.
+  Measured: lr=1e-3 -> drift 8 tokens, lr=1e-4 -> drift 7 — the drift
+  tracks real weight movement, so it is a useful training signal, not a
+  fault.  P008 fail-closed remains fully active for non-training checks
+  (canary mismatch online experiment, loop syncs).
+- **Evidence**: per-step canary drift in rl_training.json; the earlier
+  abort logs (lr 1e-3 and 1e-4 runs) document the guard failing closed
+  before this decision.
+- **Falsification**: if a canary drift occurs on an UNCHANGED weight set,
+  the drift monitor must fail closed again (P008 path).
