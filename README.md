@@ -151,6 +151,26 @@ upgrade condition (frozen injection protocol + passing matrix) is met
 `uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop` → 4/4 matched,
 normal 4/4 allow, GATE PASS.
 
+## v0.2.1: fault families F9-F10 (decision D16)
+
+Task-agnostic families: **F9 reward injection** —
+`R008_REWARD_VERIFIER_UNREGISTERED` (a reward event claiming a verifier
+not in the registered evaluator registry, or with a wrong protocol hash →
+reject); **F10 data poisoning** — `D004_PROMPT_CONTENT_MISMATCH` (the
+prompt's token content substituted under the same id vs the frozen
+`content_sha256s` registry → reject; this activates the manifest's
+previously-unchecked content field).  Frozen fixtures 3/3 + normal 4/4,
+GATE PASS (`configs/faults/f9_f10_v01.yaml`, `tests/frozen/f9_f10_v01/`).
+
+## Operations: monitor + alerts
+
+`grpo-guard events --dir <events> [--type --component --code --prompt]`
+searches the append-only event log; `grpo-guard alert-scan --dir <events>
+--webhook <url>` POSTs every non-ALLOW decision to a webhook
+(Slack-compatible or generic JSON).  `examples/monitor/panel.py` is a
+Streamlit panel over the event log (decision distribution, reason codes,
+lineage tracing, run health) for live demos.
+
 ## Task portability
 
 The framework is not bound to Countdown: a second deterministic reward
