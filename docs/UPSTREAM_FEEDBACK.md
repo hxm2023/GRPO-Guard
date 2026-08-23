@@ -44,12 +44,15 @@ issues — honest contribution signal, no duplicate issue reports.
   0.110.3 (pins starlette<0.38) while vllm 0.26.0 declares
   `fastapi>=0.133,<0.137` + `starlette>=1.0.1` — a stale fastapi under a
   re-resolved vllm silently produces the broken pair.
-- **Upstream PR (2026-08-23)**: opened huggingface/trl **#6873** — pin
-  `fastapi>=0.133` in the `[vllm]` extra (trl main still declares an
+- **Upstream PR (2026-08-23)**: first opened as huggingface/trl **#6873**
+  — pin `fastapi>=0.133` in the `[vllm]` extra (trl main still declares an
   unconstrained `fastapi`), so resolvers in dirty venvs upgrade fastapi
-  instead of leaving the broken combination.  Local fix meanwhile: upgrade
-  fastapi to 0.136.3 (satisfies vllm's floor); `trl vllm-serve` verified
-  working on fastapi 0.136.3 + starlette 1.6.0.
+  instead of leaving the broken combination.  #6873 was auto-closed by
+  the repo bot for missing the PR template (process, not technical);
+  reopened as **#6876** with the full template (incl. AI-writing
+  disclosure).  Local fix meanwhile: upgrade fastapi to 0.136.3
+  (satisfies vllm's floor); `trl vllm-serve` verified working on
+  fastapi 0.136.3 + starlette 1.6.0.
 
 ## 4. TRL `VLLMClient.generate` return shape
 

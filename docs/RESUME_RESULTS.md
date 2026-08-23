@@ -1,4 +1,4 @@
-# GRPO-Guard — resume-ready results (2026-08-22)
+# GRPO-Guard — resume-ready results (updated 2026-08-23)
 
 Every number below is gate-passed and traces to `artifacts/` + commit +
 SHA256SUMS (design doc §16, §20: 简历每个数字可追到 report cell 和 raw
@@ -8,13 +8,13 @@ artifact).
 
 **中文版：**
 > GRPO-Guard：在线 GRPO 轨迹契约与故障注入框架｜PyTorch、TRL、vLLM
-> - 在 Qwen3-4B 真实闭环中实现可审计的训练证据链（内容寻址事件 + 单次守卫更新），8 类故障在 64 个真实 rollout 上 512/512 拒绝、normal 64/64 无误拒
-> - 确定性配对回放量化故障梯度影响（24 对）；guard 开销 0.6 ms/条；CI 全绿（py3.11/3.12）
+> - 在 Qwen3-4B 真实闭环中实现可审计的训练证据链（内容寻址事件 + 单次守卫更新），10 类故障在 256 个真实 rollout 上 2048/2048 拒绝、normal 256/256 无误拒
+> - 真实 RL 训练（bounded off-policy GRPO）：GSM8K 成功率 28%→峰值 78%，19 次 committed 更新全程守卫；确定性配对回放量化故障梯度影响（24 对）；CI 六层门禁全绿
 
 **English version:**
 > **GRPO-Guard** — online GRPO trajectory-contract & fault-injection framework | PyTorch, TRL, vLLM
-> - Built a machine-verifiable evidence chain (content-addressed events + single-use guarded updates) in a real Qwen3-4B/Countdown closed loop; 8 fault families rejected 512/512 on 64 live rollouts with 0 false rejects
-> - Quantified fault impact via 24 deterministic paired gradient probes (cosine distributions); guard overhead 0.6 ms/trajectory; CI green on Python 3.11/3.12
+> - Built a machine-verifiable evidence chain (content-addressed events + single-use guarded updates) in a real Qwen3-4B closed loop; 10 fault families rejected 2048/2048 across 256 live rollouts with 0 false rejects
+> - Ran real RL training under the guard (bounded off-policy GRPO, 19 committed updates, GSM8K success 28%→peak 78%); quantified fault impact via 24 paired gradient probes; 6-layer CI green
 
 ## Resume bullets (设计文档 §20.3 长版 — Release Gate passed)
 
@@ -55,12 +55,23 @@ artifact).
 | Day 4 Impact/Overhead | ✅ | 24 对梯度分布；overhead 40.4 ms/batch（3 重复）；F1 update norm 0.0 |
 | Day 5 Release | ✅ | fresh clone + uv sync --frozen + 全量测试；README/demo/REPORT/SHA256SUMS；tag v0.1.0/v0.2.0 |
 | v0.2（F5-F8 正式化） | ✅ | 注入协议冻结；在线 4/4；变体 12/12；P008 在线 reject |
+| v0.2.1（F9-F10） | ✅ | reward 注入 R008 + prompt 投毒 D004；frozen 3/3 + normal 4/4 GATE PASS |
+| 真实 RL 训练（D15/D17） | ✅ | 19 committed updates；GSM8K 28%→78% 峰值；loss 非零；权重 delta 10.4；全程 ALLOW |
+| 多步闭环（D14） | ✅ | 3× committed update-sync-rollout；3× canary pass；1876-token 边界 ALLOW |
+| 最大真实负载（D13） | ✅ | 256 rollouts：normal 256/256；F1-F4 1024/1024；F5-F8 1024/1024 |
+| Infra 工具链 | ✅ | verify（证据链校验）/ resume（训练恢复）/ metrics（Prometheus）/ doctor（环境自检）/ alert-scan |
 
 ## 诚实性声明（面试必答）
 
 - v0.1 更新消费自身策略轨迹（loss≈0、ratio≈1）——梯度影响证据来自 Day 4
   配对回放（v1 权重 + 文档化确定性漂移），如实标注。
-- canary 是行为 sketch（greedy tokens），非逐字节证明（设计文档 §5.3）。
+- on-policy 更新在 bf16 下权重无法移动（数学约束，D14 如实记录）；真实权重
+  移动来自 off-policy RL 训练（D15，||θ_v19−θ_v0||=10.4 实测）。
+- RL 训练曲线尾段下滑（小 batch GRPO 不稳定）——如实报告含崩溃；
+  vLLM engine 第 20 步死亡后从事件日志恢复（recovered: true，无伪造）。
+- canary 是行为 sketch（greedy tokens），非逐字节证明（设计文档 §5.3）；
+  训练中为漂移监视器（D17），非训练场景保持 fail-closed（P008）。
 - 无密码学防篡改；检测的是研发环境静默接线错误，不是恶意攻击者。
 - canary.py 曾有一个常量 sketch bug（dict 解包），已修复并添加回归测试；
-  Day 2 闭环路径经核实未受影响——全部如实披露在 REPORT.md。
+  Day 2 闭环路径经核实未受影响——全部如实披露在 REPORT.md 与
+  docs/POSTMORTEMS.md。

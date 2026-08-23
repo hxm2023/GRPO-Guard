@@ -21,18 +21,21 @@ gate-passed 数字，不扩大范围）。
 > optimizer 只接受单次 ValidatedBatchHandle，任何文本 fallback、
 > tokenizer 重调用、nonce 复用都在 optimizer 前 fail closed。
 >
-> 项目结果：Qwen3-4B + Countdown 真实闭环（32/32 身份 + 32/32 预更新
-> ALLOW、1 次真实提交更新、398 次权重同步观测、canary v1 pass）；8 类
-> 故障在 64 个真实 rollout 上 512/512 拒绝/隔离、normal 64/64 ALLOW；
-> 24 对配对梯度量化了故障的梯度影响；guard 开销 0.6 ms/条。它不抵抗
-> 恶意伪造，解决的是研发环境里的静默接线错误。
+> 项目结果：Qwen3-4B 真实闭环（32/32 身份 + 32/32 预更新 ALLOW、1 次
+> 真实提交更新、398 次权重同步观测、canary v1 pass）；10 类故障在
+> 256 个真实 rollout 上 2048/2048 拒绝/隔离、normal 256/256 ALLOW；
+> 24 对配对梯度量化了故障的梯度影响；guard 开销 1 ms/条。最后我让
+> 框架自己跑了一次**真实 RL 训练**（bounded off-policy GRPO，19 次
+> committed 更新，GSM8K 成功率 28%→峰值 78%），训练中断后从事件日志
+> 恢复——guard 全程守护。它不抵抗恶意伪造，解决的是研发环境里的
+> 静默接线错误。
 
 ## 主管面故事（设计文档 §20.5 框架）
 
 1. **发现证据链不闭合后停止使用受影响结论**——旧成功率、ρ=0.735 全部作废，不洗白。
 2. **保留失败 run**——没有删掉不漂亮结果，作为事故档案。
 3. **用 exact oracle 区分实现错误与方法本身无效**——先审计估计对象，机制对照发现 adaptive mapping 退化成固定 K，继续关闭算法 headline。
-4. **预先定义 Gate 和预算上限**——五道门 + 80 GPU·h 硬上限，避免无止境调参；决策日志（D1–D10）在正式运行前记录。
+4. **预先定义 Gate 和预算上限**——五道门 + 80 GPU·h 硬上限，避免无止境调参；决策日志（D1–D17）在正式运行前记录。
 5. **把一次事故变成团队可复用的测试和 release 规范**——事件密封、内容哈希、no-overwrite、SHA256SUMS、reason-coded 矩阵，任何训练系统都能复用。
 
 ## 常见追问与回答要点
@@ -76,9 +79,38 @@ gate-passed 数字，不扩大范围）。
 - 固定 workload 是设计文档锁定的（GRPO + Countdown + 规则 verifier）；
   项目的产出是**可靠性框架**不是新算法——换算法不换 guard 的机制。
 
+**Q8: 你跑过真实 RL 训练吗？成功率真的提升了吗？**
+- 跑过。bounded off-policy（FIFO lag-1 缓冲）GRPO，Qwen3-4B + GSM8K：
+  19 次 committed 更新，成功率 28% → 峰值 78%（step 4），均值 51.5%，
+  loss 非零（off-policy ratio≠1），权重真实移动（||θ_v19−θ_v0||=10.4
+  fp32 实测）。guard 每步 identity + pre-update ALLOW、398 参数同步、
+  canary 漂移监视。
+- 诚实点：曲线尾段回落（小 batch 32 rollouts/步 + 无 KL 惩罚的 GRPO
+  不稳定），如实报告；vLLM engine 在第 20 步死亡后从事件日志恢复
+  （recovered: true）。教训：canary 的"权重不变"语义在训练中不适用
+  （D17 改为漂移监视器），fail-closed 保留给非训练场景。
+
+**Q9: 训练崩了怎么办？生产上怎么保证证据可信？**
+- 事件流是真相源：每步指标持久化为 training_step 事件（不依赖 run
+  log），`grpo-guard resume` 从事件日志生成恢复计划（最后完成步 +
+  checkpoint + 下一步），训练脚本 `--resume` 加载 checkpoint 继续。
+- `grpo-guard verify` 校验证据链（SHA256SUMS + 事件 seal 自洽 +
+  lifecycle 顺序 + 引用完整性）；`doctor` 环境自检（版本 vs
+  compatibility profile + 端口/残留进程）；`metrics` 暴露 Prometheus
+  指标（决策/原因码/canary/训练成功率）；`alert-scan` 非 ALLOW 决策
+  webhook 告警。全部在 CI 里跑。
+
 ## 演示要点（3-5 分钟）
 
 `uv run python examples/countdown/demo.py`（CPU）：
 happy path ALLOW → F1-F4 reject（各代码）→ F5-F8 → 文本输入被拒
 （TypeError）。讲"loss 看起来正常但合同失败"的反例（控制 loss vs
 F2-fault loss 几乎相同，合同 reject）。
+
+追加演示（可选）：
+- `uv run grpo-guard verify --artifact-dir artifacts/v0.1.0 --events
+  artifacts/v0.1.0/loop/events/events` → OK（证据链 attest）
+- `uv run grpo-guard resume --events <rl_events> --out /tmp/plan.json`
+  → 恢复计划（最后步/checkpoint/下一步）
+- `uv run grpo-guard metrics --dir <events>` → Prometheus 指标
+- `streamlit run examples/monitor/panel.py` → 监控面板（决策/血缘）
