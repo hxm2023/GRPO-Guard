@@ -163,6 +163,25 @@ prompt's token content substituted under the same id vs the frozen
 previously-unchecked content field).  Frozen fixtures 3/3 + normal 4/4,
 GATE PASS (`configs/faults/f9_f10_v01.yaml`, `tests/frozen/f9_f10_v01/`).
 
+## Docker (CPU demo stack)
+
+`Dockerfile` + `docker-compose.yml` package the CPU-only stack: the
+`verify` service attests the evidence chain
+(`grpo-guard verify --artifact-dir /artifacts/v0.1.0 --events ...`) and
+`panel` serves the Streamlit monitor on :8501 with the committed
+artifacts mounted read-only.
+
+```bash
+docker compose build
+docker compose run --rm verify     # checksums + event seals/order/refs
+docker compose up panel            # http://localhost:8501
+```
+
+Honest note: no docker daemon was available in this project's
+environment, so the images were NOT built/run here — the compose file
+mirrors exactly the commands verified natively (`uv run grpo-guard
+verify ...`, `streamlit run examples/monitor/panel.py ...`).
+
 ## Operations: monitor + alerts
 
 `grpo-guard events --dir <events> [--type --component --code --prompt]`

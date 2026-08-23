@@ -1,0 +1,20 @@
+# GRPO-Guard CPU demo stack.
+#
+#   docker compose build
+#   docker compose run --rm verify          # attest the evidence chain
+#   docker compose up panel                 # Streamlit monitor at :8501
+services:
+  verify:
+    build: .
+    command: verify --artifact-dir /artifacts/v0.1.0 --events /artifacts/v0.1.0/loop/events/events
+    volumes:
+      - ./artifacts:/artifacts:ro
+
+  panel:
+    build: .
+    entrypoint: streamlit
+    command: run /app/examples/monitor/panel.py --server.address 0.0.0.0 --server.port 8501 -- --event-dir /artifacts/v0.1.0/loop/events/events
+    volumes:
+      - ./artifacts:/artifacts:ro
+    ports:
+      - "8501:8501"
