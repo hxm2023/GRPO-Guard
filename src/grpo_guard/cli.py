@@ -133,6 +133,18 @@ def _cmd_alert_scan(args) -> int:
     return 0 if summary["failed"] == 0 else 1
 
 
+def _cmd_verify(args) -> int:
+    from grpo_guard.verify import verify_artifact_dir
+
+    report = verify_artifact_dir(Path(args.artifact_dir), Path(args.events) if args.events else None)
+    for c in report.checks:
+        print(f"[verify] {c}")
+    for f in report.failures:
+        print(f"[verify] FAIL: {f}")
+    print(f"[verify] {'OK' if report.ok else f'{len(report.failures)} failures'}")
+    return 0 if report.ok else 1
+
+
 def _cmd_report(args) -> int:
     from grpo_guard.report import build_report
 
@@ -204,6 +216,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dir", required=True, help="events dir")
     p.add_argument("--webhook", required=True, help="webhook URL (generic JSON or Slack-compatible)")
     p.set_defaults(fn=_cmd_alert_scan)
+
+    p = sub.add_parser("verify", help="verify the evidence chain (checksums + event seals/order/refs)")
+    p.add_argument("--artifact-dir", required=True, help="artifact dir with SHA256SUMS")
+    p.add_argument("--events", default=None, help="events dir for seal/order/ref checks")
+    p.set_defaults(fn=_cmd_verify)
 
     p = sub.add_parser("report", help="build run_manifest.json + REPORT.md + SHA256SUMS")
     p.add_argument("--artifact-dir", default="artifacts/v0.1.0")

@@ -35,3 +35,5 @@ jobs:
         run: |
           cd artifacts/v0.1.0
           sha256sum -c SHA256SUMS
+      - name: Evidence chain verification (seals, order, refs)
+        run: uv run grpo-guard verify --artifact-dir artifacts/v0.1.0 --events artifacts/v0.1.0/loop/events/events
