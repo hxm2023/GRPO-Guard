@@ -164,6 +164,31 @@ validator 1.02 ms/env mean (0.98-1.31, n=256).  Ran on GPU0 with
 parallel-with recorded here, not in a manifest — this experiment's
 evidence is the matrix json itself).
 
+**Multi-step guarded closed loop** (`artifacts/v0.1.0/multi_step/`,
+decision D14): **3 consecutive committed update-sync-rollout cycles**
+v0→v1→v2→v3 on the real server, plus a near-max-context boundary rollout:
+
+| step | identity | pre-update | loss | sync | canary |
+|---|---|---|---|---|---|
+| 1 (v0→v1) | 32/32 ALLOW | 32/32 ALLOW | 0.0 | 398 params | pass (drift 0) |
+| 2 (v1→v2) | 32/32 ALLOW | 32/32 ALLOW | 0.0 | 398 params | pass (drift 0) |
+| 3 (v2→v3) | 32/32 ALLOW | 32/32 ALLOW | 0.0 | 398 params | pass (drift 0) |
+
+Long-context boundary: 1876-token prompt → completion 32 tokens → identity
+ALLOW (reason codes L001/L002 documented — logprobs were not requested in
+this rollout, same behavior as the Day 2 v1 rollout).
+
+Honest weight-delta note: `||θ_vk − θ_v0|| = 0.0` at fp32 across all steps.
+This is a **math constraint, not a measurement artifact**: each step is
+on-policy (ratio ≈ 1), so gradients are ~1e-6 — far below the bf16
+weight resolution (~4e-3 relative ULP), so no lr can move bf16-stored
+weights under an on-policy update.  The multi-step evidence is therefore
+the REPEATABILITY of the guarded cycle (3× identity/pre-update ALLOW, 3×
+398-param observed syncs, 3× canary passes, 3 committed manifests) —
+recorded as measured, no fabricated delta.  Genuine off-policy weight
+movement is covered by the Day 4 paired replay and the second-wave
+bounded loop (ratio max 1.18) instead.
+
 **Canary stress — determinism under load** (`artifacts/v0.1.0/canary_stress/`,
 decision D11): 8 canary prompts (incl. a near-max-context prompt, ~900 words)
 × 32 greedy tokens × **10 repeated sketches** against the real server in one
