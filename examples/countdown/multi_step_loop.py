@@ -188,6 +188,9 @@ def main() -> int:
             return float(np.sqrt(total))
 
         # ---- steps -------------------------------------------------------------
+        # init the weight-sync communicator ONCE after calibration (the server was
+        # reloaded 5x; re-initing per step breaks vLLM's pynccl group — D14 find).
+        client.init_communicator(device=torch.device("cuda:0"))
         steps = []
         ckpt_prev = ckpt_v0
         sync_prev = canary_v0
@@ -297,7 +300,6 @@ def main() -> int:
                 required_epoch=epoch,
             )
             sync_k = control.sync_chain(k, ckpt_k["checkpoint_manifest_sha256"], epoch, required_epoch=epoch)
-            client.init_communicator(device=torch.device("cuda:0"))
             sync_calls = 0
             for name, param in model.named_parameters():
                 client.update_named_param(name, param.data)
