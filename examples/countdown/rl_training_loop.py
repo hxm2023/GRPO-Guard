@@ -133,7 +133,7 @@ def main() -> int:
 
         return {e["event_id"]: event_from_payload(e) for e in log_.iterate()}
 
-    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.45)
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.3, device="1")
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                             connection_timeout=300)
@@ -146,7 +146,7 @@ def main() -> int:
         for i in range(5):
             if i > 0:
                 stop_server(server)
-                server = start_server(OUT_DIR / f"vllm_server_calib{i}.log", port=VLLM_PORT, mem_util=0.45)
+                server = start_server(OUT_DIR / f"vllm_server_calib{i}.log", port=VLLM_PORT, mem_util=0.3, device="1")
                 client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                                     connection_timeout=300)
             calib_sketches.append(suite.sketch(
@@ -163,6 +163,7 @@ def main() -> int:
         # loaded BEFORE the v0 sync so the sync actually pushes real params
         # (P0-2: runtime_loaded only after the real per-param calls).
         model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16, device_map="cuda:0")
+        model.gradient_checkpointing_enable()  # D18: shared-card memory budget
         if RESUME and resume_ckpt is not None:
             from safetensors.torch import load_file as st_load
 
@@ -174,7 +175,7 @@ def main() -> int:
                     raise RuntimeError(f"resume shard {shard.name} has unexpected keys")
                 log(f"resume: loaded {len(tensors)} tensors from {shard.name}")
         model.train()
-        optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
+        optimizer = torch.optim.SGD(model.parameters(), lr=LR)  # D18: no Adam state (~17GB saved) for shared-card co-existence
 
         # ---- v0 manifest + sync + canary ------------------------------------
         ckpt_v0 = hash_existing_checkpoint(0)
