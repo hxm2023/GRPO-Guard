@@ -5,7 +5,7 @@ buffer, then consume the OLDEST batch — so every update (after the warm-up
 batch) consumes data one policy behind the model (bounded off-policy,
 lag=1, P005 in-bound -> ALLOW).  Ratios deviate from 1, loss is nonzero,
 and the bf16 weights genuinely move (unlike the on-policy D14 loop).
-~30 steps of GRPO on countdown, tracking success rate per step; the guard
+~30 steps of GRPO on GSM8K-style math QA, tracking success rate per step; the guard
 is active on EVERY step: identity + pre-update ALLOW required, observed
 sync, canary check, committed manifest per step.
 
@@ -67,7 +67,6 @@ def main() -> int:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
-    from grpo_guard.adapters.countdown_reward import countdown_rule_verifier, reward_protocol_sha256
     from grpo_guard.adapters.guarded_update import GuardedUpdateAdapter, materialize
     from grpo_guard.adapters.grpo_loss import grpo_loss
     from grpo_guard.adapters.trl_control import TrlControlAdapter
@@ -151,14 +150,36 @@ def main() -> int:
         model.train()
         optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
 
-        prompts = []
-        for i in range(N_PROMPTS):
-            tgt = [i % 7 + 1, (i * 2) % 7 + 1, (i * 3) % 7 + 1]
-            goal = (tgt[0] + tgt[1]) * tgt[2] % 40 + 1
-            prompts.append({
-                "text": f"Use the numbers {tgt} exactly once to reach {goal}.\nReturn only the arithmetic expression.",
-                "target_numbers": tgt, "goal": goal, "prompt_id": f"countdown-{i:04d}",
-            })
+        # GSM8K task (framework portability): simple arithmetic word problems
+        # with the deterministic gsm8k rule verifier.  Countdown's success rate
+        # on this model is ~3-25% (sparse advantage -> zero GRPO signal, found
+        # in the first run — D15); GSM8K-style problems are answerable often
+        # enough to produce real advantage.
+        from grpo_guard.adapters.gsm8k_reward import gsm8k_rule_verifier, reward_protocol_sha256 as gsm8k_protocol
+
+        GSM8K_SAMPLES = [
+            ("There are 15 trees in the grove. Grove workers will plant trees in the grove today. "
+             "After they are done, there will be 21 trees. How many trees did the workers plant today?", 6),
+            ("If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in the "
+             "parking lot?", 5),
+            ("Leah has 32 chocolates. Her sister has 42. If they eat 35, how many do they have left?", 39),
+            ("Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes "
+             "muffins for her friends every day with four. She sells the remainder at the farmers' "
+             "market daily for $2 per fresh duck egg. How much in dollars does she make every day at "
+             "the farmers' market?", 18),
+            ("A robe takes 2 bolts of blue fiber and half that much white fiber. How many bolts in "
+             "total does it take?", 3),
+            ("Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How many "
+             "toys does he have now?", 9),
+            ("There are 90 people in a ship. If the ship is sinking at a rate of 4 people per hour, "
+             "how many people will be on the ship after 5 hours?", 70),
+            ("A train travels at a speed of 60 miles per hour for 3 hours. How far does it travel?", 180),
+        ]
+        prompts = [
+            {"text": f"{q}\nAnswer with only the final number.", "golden_answer": float(a),
+             "prompt_id": f"gsm8k-{i:04d}"}
+            for i, (q, a) in enumerate(GSM8K_SAMPLES)
+        ]
         split_manifest = {"split_id": "split-train", "split_name": "train",
                           "prompt_ids": [p["prompt_id"] for p in prompts]}
         protocol = ProtocolConfig(name="strict_v01", mode="strict_on_policy")
@@ -235,13 +256,13 @@ def main() -> int:
                     log_.append(decision, required_epoch=epoch)
                     ids.append((gen, decision, env_id, text))
 
-                    r = countdown_rule_verifier(text, p["target_numbers"], p["goal"])
+                    r = gsm8k_rule_verifier(text, p["golden_answer"])
                     rew = RewardEvent(
                         event_id=f"reward-{gen.event_id}", event_type="reward_finished",
-                        run_id=run_id, component_id="countdown_reward", lifecycle_seq=next_lifecycle(),
+                        run_id=run_id, component_id="gsm8k_reward", lifecycle_seq=next_lifecycle(),
                         created_at_utc=now_utc(),
                         input_events=[EventRef(uri="", event_id=gen.event_id, event_sha256=gen.event_sha256)],
-                        reward_version="countdown-rule-v1", evaluator_protocol_sha256=reward_protocol_sha256(),
+                        reward_version="gsm8k-rule-v1", evaluator_protocol_sha256=gsm8k_protocol(),
                         source_generation_event=EventRef(uri="", event_id=gen.event_id,
                                                          event_sha256=gen.event_sha256),
                         components=r, terminal_status="success", latency_ms=0.0,
@@ -369,7 +390,7 @@ def main() -> int:
             checkpoint_manifest_sha256=ckpt_prev["checkpoint_manifest_sha256"],
             sync_event=EventRef(uri="", event_id=sync_prev.event_id, event_sha256=sync_prev.event_sha256),
             tokenizer_sha256=cl.TOKENIZER_SHA, chat_template_sha256=cl.TEMPLATE_SHA,
-            sampling_config_sha256=cl.SAMPLING_SHA, prompt_id="countdown-long",
+            sampling_config_sha256=cl.SAMPLING_SHA, prompt_id="gsm8k-long",
             request_id="req-long-0", required_epoch=epoch,
         )
         env_l = build_envelope(run_id, gen_l, None, None,
@@ -390,7 +411,7 @@ def main() -> int:
         result = {
             "run_id": run_id,
             "scope": "real RL training loop (D15): bounded off-policy (lag=1 via FIFO rollout "
-                     "buffer) GRPO training, ~30 steps, Qwen3-4B countdown, guard active on "
+                     "buffer) GRPO training, ~30 steps, Qwen3-4B GSM8K-style math QA, guard active on "
                      "every step (identity + pre-update ALLOW, observed sync, canary, committed "
                      "manifest per step)",
             "n_steps": N_STEPS, "prompts_per_step": N_PROMPTS, "gens_per_prompt": N_GENS,
