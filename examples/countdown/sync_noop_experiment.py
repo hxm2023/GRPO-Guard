@@ -81,15 +81,18 @@ def main() -> int:
     from grpo_guard.canary import CanarySuite
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # D18: trainer + vLLM BOTH on GPU1 to share the card with agent-ttrl
+    # (GPU0 is occupied by its full-finetune; mem_util 0.3 keeps us inside
+    # the remaining ~50GB of GPU1).
     model = AutoModelForCausalLM.from_pretrained(
         os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"),
-        torch_dtype=torch.bfloat16, device_map="cuda:0")
+        torch_dtype=torch.bfloat16, device_map="cuda:1")
     tokenizer = AutoTokenizer.from_pretrained(
         os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"),
         trust_remote_code=True)
 
     suite = CanarySuite()
-    server = start_server(OUT_DIR / "vllm_server.log", mem_util=0.45)
+    server = start_server(OUT_DIR / "vllm_server.log", mem_util=0.3, device="1")
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{8009}", group_port=51224,
                             connection_timeout=300)
