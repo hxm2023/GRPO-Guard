@@ -150,6 +150,17 @@ upgrade condition (frozen injection protocol + passing matrix) is met
 `uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop` → 4/4 matched,
 normal 4/4 allow, GATE PASS.
 
+## Task portability
+
+The framework is not bound to Countdown: a second deterministic reward
+adapter exists for GSM8K-style math QA (`src/grpo_guard/adapters/
+gsm8k_reward.py` — extracts the last numeric value, compares to the
+golden answer) with its own protocol hash, frozen samples and event
+integration tests (`tests/test_gsm8k_reward.py`,
+`tests/test_gsm8k_integration.py`).  The event schema, artifact store,
+envelope and validator layers are untouched — the same pipeline binds any
+deterministic rule set.
+
 ## Limitations (design doc §21)
 
 - The v0.1 update consumed its own policy's trajectories (loss ≈ 0,
