@@ -298,3 +298,21 @@ Alternative · Why rejected · Falsification.
   before this decision.
 - **Falsification**: if a canary drift occurs on an UNCHANGED weight set,
   the drift monitor must fail closed again (P008 path).
+
+## D18 — GPU experiments resume (2026-08-23, user-directed)
+
+- **Decision**: the 80 GPU·h budget cap is lifted by user directive —
+  experiments are scheduled by the server's REAL GPU state, not the
+  plan's budget.  Run: (1) a 512-rollout batch matrix (64 prompts x 8
+  gens, GPU1 sharing with agent-ttrl); (2) a FULL re-run of the real RL
+  training loop with ALL P0 fixes active (guarded_optimizer_step,
+  sync_begin/complete/failed state machine, canary_mismatch events,
+  P0-3 contract with real lag=1, N_GENS=8 no longer shadowed, 20 steps);
+  (3) the no-op sync detection experiment (server-vs-trainer sketch).
+  These validate the P0-1..P0-4 fixes on real GPU hardware, which the
+  budget cap previously prevented.
+- **Evidence**: machine-readable JSON per run, committed under artifacts/;
+  honest reporting (every step/decision).
+- **Falsification**: if any P0 fix fails on real hardware (e.g. P009
+  misfires on valid bounded envelopes, guarded_optimizer_step rejects a
+  valid batch), the fix is corrected and re-run before any claim.
