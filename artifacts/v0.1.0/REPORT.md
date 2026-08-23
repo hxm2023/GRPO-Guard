@@ -155,6 +155,15 @@ decisions with zero misses; validator 0.76 ms/env mean (0.73-1.04, n=128).
 The per-family results are consistent across the 32-, 64- and 128-rollout
 batches.
 
+**256-rollout batch online matrix** (`artifacts/v0.1.0/batch_online_256/`,
+64 prompts × 4 gens, decision D13 — the largest real-load batch on one
+session): normal **256/256 ALLOW**; F1-F4 **1024/1024 reject**; F5-F8
+**1024/1024 reject/quarantine** — 2048 fault decisions with zero misses;
+validator 1.02 ms/env mean (0.98-1.31, n=256).  Ran on GPU0 with
+`CUDA_VISIBLE_DEVICES=0` (GPU1 held another project's vLLM instance;
+parallel-with recorded here, not in a manifest — this experiment's
+evidence is the matrix json itself).
+
 **Canary stress — determinism under load** (`artifacts/v0.1.0/canary_stress/`,
 decision D11): 8 canary prompts (incl. a near-max-context prompt, ~900 words)
 × 32 greedy tokens × **10 repeated sketches** against the real server in one
