@@ -192,6 +192,33 @@ was redefined as a drift MONITOR during training (D17: weights are
 supposed to move; fail-closed P008 stays active for non-training checks),
 recording max drift 8 tokens/step.
 
+**P0 fixes validated on real GPU (D18, 2026-08-23)** — `artifacts/v0.1.0/rl_training_p0/`:
+
+The four P0 fixes from the independent review were implemented and
+partially validated on real hardware before shared-card contention
+(agent-ttrl's dual-seed full-finetune occupies both GPUs) interrupted
+the run at step 2:
+
+- **P0-1 `guarded_optimizer_step`** ran the REAL optimizer step through
+  the single entry (validation → persistent nonce → consume → loss →
+  step → commit): step-1 loss **−0.0014** (nonzero), B=64.
+- **P0-2 sync state machine**: both `runtime_loaded` events carry
+  `observed 398 update_named_param calls, digest ea30291bc583…` — load
+  is recorded only after the real per-param calls.
+- **P0-3 contract**: `update_committed parent=0 → output=1` and the
+  training_step event records parent 0 (warm-up step; step 2's lag=1
+  record was not reached before the interruption).
+- **P0-4**: CPU torch in CI — grpo_loss/guarded-step/sync-state tests
+  run (no skips); core coverage gate 87%.
+
+Pending (blocked by agent-ttrl's multi-hour GPU occupancy, not by the
+code): the full 20-step P0-fixed RL rerun (`rl_training_loop.py
+--resume` against the preserved event log) and the no-op sync detection
+experiment (`sync_noop_experiment.py`).  Both are launch-ready;
+`examples/countdown/sync_noop_experiment.py` includes the
+server-vs-trainer greedy-sketch detector that exposes a silent no-op
+sync — the original static-rollout accident.
+
 **Multi-step guarded closed loop** (`artifacts/v0.1.0/multi_step/`,
 decision D14): **3 consecutive committed update-sync-rollout cycles**
 v0→v1→v2→v3 on the real server, plus a near-max-context boundary rollout:
