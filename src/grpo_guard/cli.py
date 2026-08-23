@@ -133,6 +133,20 @@ def _cmd_alert_scan(args) -> int:
     return 0 if summary["failed"] == 0 else 1
 
 
+def _cmd_metrics(args) -> int:
+    from grpo_guard.prometheus import render_metrics, serve
+
+    events_dir = Path(args.dir)
+    if not events_dir.is_dir():
+        print(f"no events dir: {events_dir}")
+        return 1
+    if args.serve:
+        serve(events_dir, args.port)
+        return 0
+    print(render_metrics(events_dir), end="")
+    return 0
+
+
 def _cmd_resume(args) -> int:
     from grpo_guard.resume import write_recovery_plan
 
@@ -226,6 +240,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dir", required=True, help="events dir")
     p.add_argument("--webhook", required=True, help="webhook URL (generic JSON or Slack-compatible)")
     p.set_defaults(fn=_cmd_alert_scan)
+
+    p = sub.add_parser("metrics", help="Prometheus-format guard metrics (scan or --serve /metrics)")
+    p.add_argument("--dir", required=True, help="events dir")
+    p.add_argument("--serve", action="store_true", help="serve over HTTP")
+    p.add_argument("--port", type=int, default=9100)
+    p.set_defaults(fn=_cmd_metrics)
 
     p = sub.add_parser("resume", help="training recovery plan from the event log")
     p.add_argument("--events", required=True, help="events dir")
