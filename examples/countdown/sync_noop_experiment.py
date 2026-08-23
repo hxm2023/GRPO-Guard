@@ -93,7 +93,7 @@ def main() -> int:
         trust_remote_code=True)
 
     suite = CanarySuite()
-    server = start_server(OUT_DIR / "vllm_server.log", mem_util=0.3, device="1")
+    server = start_server(OUT_DIR / "vllm_server.log", port=8009, mem_util=0.3, device="1")
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{8009}", group_port=51224,
                             connection_timeout=300)
