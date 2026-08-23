@@ -133,6 +133,24 @@ def _cmd_alert_scan(args) -> int:
     return 0 if summary["failed"] == 0 else 1
 
 
+def _cmd_doctor(args) -> int:
+    from grpo_guard.doctor import check_checkpoint, run_doctor
+
+    report = run_doctor(Path(args.profile))
+    if args.checkpoint:
+        failures, warnings = check_checkpoint(Path(args.checkpoint))
+        for f in failures:
+            report.fail(f)
+        for w in warnings:
+            report.warn(w)
+        if not failures:
+            report.ok(f"checkpoint {args.checkpoint} verified (no corrupted shards)")
+    for line in report.findings:
+        print(f"[doctor] {line}")
+    print(f"[doctor] {'OK' if not report.failures else f'{len(report.failures)} failures'}")
+    return 0 if not report.failures else 1
+
+
 def _cmd_metrics(args) -> int:
     from grpo_guard.prometheus import render_metrics, serve
 
@@ -240,6 +258,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dir", required=True, help="events dir")
     p.add_argument("--webhook", required=True, help="webhook URL (generic JSON or Slack-compatible)")
     p.set_defaults(fn=_cmd_alert_scan)
+
+    p = sub.add_parser("doctor", help="environment self-check vs compatibility profile")
+    p.add_argument("--profile", default="compatibility_profile.yaml", help="compatibility profile yaml")
+    p.add_argument("--checkpoint", default=None, help="checkpoint dir to verify (PolicyManifest weights)")
+    p.set_defaults(fn=_cmd_doctor)
 
     p = sub.add_parser("metrics", help="Prometheus-format guard metrics (scan or --serve /metrics)")
     p.add_argument("--dir", required=True, help="events dir")
