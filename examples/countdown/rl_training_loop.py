@@ -35,7 +35,8 @@ MAX_COMPLETION = 64
 N_GENS = 4
 N_PROMPTS = 8
 N_STEPS = 30
-LR = 1e-4
+LR = 5e-5
+N_GENS = 8
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
@@ -325,7 +326,7 @@ def main() -> int:
 
             adapter = GuardedUpdateAdapter(store, decision_verifier=decision_is_allow)
             optimizer.zero_grad()
-            loss_res = grpo_loss(model, handles, group_size=N_GENS)
+            loss_res = grpo_loss(model, handles, group_size=N_GENS, clip_epsilon=0.1)
             loss_res.loss.backward()
             optimizer.step()
             log(f"step {k} update: loss={loss_res.metrics['loss']:.4f} "
