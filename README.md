@@ -25,11 +25,13 @@ It does not reimplement TRL, vLLM or GRPO: it wraps them with content-addressed
 artifacts, append-only events, reason-coded validation and a single-use
 guarded update handle.
 
-> **Status: v0.1 release candidate.** All three gates (Compatibility /
+> **Status: v0.3.0 (released).** All three gates (Compatibility /
 > Correctness / Impact+Overhead) have passed on autodl2 (2×RTX 6000D) with
 > Qwen/Qwen3-4B.  The authoritative design is
 > `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (v1.0).  Every number in this
-> README traces to `artifacts/v0.1.0/` + commit + SHA256SUMS.
+> README traces to `artifacts/v0.1.0/` + commit + SHA256SUMS.  This is a
+> production-oriented prototype: single-box 2-GPU validation, CPU CI, no
+> multi-node/DDP runs yet (docs/PROJECT_INTRO.md honest boundaries).
 
 ## Architecture
 
@@ -131,9 +133,9 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | Day 4 paired replay | F2 cos 0.989, F3 cos 0.634, F4 cos 0.238 (real model) | `replay/gradient_replay.json` |
 | P008 canary mismatch | perturbed weights → canary drift 32 tokens → validator reject | `canary/canary_mismatch_online.json` |
 | canary determinism stress | 10/10 repeated greedy sketches drift 0 (8 prompts incl. near-max-context) | `canary_stress/canary_stress.json` |
-| 256-rollout batch matrix (D13) | normal 256/256 ALLOW; F1-F4 1024/1024 reject; F5-F8 1024/1024 reject/quarantine — 2048 fault decisions, 0 misses | `batch_online_256/batch_online_matrix.json` |
+| 256-rollout batch matrix (D13) | 256 real rollouts: normal 256/256 ALLOW; F1-F8 injected per trajectory — 2048 decisions all matching the frozen oracle | `batch_online_256/batch_online_matrix.json` |
 | multi-step closed loop (D14) | 3× committed update-sync-rollout (v0→v3), 3×398-param sync, 3× canary pass, 1876-token boundary rollout ALLOW | `multi_step/multi_step.json` |
-| real RL training (D15/D17) | 19 committed GRPO updates (bounded off-policy lag-1), GSM8K success 28%→peak 78%, nonzero loss, real weight delta 10.4, guard ALLOW every step | `rl_training/rl_training.json` |
+| real RL training (D15/D17) | 19 committed GRPO updates (bounded off-policy lag-1), nonzero loss, real weight delta 10.4, guard ALLOW every step; success curve reported honestly (in-train reward, not held-out) | `rl_training/rl_training.json` |
 | v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |
 
 ## v0.2: fault families F5-F8 (formal, decision D12)

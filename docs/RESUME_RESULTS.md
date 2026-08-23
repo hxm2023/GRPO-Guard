@@ -7,14 +7,16 @@ artifact).
 ## 简历 bullet（精炼版，1-2 行）
 
 **中文版：**
-> GRPO-Guard：在线 GRPO 轨迹契约与故障注入框架｜PyTorch、TRL、vLLM
-> - 在 Qwen3-4B 真实闭环中实现可审计的训练证据链（内容寻址事件 + 单次守卫更新），10 类故障在 256 个真实 rollout 上 2048/2048 拒绝、normal 256/256 无误拒
-> - 真实 RL 训练（bounded off-policy GRPO）：GSM8K 成功率 28%→峰值 78%，19 次 committed 更新全程守卫；确定性配对回放量化故障梯度影响（24 对）；CI 六层门禁全绿
+> GRPO-Guard：在线 GRPO 轨迹一致性审计与故障注入框架｜PyTorch、TRL、vLLM
+> - 从 Agent-RL 静态 rollout 事故中抽象 policy version / server token / behavior logprob / loss mask / reward lineage 契约，设计 content-addressed event/artifact store、分阶段 validator 与确定性 paired replay
+> - 基于 256 条 Qwen3-4B/vLLM 真实生成轨迹，对 F1-F8 八类预定义接线故障逐条注入，2048 次判定全部符合冻结 oracle，正常轨迹 256/256 通过；24 对离线梯度 probe 量化 retokenization 与 mask shift 对更新方向的影响
+> - 发布 Apache-2.0 开源仓库、版本化 artifacts/SHA256 验证与 CPU contract CI（core coverage 87%），并向 Hugging Face TRL 提交依赖兼容修复 PR #6876（open）
 
 **English version:**
-> **GRPO-Guard** — online GRPO trajectory-contract & fault-injection framework | PyTorch, TRL, vLLM
-> - Built a machine-verifiable evidence chain (content-addressed events + single-use guarded updates) in a real Qwen3-4B closed loop; 10 fault families rejected 2048/2048 across 256 live rollouts with 0 false rejects
-> - Ran real RL training under the guard (bounded off-policy GRPO, 19 committed updates, GSM8K success 28%→peak 78%); quantified fault impact via 24 paired gradient probes; 6-layer CI green
+> **GRPO-Guard** — online GRPO trajectory-consistency audit & fault-injection framework | PyTorch, TRL, vLLM
+> - Abstracted policy-version / server-token / behavior-logprob / loss-mask / reward-lineage contracts from a real static-rollout incident; designed a content-addressed event/artifact store, staged validator and deterministic paired replay
+> - On 256 real Qwen3-4B/vLLM rollouts, injected all 8 predefined wiring faults and got 2048/2048 decisions matching the frozen oracle, 256/256 normal trajectories allowed; 24 paired gradient probes quantify retokenization/mask-shift impact on update direction
+> - Released an Apache-2.0 repo with versioned artifacts/SHA256 verification and CPU contract CI (core coverage 87%); opened huggingface/trl #6876 (open) dependency-compat fix
 
 ## Resume bullets (设计文档 §20.3 长版 — Release Gate passed)
 
@@ -56,7 +58,7 @@ artifact).
 | Day 5 Release | ✅ | fresh clone + uv sync --frozen + 全量测试；README/demo/REPORT/SHA256SUMS；tag v0.1.0/v0.2.0 |
 | v0.2（F5-F8 正式化） | ✅ | 注入协议冻结；在线 4/4；变体 12/12；P008 在线 reject |
 | v0.2.1（F9-F10） | ✅ | reward 注入 R008 + prompt 投毒 D004；frozen 3/3 + normal 4/4 GATE PASS |
-| 真实 RL 训练（D15/D17） | ✅ | 19 committed updates；GSM8K 28%→78% 峰值；loss 非零；权重 delta 10.4；全程 ALLOW |
+| 真实 RL 训练（D15/D17） | ✅ | 19 committed updates；loss 非零；权重 delta 10.4（fp32 实测）；全程 ALLOW；成功率曲线如实报告（训练内 reward，非 held-out） |
 | 多步闭环（D14） | ✅ | 3× committed update-sync-rollout；3× canary pass；1876-token 边界 ALLOW |
 | 最大真实负载（D13） | ✅ | 256 rollouts：normal 256/256；F1-F4 1024/1024；F5-F8 1024/1024 |
 | Infra 工具链 | ✅ | verify（证据链校验）/ resume（训练恢复）/ metrics（Prometheus）/ doctor（环境自检）/ alert-scan |

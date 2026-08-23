@@ -48,19 +48,22 @@ Dataset/Split Manifest → TRL GRPO Trainer
 |---|---|---|
 | 官方 TRL+vLLM server-mode 冒烟 | ✅ 1 次 committed step、398 次权重同步观测 | `artifacts/v0.1.0/smoke/` |
 | 真实闭环 | 32/32 身份 ALLOW + 32/32 预更新 ALLOW → 真实更新 → canary pass | `loop/` |
-| 故障注入矩阵 | **256 个真实 rollout：normal 256/256 无误拒；F1-F4 1024/1024 reject；F5-F8 1024/1024 reject/quarantine —— 2048 个故障决策零漏检** | `batch_online_256/` |
+| 故障注入矩阵 | 基于 **256 条真实 vLLM rollout**，对 F1-F8 八类确定性合成故障逐条注入，**2048 次判定全部符合冻结 oracle**；同批正常轨迹 256/256 ALLOW（0 误拒） | `batch_online_256/` |
 | 故障家族 | F1-F4（静态策略/错绑 logprob/重 tokenize/mask 平移）+ F5-F8（split 泄漏/evaluator 别名/事件乱序/工件篡改）+ F9-F10（奖励注入/prompt 投毒） | `tests/frozen/` |
-| 梯度影响 | 24 对配对回放：F2 cos 0.93、F3 cos 0.53、F4 cos 0.19（部分方向翻转） | `replay_all/` |
-| **真实 RL 训练** | **bounded off-policy GRPO：GSM8K 成功率 28% → 峰值 78%，19 次 committed 更新，loss 非零，权重真实移动（‖θ_v19−θ_v0‖=10.4）**，guard 每步 ALLOW | `rl_training/` |
+| 梯度影响 | 24 对**离线梯度 probe**（真实模型权重 + 文档化确定性漂移）：F2 cos 0.93、F3 cos 0.53、F4 cos 0.19 | `replay_all/` |
+| 真实 RL 训练 | bounded off-policy GRPO：19 次 committed 更新，**loss 非零、参数真实移动（‖θ_v19−θ_v0‖=10.4 fp32 实测）**，guard 每步 ALLOW；成功率曲线如实报告（首 28%、峰值 78%、末 9% —— 训练内 rollout reward，非 held-out 评测，未作能力提升声明） | `rl_training/` |
 | 多步闭环 | 3× committed update-sync-rollout、3× canary pass、1876-token 边界 ALLOW | `multi_step/` |
 | Guard 开销 | 1.02 ms/envelope（n=256） | `batch_online_256/` |
 | 可迁移性 | 第二个任务适配器（GSM8K 数学 QA）不碰 validator/store 层 | `adapters/gsm8k_reward.py` |
 
-## 4. 工程化（不是 demo，是生产形态）
+## 4. 工程化（production-oriented prototype）
 
-**CI 六层门禁（每次 push 全跑，py3.11/3.12）**：
-测试+coverage → 冻结故障契约检查（F1-F4/F5-F8/F9-F10）→ Correctness/v0.2
-门禁在真实 artifacts 上复验 → SHA256SUMS 完整性 → 证据链校验（seal/顺序/引用）。
+**CI（每次 push 全跑，py3.11/3.12）**：
+测试（含 CPU torch 的核心训练路径：grpo_loss、guarded step、sync 状态机）+
+core coverage 门禁（≥80%，实测 87%）→ 冻结故障契约检查（F1-F4/F5-F8/F9-F10）
+→ Correctness/v0.2 门禁在真实 artifacts 上复验 → SHA256SUMS 完整性 →
+证据链校验（seal/顺序/引用）。GPU 闭环不在日常 CI 中重跑（复验已提交
+artifacts），release 阶段单独执行。
 
 **生产运维工具链**（全部 CPU、全部进 CI）：
 
@@ -87,8 +90,8 @@ Docker CPU 演示栈。
 
 ## 6. 上游贡献
 
-- huggingface/trl **#6876**：`trl[vllm]` extra 的 fastapi 版本约束修复
-  （starlette 1.x 兼容性，真实环境事故驱动）
+- huggingface/trl **#6876（open）**：`trl[vllm]` extra 的 fastapi 版本约束
+  修复（starlette 1.x 兼容性，真实环境事故驱动；未合并，如实标注）
 - 上游 bug 映射：TRL #3774（device 归一化，已验证覆盖我们的场景）、#3762
 - 完整记录：`docs/UPSTREAM_FEEDBACK.md`
 
@@ -96,11 +99,16 @@ Docker CPU 演示栈。
 
 1. v0.1 更新消费自身策略轨迹（loss≈0）—— 梯度影响证据来自配对回放，
    如实标注；on-policy 更新在 bf16 下权重无法移动是数学约束（D14）。
-2. 真实权重移动来自 off-policy RL 训练（D15），曲线尾段因小 batch 不稳定
-   回落 —— 完整曲线如实报告，含崩溃与恢复（`recovered: true`）。
+2. 真实权重移动来自 off-policy RL 训练（D15）；成功率曲线是**训练内
+   rollout reward**（8 个手写问题、无 seed 重复、无 held-out 评测）——
+   证明"loss 非零、参数移动、训练循环真实执行"，**不**作"GSM8K 能力
+   提升"声明；曲线含崩溃与事件日志恢复（`recovered: true`）。
 3. canary 是行为 sketch（greedy tokens），非逐字节证明；训练中为漂移
-   监视器（D17），非训练场景保持 fail-closed。
+   监视器（D17），mismatch 记录为 canary_mismatch 事件（P0-2）；
+   P008 fail-closed 保留给非训练场景。
 4. 不抵抗恶意伪造；解决的是研发环境的静默接线错误（设计文档 §5.3）。
+5. 系统是 production-oriented prototype：单机双卡验证、CPU CI、无多机
+   /DDP 长期运行、无外部用户接入；Docker 未本地构建（诚实标注）。
 
 ## 8. 仓库结构
 
