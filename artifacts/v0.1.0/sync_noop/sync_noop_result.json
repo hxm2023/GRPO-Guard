@@ -1,0 +1,7 @@
+{
+  "scope": "P0-2 stale-runtime detection (static-rollout accident): server serves v0, trainer holds trained v20 (||d\u03b8||\u22489.5); server-vs-trainer greedy sketch",
+  "checkpoint_loaded": "/root/autodl-tmp/grpo-guard/rl_out/ckpt_v20",
+  "server_vs_model_drift": 7,
+  "runtime_stale_detected": true,
+  "verdict": "STALE RUNTIME DETECTED \u2014 guard would reject consuming its rollouts"
+}
