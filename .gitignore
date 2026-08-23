@@ -25,3 +25,4 @@ wandb_api.txt
 
 # GPU run scratch (server-side; canonical artifacts are committed under artifacts/)
 scratch/
+.coverage
