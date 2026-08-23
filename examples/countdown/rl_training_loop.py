@@ -32,7 +32,6 @@ VLLM_PORT = int(os.environ.get("GRPO_GUARD_VLLM_PORT", "8009"))
 GROUP_PORT = int(os.environ.get("GRPO_GUARD_GROUP_PORT", "51224"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/repo"))
 MAX_COMPLETION = 64
-N_GENS = 4
 N_PROMPTS = 8
 N_STEPS = 20
 LR = 5e-5
