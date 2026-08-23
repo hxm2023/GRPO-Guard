@@ -19,12 +19,16 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
         run: uv sync --frozen --extra test
-      - name: Run test suite
-        run: uv run pytest tests/ -q
+      - name: Run test suite with coverage
+        run: uv run pytest tests/ -q --cov=grpo_guard --cov-report=term
       - name: Frozen contract check (F1-F4)
         run: uv run grpo-guard contract-check --cases tests/frozen/f1_f4_v01 --out /tmp/cc_f14
       - name: Frozen contract check (F5-F8, v0.2)
         run: uv run grpo-guard contract-check --cases tests/frozen/f5_f8_v02 --out /tmp/cc_f58
+      - name: Correctness Gate re-verify on real artifacts (F1-F4)
+        run: uv run grpo-guard day3-matrix --loop-dir artifacts/v0.1.0/loop --out /tmp/gate_f14
+      - name: v0.2 Gate re-verify on real artifacts (F5-F8)
+        run: uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop --out /tmp/gate_f58
       - name: Evidence chain integrity (SHA256SUMS)
         run: |
           cd artifacts/v0.1.0
