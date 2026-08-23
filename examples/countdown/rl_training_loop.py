@@ -113,7 +113,7 @@ def main() -> int:
 
         return {e["event_id"]: event_from_payload(e) for e in log_.iterate()}
 
-    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT)
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.45)
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                             connection_timeout=300)
@@ -126,7 +126,7 @@ def main() -> int:
         for i in range(5):
             if i > 0:
                 stop_server(server)
-                server = start_server(OUT_DIR / f"vllm_server_calib{i}.log", port=VLLM_PORT)
+                server = start_server(OUT_DIR / f"vllm_server_calib{i}.log", port=VLLM_PORT, mem_util=0.45)
                 client = VLLMClient(base_url=f"http://127.0.0.1:{VLLM_PORT}", group_port=GROUP_PORT,
                                     connection_timeout=300)
             calib_sketches.append(suite.sketch(
