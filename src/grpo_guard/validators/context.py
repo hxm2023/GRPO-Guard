@@ -33,6 +33,7 @@ class ValidationContext:
     update_input_event: EventBase | None = None
     split_registry: dict[str, SplitManifest] | None = None  # v0.2 F5: all splits by name
     eval_protocol_sha256: str | None = None  # v0.2 F6: the declared eval protocol
+    reward_verifier_registry: dict[str, str] | None = None  # F9: verifier name -> protocol sha256
     notes: list[str] = field(default_factory=list)
 
     def event(self, event_id: str) -> EventBase | None:

@@ -1,0 +1,23 @@
+# F9-F10 canonical fault matrix — v0.2.1 (design doc §11 status note, D16)
+# Pre-registered expectations; task-agnostic families.
+matrix_id: f9_f10_v01
+protocol: strict_v01
+
+cases:
+  - id: f9_reward_hacking
+    fault: f9_reward_hacking
+    variants:
+      - {name: canonical, kind: unregistered_version}
+      - {name: held_out, kind: wrong_protocol, fake_version: countdown-rule-v1, wrong_protocol: true}
+    expected_decision: reject
+    required_reason_codes: [R008_REWARD_VERIFIER_UNREGISTERED]
+
+  - id: f10_data_poisoning
+    fault: f10_data_poisoning
+    variants:
+      - {name: canonical, kind: prompt_tokens}
+    expected_decision: reject
+    required_reason_codes: [D004_PROMPT_CONTENT_MISMATCH]
+
+normal_cases:
+  count: 4

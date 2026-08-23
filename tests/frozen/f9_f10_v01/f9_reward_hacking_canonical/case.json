@@ -1,0 +1,1 @@
+{"case_id":"f9_reward_hacking_canonical","envelope_id":"env-gen-0-loop-1787364111-0004-pre_update-f6","expected_decision":"reject","generation_event_id":"gen-0-loop-1787364111-0004","notes":"{\"name\": \"canonical\", \"kind\": \"unregistered_version\"}","required_reason_codes":["R008_REWARD_VERIFIER_UNREGISTERED"],"run_id":"loop-1787364111"}

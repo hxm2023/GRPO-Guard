@@ -23,6 +23,8 @@ PRE_UPDATE_STAGE_RULES = IDENTITY_STAGE_RULES | {
     "D001", "D002", "R001", "R002", "R003", "R005",
     # v0.2-preview fault families (F5 split overlap, F6 evaluator alias)
     "D003", "R006",
+    # v0.2.1 families (F9 reward injection, F10 data poisoning — D16)
+    "D004", "R008",
 }
 
 

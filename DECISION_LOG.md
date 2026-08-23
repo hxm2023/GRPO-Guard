@@ -260,3 +260,23 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if success rate does not improve over ~30 steps (or
   any step fails validation/canary), the claim is narrowed to the
   observed curve and the discrepancy is investigated before any claim.
+
+## D16 — F9-F10 fault families (2026-08-23, user-approved)
+
+- **Decision**: extend the fault matrix with two task-agnostic families —
+  F9 reward injection (R008_REWARD_VERIFIER_UNREGISTERED: the reward event
+  claims a verifier that is not in the registered evaluator registry —
+  reject) and F10 data poisoning (D004_PROMPT_UNREGISTERED: a generation
+  whose prompt is not in the frozen split manifest — reject).  Both are
+  deterministic, require no tokenizer/verifier recompute (task-agnostic),
+  and extend the design doc §11 family table via status notes.
+- **Evidence**: rules + injectors + frozen fixtures + config +
+  tests/frozen/f9_f10_v01/ matrix; all pre-registered expectations.
+- **Alternative**: verifier-recompute detection (re-validate the reward
+  against the actual completion) — rejected: it needs per-task verifiers
+  and tokenizer access inside the validator, breaking task-agnosticism.
+- **Why rejected others**: prompt-content hashing (detect text
+  substitution) would couple the validator to text decoding; registry
+  checks capture the same class of silent corruption cheaply.
+- **Falsification**: if any F9/F10 fixture is mis-classified, the family
+  claim is withdrawn and the discrepancy investigated.

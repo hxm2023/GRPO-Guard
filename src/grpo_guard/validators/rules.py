@@ -8,6 +8,7 @@ when every rule required for the stage has run to completion.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from typing import Callable
 
@@ -564,6 +565,57 @@ def r006_evaluator_alias(ctx: ValidationContext) -> RuleResult | None:
     return None
 
 
+def r008_reward_verifier_unregistered(ctx: ValidationContext) -> RuleResult | None:
+    """F9 — reward injection (v0.2.1, design doc §11 status note, D16).
+
+    The reward event claims a verifier that is NOT in the registered
+    evaluator registry (verifier name -> protocol sha256).  A fabricated
+    or injected reward that bypasses the deterministic verifier is
+    detected task-agnostically — no tokenizer/verifier recompute needed.
+    """
+    reward = _reward(ctx)
+    if reward is None or ctx.reward_verifier_registry is None:
+        return None
+    registered = ctx.reward_verifier_registry.get(reward.reward_version)
+    if registered is None:
+        return RuleResult("R008_REWARD_VERIFIER_UNREGISTERED", "reject",
+                          f"reward_version {reward.reward_version!r} not in registered verifiers")
+    if reward.evaluator_protocol_sha256 != registered:
+        return RuleResult("R008_REWARD_VERIFIER_UNREGISTERED", "reject",
+                          f"protocol sha of {reward.reward_version!r} does not match the registry")
+    return None
+
+
+def d004_prompt_content_mismatch(ctx: ValidationContext) -> RuleResult | None:
+    """F10 — data poisoning (v0.2.1, design doc §11 status note, D16).
+
+    The frozen split manifest registers a content hash per prompt
+    (``content_sha256s``: sha256 of the prompt-span token bytes).  If the
+    generation's actual prompt tokens hash differently, the prompt was
+    substituted under the same id — data poisoning.  Inert when the
+    registry has no hash for the prompt (pre-registration not enabled).
+    """
+    gen = _gen(ctx)
+    split = _split(ctx)
+    if gen is None or split is None:
+        return None
+    expected = split.content_sha256s.get(gen.prompt_id)
+    if expected is None:
+        return None
+    try:
+        import numpy as np
+
+        seq = np.frombuffer(ctx.store.get(gen.sequence_token_ids), dtype=np.int32)
+        start, end = gen.prompt_span
+        actual = hashlib.sha256(seq[start:end].tobytes()).hexdigest()
+    except Exception:
+        return None
+    if actual != expected:
+        return RuleResult("D004_PROMPT_CONTENT_MISMATCH", "reject",
+                          f"prompt {gen.prompt_id!r} token content hash differs from the frozen manifest")
+    return None
+
+
 ALL_RULES: dict[str, RuleFn] = {
     "P001_MISSING_POLICY_MANIFEST": p001_missing_policy_manifest,
     "P002_CHECKPOINT_HASH_MISMATCH": p002_checkpoint_hash_mismatch,
@@ -600,6 +652,8 @@ ALL_RULES: dict[str, RuleFn] = {
     "R005_PARENT_IDENTITY_NOT_ALLOWED": r005_parent_identity_not_allowed,
     "D003_SPLIT_OVERLAP": d003_split_overlap,
     "R006_EVALUATOR_ALIAS": r006_evaluator_alias,
+    "R008_REWARD_VERIFIER_UNREGISTERED": r008_reward_verifier_unregistered,
+    "D004_PROMPT_CONTENT_MISMATCH": d004_prompt_content_mismatch,
 }
 
 

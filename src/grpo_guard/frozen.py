@@ -79,6 +79,8 @@ def write_case(
         }
     if getattr(t, "eval_protocol_sha256", None):
         ctx_extra["eval_protocol_sha256"] = t.eval_protocol_sha256
+    if getattr(t, "reward_verifier_registry", None):
+        ctx_extra["reward_verifier_registry"] = t.reward_verifier_registry
     if getattr(t, "requires_update_input", False):
         ctx_extra["requires_update_input"] = True
     if ctx_extra:

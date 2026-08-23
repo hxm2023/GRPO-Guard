@@ -25,6 +25,8 @@ jobs:
         run: uv run grpo-guard contract-check --cases tests/frozen/f1_f4_v01 --out /tmp/cc_f14
       - name: Frozen contract check (F5-F8, v0.2)
         run: uv run grpo-guard contract-check --cases tests/frozen/f5_f8_v02 --out /tmp/cc_f58
+      - name: Frozen contract check (F9-F10, v0.2.1)
+        run: uv run grpo-guard contract-check --cases tests/frozen/f9_f10_v01 --out /tmp/cc_f9f10
       - name: Correctness Gate re-verify on real artifacts (F1-F4)
         run: uv run grpo-guard day3-matrix --loop-dir artifacts/v0.1.0/loop --out /tmp/gate_f14
       - name: v0.2 Gate re-verify on real artifacts (F5-F8)

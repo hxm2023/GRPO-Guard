@@ -63,6 +63,8 @@ def run_contract_check(cases_root: Path, out_dir: Path) -> dict:
             }
         if payload.get("context", {}).get("eval_protocol_sha256"):
             ctx.eval_protocol_sha256 = payload["context"]["eval_protocol_sha256"]
+        if payload.get("context", {}).get("reward_verifier_registry"):
+            ctx.reward_verifier_registry = payload["context"]["reward_verifier_registry"]
         if payload.get("context", {}).get("requires_update_input"):
             from grpo_guard.schema.artifacts import EventRef
             from grpo_guard.schema.events import UpdateInputEvent
@@ -107,7 +109,9 @@ def run_contract_check(cases_root: Path, out_dir: Path) -> dict:
             or payload.get("bogus_sequence_ref") is not None
             or bool(payload.get("context", {}).get("split_registry"))
             or bool(payload.get("context", {}).get("eval_protocol_sha256"))
+            or bool(payload.get("context", {}).get("reward_verifier_registry"))
             or bool(payload.get("context", {}).get("requires_update_input"))
+            or bool(payload["split_manifest"].content_sha256s)  # F10: D004 is a pre-update rule
         )
         stage = "full_pre_update" if needs_full else "identity_pre_reward"
         decision = validate_envelope(ctx, stage).decision_payload

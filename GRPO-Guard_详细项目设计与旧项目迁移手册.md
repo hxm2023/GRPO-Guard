@@ -878,6 +878,14 @@ F1–F4 每类至少准备：
 > v0.1 四项 canonical 矩阵。evidence 位于 artifacts/v0.2.0-dev/ 与
 > tests/frozen/f5_f8_v02/。
 
+> **v0.2.1 状态注记（2026-08-23，decision D16）**：新增两个任务无关
+> 故障家族 —— F9 reward injection（R008_REWARD_VERIFIER_UNREGISTERED：
+> reward 声明未注册 verifier 或协议哈希不符 → reject）与 F10 data
+> poisoning（D004_PROMPT_CONTENT_MISMATCH：prompt token 内容与冻结
+> split manifest 的 content_sha256s 不一致 → reject，激活了 manifest
+> 预留的 content 注册字段）。frozen fixtures 3/3 + normal 4/4（GATE
+> PASS），CI 增加对应 contract check。
+
 ---
 
 ## 12. 确定性 paired replay

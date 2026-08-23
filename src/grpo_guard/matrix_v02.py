@@ -30,6 +30,7 @@ from grpo_guard.faults.f5_f8 import (
     inject_f7_sync_reorder,
     inject_f8_artifact_mutation,
 )
+from grpo_guard.faults.f9_f10 import inject_f9_reward_hacking, inject_f10_data_poisoning
 from grpo_guard.schema.events import GenerationEvent, RewardEvent
 from grpo_guard.schema.manifests import SplitManifest
 from grpo_guard.store.canonical_json import canonical_sha256
@@ -66,6 +67,11 @@ INJECTORS_V02 = {
     "f6_evaluator_alias": _f6_inject,
     "f7_event_reorder": _f7_inject,
     "f8_artifact_mutation": lambda t, v: inject_f8_artifact_mutation(t, v.get("which", "sequence")),
+    "f9_reward_hacking": lambda t, v: (
+        inject_f9_reward_hacking(t, fake_version=v.get("fake_version", "fake-reward-v1"),
+                                 wrong_protocol="f" * 64 if v.get("wrong_protocol") else None)
+    ),
+    "f10_data_poisoning": lambda t, v: inject_f10_data_poisoning(t),
 }
 
 
@@ -173,6 +179,7 @@ def run_v02_matrix(loop_dir: Path, config_path: Path, out_dir: Path) -> dict:
             protocol=protocol,
             split_registry=getattr(t, "split_registry", None),
             eval_protocol_sha256=getattr(t, "eval_protocol_sha256", None),
+            reward_verifier_registry=getattr(t, "reward_verifier_registry", None),
             update_input_event=update_input_for(t) if with_update_input else None,
         )
         return validate_envelope(ctx, "full_pre_update").decision_payload
@@ -182,9 +189,10 @@ def run_v02_matrix(loop_dir: Path, config_path: Path, out_dir: Path) -> dict:
         injector = INJECTORS_V02[case["fault"]]
         for variant in case["variants"]:
             base = trajectory_from_loop(events, store, run_id, gens[0], gens[0].checkpoint_manifest_sha256, split)
-            if case["fault"] == "f6_evaluator_alias":
-                declared = _resolve_eval_protocol(variant, eval_proto)
-                variant = {**variant, "eval_protocol": declared}
+            if case["fault"] in ("f6_evaluator_alias", "f9_reward_hacking"):
+                if case["fault"] == "f6_evaluator_alias":
+                    declared = _resolve_eval_protocol(variant, eval_proto)
+                    variant = {**variant, "eval_protocol": declared}
                 base = pre_update_base_for(events, store, run_id, split, gens[0])
             if case["fault"] == "f8_artifact_mutation":
                 # F8 mutates blob bytes — run it against an ISOLATED store
@@ -271,6 +279,8 @@ def freeze_v02_cases(loop_dir: Path, config_path: Path, freeze_root: Path) -> in
             if case["fault"] == "f6_evaluator_alias":
                 declared = _resolve_eval_protocol(variant, _eval_protocol_sha(events))
                 variant = {**variant, "eval_protocol": declared}
+                base = pre_update_base_for(events, store, run_id, split, gens[0])
+            if case["fault"] == "f9_reward_hacking":
                 base = pre_update_base_for(events, store, run_id, split, gens[0])
             if case["fault"] == "f8_artifact_mutation":
                 import shutil
