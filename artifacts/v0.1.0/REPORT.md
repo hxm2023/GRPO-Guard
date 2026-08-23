@@ -164,6 +164,34 @@ validator 1.02 ms/env mean (0.98-1.31, n=256).  Ran on GPU0 with
 parallel-with recorded here, not in a manifest — this experiment's
 evidence is the matrix json itself).
 
+**Real RL training loop (GSM8K, bounded off-policy)** (`artifacts/v0.1.0/rl_training/`,
+decisions D15/D17): 19 committed GRPO updates on Qwen3-4B over GSM8K-style
+math QA with a FIFO lag-1 rollout buffer (each update consumes data one
+policy behind the model → ratio ≠ 1 → NONZERO loss and REAL weight
+movement, unlike the on-policy D14 loop):
+
+| metric | value |
+|---|---|
+| success rate first step | 28.1% |
+| success rate PEAK | 78.1% (step 4) |
+| success rate mean | 51.5% |
+| final weight delta \|\|θ_v19 − θ_v0\|\| | 10.4 (fp32, measured) |
+| nonzero-loss steps | 17/19 |
+| committed updates / canaries / syncs | 19 / 19 / 19×398 params |
+| identity + pre-update ALLOW | every step |
+
+The curve (0.28→0.69→…→0.78 peak→…→0.09) shows real GRPO learning
+followed by the classic small-batch instability (32 rollouts/step, no KL
+penalty, lag-1 off-policy bias) — reported as measured, including the
+collapse.  Honest notes: (1) the run was recovered 19/20 steps after the
+vLLM engine died at step 20 (budget exhausted; recovery traced to the
+append-only event log + run log, `recovered: true` in the json); (2) a
+first attempt on countdown produced success=0.00 for 8 steps (sparse
+advantage → zero GRPO signal) and was switched to GSM8K; (3) the canary
+was redefined as a drift MONITOR during training (D17: weights are
+supposed to move; fail-closed P008 stays active for non-training checks),
+recording max drift 8 tokens/step.
+
 **Multi-step guarded closed loop** (`artifacts/v0.1.0/multi_step/`,
 decision D14): **3 consecutive committed update-sync-rollout cycles**
 v0→v1→v2→v3 on the real server, plus a near-max-context boundary rollout:
