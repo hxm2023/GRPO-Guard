@@ -35,7 +35,19 @@ issues — honest contribution signal, no duplicate issue reports.
   import.  Removed (no reverse deps).  Environment-specific; no upstream
   issue filed.
 
-## 3. TRL `VLLMClient.generate` return shape
+## 3. fastapi/starlette version trap in `trl vllm-serve` (2026-08-23)
+
+- `trl 1.10.0`'s `scripts/vllm_serve.py` calls `FastAPI(lifespan=...)` in a
+  way that breaks with **starlette >= 1.0** (`TypeError: Router.__init__()
+  got an unexpected keyword argument 'on_startup'`) — starlette 1.x
+  removed that kwarg.  Meanwhile `vllm 0.26.0` *declares*
+  `starlette>=1.0.1`, so a plain `pip install vllm==0.26.0` in the same
+  env upgrades starlette and silently breaks trl's server.  Our pinned
+  matrix works with starlette 0.37.2 (fastapi 0.110.3); the venv drifts
+  when either package is re-resolved.  Environment/tooling trap, noted
+  for future pins — no upstream issue filed.
+
+## 4. TRL `VLLMClient.generate` return shape
 
 - The client returns a **dict** keyed `prompt_ids/completion_ids/logprobs/
   logprob_token_ids`; tuple-unpacking yields dict keys (the constant-sketch
