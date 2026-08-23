@@ -45,26 +45,22 @@ LR = 1e-4
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
 
-from examples.countdown.closed_loop import (  # noqa: E402
-    MAX_COMPLETION as _M,
-    N_GENS as _NG,
-    N_PROMPTS as _NP,
-    SAMPLING_SHA,
-    TEMPLATE_SHA,
-    TOKENIZER_SHA,
-    build_envelope,
-    commit_checkpoint,
-    compute_identity_hashes,
-    hash_existing_checkpoint,
-    manifest_model,
-    now_utc,
-    patch_device_normalization,
-    split_model,
-    start_server,
-    stop_server,
-    _token_diff,
-    _unpack_gen,
-)
+import examples.countdown.closed_loop as cl  # noqa: E402
+
+start_server = cl.start_server
+stop_server = cl.stop_server
+_unpack_gen = cl._unpack_gen
+build_envelope = cl.build_envelope
+manifest_model = cl.manifest_model
+split_model = cl.split_model
+commit_checkpoint = cl.commit_checkpoint
+hash_existing_checkpoint = cl.hash_existing_checkpoint
+compute_identity_hashes = cl.compute_identity_hashes
+patch_device_normalization = cl.patch_device_normalization
+_token_diff = cl._token_diff
+now_utc = cl.now_utc
+N_GENS = cl.N_GENS
+N_PROMPTS = cl.N_PROMPTS
 
 
 def log(msg: str) -> None:
@@ -213,9 +209,9 @@ def main() -> int:
                         checkpoint_manifest_sha256=ckpt_prev["checkpoint_manifest_sha256"],
                         sync_event=EventRef(uri="", event_id=sync_prev.event_id,
                                             event_sha256=sync_prev.event_sha256),
-                        tokenizer_sha256=TOKENIZER_SHA,
-                        chat_template_sha256=TEMPLATE_SHA,
-                        sampling_config_sha256=SAMPLING_SHA,
+                        tokenizer_sha256=cl.TOKENIZER_SHA,
+                        chat_template_sha256=cl.TEMPLATE_SHA,
+                        sampling_config_sha256=cl.SAMPLING_SHA,
                         prompt_id=p["prompt_id"],
                         request_id=f"req-v{behavior_version}-{p['prompt_id']}-{g}",
                         required_epoch=epoch,
@@ -344,8 +340,8 @@ def main() -> int:
             behavior_policy_version=N_STEPS,
             checkpoint_manifest_sha256=ckpt_prev["checkpoint_manifest_sha256"],
             sync_event=EventRef(uri="", event_id=sync_prev.event_id, event_sha256=sync_prev.event_sha256),
-            tokenizer_sha256=TOKENIZER_SHA, chat_template_sha256=TEMPLATE_SHA,
-            sampling_config_sha256=SAMPLING_SHA, prompt_id="countdown-long",
+            tokenizer_sha256=cl.TOKENIZER_SHA, chat_template_sha256=cl.TEMPLATE_SHA,
+            sampling_config_sha256=cl.SAMPLING_SHA, prompt_id="countdown-long",
             request_id="req-long-0", required_epoch=epoch,
         )
         env_l = build_envelope(run_id, gen_l, None, None,
