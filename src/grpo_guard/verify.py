@@ -119,6 +119,16 @@ def verify_events(events_dir: Path) -> list[str]:
         if s2 <= s1:
             failures.append(f"{f2}: lifecycle_seq {s2} not > previous {s1} ({f1})")
 
+    # 3b. update_committed lineage: parent + 1 == output (P0-3)
+    for eid, (payload, fname) in by_id.items():
+        if payload.get("event_type") == "update_committed":
+            parent = payload.get("parent_policy_version")
+            output = payload.get("output_policy_version")
+            if parent is not None and output is not None and output != parent + 1:
+                failures.append(
+                    f"{fname}: update_committed parent={parent} but output={output} "
+                    "(parent+1 == output violated)")
+
     # 4. reference integrity
     for eid, (payload, fname) in by_id.items():
         for ref_id in _ref_event_ids(payload):

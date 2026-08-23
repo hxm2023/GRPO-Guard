@@ -148,6 +148,23 @@ def p006_correction_undeclared(ctx: ValidationContext) -> RuleResult | None:
     return None
 
 
+def p009_contract_protocol_mismatch(ctx: ValidationContext) -> RuleResult | None:
+    """P0-3: the envelope's TrainingContract must name the SAME protocol
+    MODE the validator was configured with.  A contract claiming
+    strict_on_policy while the validator runs bounded_off_policy (or vice
+    versa) means the lineage metadata lies about the policy regime —
+    reject.  (The contract's max-lag/correction fields must also match the
+    validator's config: checked by P005/P006 on the same fields.)
+    """
+    contract = ctx.envelope.training_contract
+    if contract.protocol != ctx.protocol.mode:
+        return RuleResult(
+            "P009_CONTRACT_PROTOCOL_MISMATCH", "reject",
+            f"envelope contract protocol {contract.protocol!r} != validator mode {ctx.protocol.mode!r}",
+        )
+    return None
+
+
 def p007_event_order_invalid(ctx: ValidationContext) -> RuleResult | None:
     gen = _gen(ctx)
     if gen is None:
@@ -625,6 +642,7 @@ ALL_RULES: dict[str, RuleFn] = {
     "P006_CORRECTION_UNDECLARED": p006_correction_undeclared,
     "P007_EVENT_ORDER_INVALID": p007_event_order_invalid,
     "P008_CANARY_MISMATCH": p008_canary_mismatch,
+    "P009_CONTRACT_PROTOCOL_MISMATCH": p009_contract_protocol_mismatch,
     "T001_ARTIFACT_HASH_MISMATCH": t001_artifact_hash_mismatch,
     "T002_TOKENIZER_MISMATCH": t002_tokenizer_mismatch,
     "T003_CHAT_TEMPLATE_MISMATCH": t003_chat_template_mismatch,

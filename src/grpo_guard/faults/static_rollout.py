@@ -41,11 +41,11 @@ def inject_f1_static_rollout(
     new_ref = EventRef(uri="", event_id=new_gen.event_id, event_sha256=new_gen.event_sha256)
 
     contract = TrainingContract(
-        protocol="strict_on_policy",
+        protocol=t.envelope.training_contract.protocol,
         trainer_parent_policy_version=claimed_parent,
         consuming_update_id=t.envelope.training_contract.consuming_update_id,
-        max_policy_lag_versions=0,
-        importance_correction=None,
+        max_policy_lag_versions=t.envelope.training_contract.max_policy_lag_versions,
+        importance_correction=t.envelope.training_contract.importance_correction,
         behavior_logprob_source=t.envelope.training_contract.behavior_logprob_source,
         authoritative_behavior_logprob_event=new_ref,
         diagnostic_non_authoritative_logprobs_allowed=False,

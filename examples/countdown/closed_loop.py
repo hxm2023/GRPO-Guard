@@ -217,7 +217,8 @@ def _unpack_gen(res: dict):
 
 # ---------------------------------------------------------------- envelopes
 
-def build_envelope(run_id, gen, rew, id_decision, ckpt_sha, split, stage, parent_ver, update_id, parent_sha=None):
+def build_envelope(run_id, gen, rew, id_decision, ckpt_sha, split, stage, parent_ver, update_id,
+                   parent_sha=None, protocol: str = "strict_on_policy"):
     from grpo_guard.schema.artifacts import EventRef, ManifestRef
     from grpo_guard.schema.envelope import TrajectoryEnvelope, TrainingContract
     from grpo_guard.store.canonical_json import canonical_sha256
@@ -233,7 +234,7 @@ def build_envelope(run_id, gen, rew, id_decision, ckpt_sha, split, stage, parent
         parent_envelope_sha256=parent_sha,
         parent_identity_decision=EventRef(uri="", event_id=id_decision.event_id, event_sha256=id_decision.event_sha256) if id_decision else None,
         training_contract=TrainingContract(
-            protocol="strict_on_policy", trainer_parent_policy_version=parent_ver,
+            protocol=protocol, trainer_parent_policy_version=parent_ver,
             consuming_update_id=update_id, max_policy_lag_versions=0,
             behavior_logprob_source="generation_service", authoritative_behavior_logprob_event=EventRef(
                 uri="", event_id=gen.event_id, event_sha256=gen.event_sha256),

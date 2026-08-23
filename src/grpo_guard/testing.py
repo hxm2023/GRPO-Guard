@@ -258,6 +258,9 @@ def build_trajectory(
     parent_envelope_sha256: str | None = None,
     truncation_applied: bool = False,
     seq: np.ndarray | None = None,
+    contract_protocol: str = "strict_on_policy",
+    max_policy_lag_versions: int = 0,
+    importance_correction: str | None = None,
 ) -> Trajectory:
     """Build one canonical valid trajectory with all events sealed.
 
@@ -358,11 +361,11 @@ def build_trajectory(
 
     declared_source = "generation_service" if logprob_source == "none" else logprob_source
     contract = TrainingContract(
-        protocol="strict_on_policy",
+        protocol=contract_protocol,
         trainer_parent_policy_version=policy_version,
         consuming_update_id=f"update-{policy_version + 1}",
-        max_policy_lag_versions=0,
-        importance_correction=None,
+        max_policy_lag_versions=max_policy_lag_versions,
+        importance_correction=importance_correction,
         behavior_logprob_source=declared_source,
         authoritative_behavior_logprob_event=authoritative_event,
         diagnostic_non_authoritative_logprobs_allowed=diagnostic_non_authoritative_allowed,

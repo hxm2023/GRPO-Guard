@@ -106,10 +106,20 @@ def test_p005_lag_exceeds_bound():
 
 
 def test_p005_lag_within_bound_allows_bounded():
-    t = testing.build_trajectory()
+    t = testing.build_trajectory(contract_protocol="bounded_off_policy",
+                                 max_policy_lag_versions=2, importance_correction="importance-ratio-v1")
     t2 = inject_f1_static_rollout(t, runtime_version=0, claimed_parent=1)
     d = decision_codes(t2, protocol=BOUNDED)
     assert d.decision == "allow"
+
+
+def test_p009_contract_protocol_mismatch_rejects():
+    # contract claims strict, validator runs bounded -> P009
+    t = testing.build_trajectory(contract_protocol="strict_on_policy")
+    t2 = inject_f1_static_rollout(t, runtime_version=0, claimed_parent=1)
+    d = decision_codes(t2, protocol=BOUNDED)
+    assert d.decision == "reject"
+    assert "P009_CONTRACT_PROTOCOL_MISMATCH" in d.reason_codes
 
 
 def test_p006_correction_undeclared():

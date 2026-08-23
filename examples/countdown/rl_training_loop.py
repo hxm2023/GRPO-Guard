@@ -288,7 +288,7 @@ def main() -> int:
                     env_id = build_envelope(run_id, gen, None, None,
                                             ckpt_ref["checkpoint_manifest_sha256"],
                                             split_manifest, "pre_reward", data_version,
-                                            "pending-update")
+                                            "pending-update", protocol="bounded_off_policy")
                     ctx = ValidationContext(envelope=env_id, store=store, events=all_events(),
                                             policy_manifest=manifest_model(ckpt_ref),
                                             split_manifest=split_model(split_manifest), protocol=bounded)
@@ -343,7 +343,8 @@ def main() -> int:
                 pre = build_envelope(run_id, gen, rew, id_decision,
                                      c_ckpt["checkpoint_manifest_sha256"],
                                      split_manifest, "pre_update", k - 1,
-                                     f"update-{k}", parent_sha=env_id.envelope_sha256)
+                                     f"update-{k}", parent_sha=env_id.envelope_sha256,
+                                     protocol="bounded_off_policy")
                 ctx = ValidationContext(envelope=pre, store=store, events=all_events(),
                                         policy_manifest=manifest_model(c_ckpt),
                                         split_manifest=split_model(split_manifest), protocol=bounded)
@@ -471,10 +472,11 @@ def main() -> int:
         )
         env_l = build_envelope(run_id, gen_l, None, None,
                                ckpt_prev["checkpoint_manifest_sha256"],
-                               split_manifest, "pre_reward", N_STEPS, "update-4")
+                               split_manifest, "pre_reward", N_STEPS, "update-4",
+                               protocol="bounded_off_policy")
         ctx = ValidationContext(envelope=env_l, store=store, events=all_events(),
                                 policy_manifest=manifest_model(ckpt_prev),
-                                split_manifest=split_model(split_manifest), protocol=protocol)
+                                split_manifest=split_model(split_manifest), protocol=bounded)
         dec_l = validate_envelope(ctx, "identity_pre_reward")
         long_ctx = {
             "prompt_tokens": len(pid[0]), "completion_tokens": len(cid[0]),
