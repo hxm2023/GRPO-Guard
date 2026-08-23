@@ -132,6 +132,7 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | P008 canary mismatch | perturbed weights → canary drift 32 tokens → validator reject | `canary/canary_mismatch_online.json` |
 | canary determinism stress | 10/10 repeated greedy sketches drift 0 (8 prompts incl. near-max-context) | `canary_stress/canary_stress.json` |
 | 256-rollout batch matrix (D13) | normal 256/256 ALLOW; F1-F4 1024/1024 reject; F5-F8 1024/1024 reject/quarantine — 2048 fault decisions, 0 misses | `batch_online_256/batch_online_matrix.json` |
+| multi-step closed loop (D14) | 3× committed update-sync-rollout (v0→v3), 3×398-param sync, 3× canary pass, 1876-token boundary rollout ALLOW | `multi_step/multi_step.json` |
 | v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |
 
 ## v0.2: fault families F5-F8 (formal, decision D12)
