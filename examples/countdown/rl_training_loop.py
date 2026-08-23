@@ -17,6 +17,7 @@ Outputs: <out>/rl_training.json
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -158,14 +159,9 @@ def main() -> int:
         log(f"canary calibration: 5 reloads, frozen tolerance={tolerance}")
         v0_baseline = calib_sketches[0]
 
-        # ---- v0 manifest + sync + canary ------------------------------------
-        ckpt_v0 = hash_existing_checkpoint(0)
-        sync_v0 = control.sync_chain(0, ckpt_v0["checkpoint_manifest_sha256"], epoch, required_epoch=epoch)
-        canary_v0 = control.canary_passed(0, ckpt_v0["checkpoint_manifest_sha256"], epoch,
-                                          sync_v0[0].sync_id, {"max_token_drift": 0}, required_epoch=epoch)
-        runtime.set_load_epoch(1)
-
         # ---- trainer model (v0, or resume checkpoint) ------------------------
+        # loaded BEFORE the v0 sync so the sync actually pushes real params
+        # (P0-2: runtime_loaded only after the real per-param calls).
         model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16, device_map="cuda:0")
         if RESUME and resume_ckpt is not None:
             from safetensors.torch import load_file as st_load
@@ -179,6 +175,36 @@ def main() -> int:
                 log(f"resume: loaded {len(tensors)} tensors from {shard.name}")
         model.train()
         optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
+
+        # ---- v0 manifest + sync + canary ------------------------------------
+        ckpt_v0 = hash_existing_checkpoint(0)
+        # P0-2: sync_failed must be recorded (never runtime_loaded) if a real
+        # per-param call fails; runtime_loaded carries the observed call count
+        # + name/shape digest.
+        def do_sync(policy_version, ckpt_sha, tag):
+            begin = control.sync_begin(policy_version, ckpt_sha, epoch, required_epoch=epoch)
+            calls = 0
+            names = []
+            try:
+                for name, param in model.named_parameters():
+                    client.update_named_param(name, param.data)
+                    calls += 1
+                    names.append(name)
+            except Exception as exc:
+                control.sync_failed(policy_version, ckpt_sha, epoch, begin[0].sync_id,
+                                    f"{type(exc).__name__}: {exc}", required_epoch=epoch)
+                raise
+            digest = hashlib.sha256(json.dumps(names, sort_keys=True).encode()).hexdigest()
+            loaded = control.sync_complete(policy_version, ckpt_sha, epoch, begin[0].sync_id,
+                                           observed_sync_calls=calls, param_digest=digest,
+                                           required_epoch=epoch)
+            log(f"{tag} synced {calls} params (v{policy_version}, digest {digest[:12]})")
+            return begin, loaded, calls
+
+        sync_v0, loaded_v0, _ = do_sync(0, ckpt_v0["checkpoint_manifest_sha256"], "v0")
+        canary_v0 = control.canary_passed(0, ckpt_v0["checkpoint_manifest_sha256"], epoch,
+                                          sync_v0[0].sync_id, {"max_token_drift": 0}, required_epoch=epoch)
+        runtime.set_load_epoch(1)
 
         # GSM8K task (framework portability): simple arithmetic word problems
         # with the deterministic gsm8k rule verifier.  Countdown's success rate
@@ -246,7 +272,7 @@ def main() -> int:
             # chain for the continued run
             resume_ver = resume_from - 1
             resume_sha = resume_ckpt.get("checkpoint_manifest_sha256") or resume_ckpt.get("manifest", {}).get("checkpoint_manifest_sha256")
-            sync_r = control.sync_chain(resume_ver, resume_sha, epoch, required_epoch=epoch)
+            sync_r, _, _ = do_sync(resume_ver, resume_sha, "resume")
             canary_r = control.canary_passed(resume_ver, resume_sha, epoch, sync_r[0].sync_id,
                                              {"max_token_drift": None}, required_epoch=epoch)
             ckpt_prev = resume_ckpt
@@ -397,23 +423,22 @@ def main() -> int:
                 f"ratios={step_res.metrics['ratio_p50']:.3f}/{step_res.metrics['ratio_max']:.3f} "
                 f"B={step_res.metrics['B']}")
 
-            sync_k = control.sync_chain(k, ckpt_k["checkpoint_manifest_sha256"], epoch, required_epoch=epoch)
-            sync_calls = 0
-            for name, param in model.named_parameters():
-                client.update_named_param(name, param.data)
-                sync_calls += 1
-            log(f"step {k} synced {sync_calls} params (v{k})")
+            sync_k, _, sync_calls = do_sync(k, ckpt_k["checkpoint_manifest_sha256"], f"step {k}")
 
             # D17: in TRAINING the weights are supposed to move, so the
             # v0-baseline canary is a DRIFT MONITOR, not a gate: record the
-            # drift per step and continue.  Fail-closed (P008) stays active
-            # for non-training checks (loop syncs, mismatch experiment).
+            # drift per step and continue.  P0-2: a mismatch is recorded as
+            # canary_mismatch (NEVER canary_passed).  Fail-closed (P008)
+            # stays active for non-training checks.
             check = suite.check(canary_gen, k, v0_baseline, tolerance)
             if check.verdict != "pass":
                 log(f"canary v{k} MISMATCH (drift monitor, D17): {check.drift} "
                     f"— weight movement is expected in training")
-            canary_k = control.canary_passed(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
-                                             sync_k[0].sync_id, check.drift, required_epoch=epoch)
+                canary_k = control.canary_mismatch(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
+                                                   sync_k[0].sync_id, check.drift, required_epoch=epoch)
+            else:
+                canary_k = control.canary_passed(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
+                                                 sync_k[0].sync_id, check.drift, required_epoch=epoch)
             runtime.set_load_epoch(k + 1)
             log(f"canary v{k} {check.verdict} (drift {check.drift})")
 

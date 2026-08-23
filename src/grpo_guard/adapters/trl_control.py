@@ -68,7 +68,7 @@ class TrlControlAdapter:
         self.log.append(ev, required_epoch=required_epoch)
         return ev
 
-    def sync_chain(
+    def sync_begin(
         self,
         policy_version: int,
         checkpoint_sha: str,
@@ -76,19 +76,54 @@ class TrlControlAdapter:
         attempt: int = 1,
         required_epoch: int | None = None,
     ) -> list[SyncEvent]:
-        """requested → started → runtime_loaded.  canary_passed is written by
-        the caller after the canary suite passes (data-plane evidence)."""
+        """requested → started.  runtime_loaded is written ONLY by
+        sync_complete, AFTER the actual per-parameter calls succeeded
+        (P0-2: no self-reported load before the fact)."""
         sync_id = f"sync-run-{policy_version}"
         events = [
             self._sync("sync_requested", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
                        "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch),
             self._sync("sync_started", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
                        "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch),
-            self._sync("runtime_loaded", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
-                       "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch,
-                       observed_load_epoch=policy_version + 1, observed_policy_version=policy_version),
         ]
         return events
+
+    def sync_complete(
+        self,
+        policy_version: int,
+        checkpoint_sha: str,
+        lease_epoch: int,
+        sync_id: str,
+        observed_sync_calls: int,
+        param_digest: str,
+        attempt: int = 1,
+        required_epoch: int | None = None,
+    ) -> SyncEvent:
+        """runtime_loaded, recorded ONLY after the caller observed the real
+        update_named_param calls (count + name/shape digest)."""
+        return self._sync(
+            "runtime_loaded", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
+            "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch,
+            observed_load_epoch=policy_version + 1, observed_policy_version=policy_version,
+            status_detail=f"observed {observed_sync_calls} update_named_param calls, digest {param_digest}",
+        )
+
+    def sync_failed(
+        self,
+        policy_version: int,
+        checkpoint_sha: str,
+        lease_epoch: int,
+        sync_id: str,
+        error: str,
+        attempt: int = 1,
+        required_epoch: int | None = None,
+    ) -> SyncEvent:
+        """sync_failed — the sync did NOT reach runtime_loaded."""
+        return self._sync(
+            "sync_failed", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
+            "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch,
+            status_detail=f"sync failed: {error[:200]}",
+        )
 
     def canary_passed(
         self,
@@ -105,6 +140,25 @@ class TrlControlAdapter:
             "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch,
             observed_load_epoch=policy_version + 1, observed_policy_version=policy_version,
             status_detail=f"canary drift {drift}",
+        )
+
+    def canary_mismatch(
+        self,
+        policy_version: int,
+        checkpoint_sha: str,
+        lease_epoch: int,
+        sync_id: str,
+        drift: dict,
+        attempt: int = 1,
+        required_epoch: int | None = None,
+    ) -> SyncEvent:
+        """canary_mismatch — recorded when the sketch drifted (P0-2: a
+        mismatch must never be written as canary_passed)."""
+        return self._sync(
+            "canary_mismatch", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
+            "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch,
+            observed_load_epoch=policy_version + 1, observed_policy_version=policy_version,
+            status_detail=f"canary MISMATCH drift {drift}",
         )
 
     def update_committed(

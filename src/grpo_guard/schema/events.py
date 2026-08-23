@@ -22,6 +22,7 @@ SYNC_EVENT_TYPES = Literal[
     "sync_started",
     "runtime_loaded",
     "canary_passed",
+    "canary_mismatch",
     "sync_unknown",
     "sync_reconciled_canary_passed",
     "sync_retryable_old",
@@ -42,7 +43,8 @@ UPDATE_EVENT_TYPES = Literal[
 
 # Lifecycle states derivable by the deterministic reducer (§7.3.4)
 SYNC_TERMINAL_SUCCESS = frozenset({"canary_passed", "sync_reconciled_canary_passed"})
-SYNC_TERMINAL_FAILURE = frozenset({"sync_failed", "sync_quarantined", "sync_retryable_old", "sync_attempt_superseded"})
+SYNC_TERMINAL_FAILURE = frozenset({"sync_failed", "sync_quarantined", "sync_retryable_old",
+                                   "sync_attempt_superseded", "canary_mismatch"})
 UPDATE_TERMINAL_SUCCESS = frozenset({"update_committed", "update_restored_parent"})
 UPDATE_TERMINAL_FAILURE = frozenset({"update_aborted", "update_attempt_superseded"})
 
@@ -228,7 +230,7 @@ def event_from_payload(payload: dict) -> EventBase:
     model: type[EventBase]
     if kind == "validation_decision":
         model = ValidationDecisionEvent
-    elif kind in {"canary_passed", "sync_requested", "sync_started", "runtime_loaded",
+    elif kind in {"canary_passed", "canary_mismatch", "sync_requested", "sync_started", "runtime_loaded",
                   "sync_unknown", "sync_reconciled_canary_passed", "sync_retryable_old",
                   "sync_quarantined", "sync_failed", "sync_attempt_superseded"}:
         model = SyncEvent
