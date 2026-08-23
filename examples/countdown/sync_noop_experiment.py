@@ -84,9 +84,10 @@ def main() -> int:
     # D18: trainer + vLLM BOTH on GPU1 to share the card with agent-ttrl
     # (GPU0 is occupied by its full-finetune; mem_util 0.3 keeps us inside
     # the remaining ~50GB of GPU1).
+    # CUDA_VISIBLE_DEVICES=1 (launch script) remaps physical GPU1 to cuda:0
     model = AutoModelForCausalLM.from_pretrained(
         os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"),
-        torch_dtype=torch.bfloat16, device_map="cuda:1")
+        torch_dtype=torch.bfloat16, device_map="cuda:0")
     tokenizer = AutoTokenizer.from_pretrained(
         os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"),
         trust_remote_code=True)
