@@ -75,11 +75,14 @@ class TrlControlAdapter:
         lease_epoch: int,
         attempt: int = 1,
         required_epoch: int | None = None,
+        sync_id: str | None = None,
     ) -> list[SyncEvent]:
         """requested → started.  runtime_loaded is written ONLY by
         sync_complete, AFTER the actual per-parameter calls succeeded
-        (P0-2: no self-reported load before the fact)."""
-        sync_id = f"sync-run-{policy_version}"
+        (P0-2: no self-reported load before the fact).  ``sync_id`` may be
+        overridden for resumed runs (the default is version-keyed and
+        would collide with the interrupted run's events)."""
+        sync_id = sync_id or f"sync-run-{policy_version}"
         events = [
             self._sync("sync_requested", sync_id, attempt, lease_epoch, policy_version, checkpoint_sha,
                        "rollout-gpu1", "trl-vllm-server", "update_named_param", "profile", required_epoch),

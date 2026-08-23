@@ -18,8 +18,10 @@ while true; do
   FREE1=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader | awk -F'[, ]+' '/^1/{print $2}')
   UTIL0=$(nvidia-smi --query-gpu=index,utilization.gpu --format=csv,noheader | awk -F'[, ]+' '/^0/{print $2}')
   UTIL1=$(nvidia-smi --query-gpu=index,utilization.gpu --format=csv,noheader | awk -F'[, ]+' '/^1/{print $2}')
-  # agent-ttrl busy if any tau2 training or Mistral vLLM process exists
-  TTRL_BUSY=$(ps aux | grep -E '[t]au2_agent_stream|[M]istral-7B' | wc -l)
+  # agent-ttrl busy if any tau2 training or Mistral vLLM process exists.
+  # Match the .py / model path so deploy-SCRIPT text (which mentions these
+  # strings) is not mistaken for a live process.
+  TTRL_BUSY=$(ps aux | grep -E '[t]au2_agent_stream\.py|[M]istral-7B-Instruct' | wc -l)
   NOW=$(date +%s)
 
   IDLE=0

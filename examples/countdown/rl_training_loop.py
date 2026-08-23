@@ -185,8 +185,9 @@ def main() -> int:
         # P0-2: sync_failed must be recorded (never runtime_loaded) if a real
         # per-param call fails; runtime_loaded carries the observed call count
         # + name/shape digest.
-        def do_sync(policy_version, ckpt_sha, tag):
-            begin = control.sync_begin(policy_version, ckpt_sha, epoch, required_epoch=epoch)
+        def do_sync(policy_version, ckpt_sha, tag, sync_id=None):
+            begin = control.sync_begin(policy_version, ckpt_sha, epoch, required_epoch=epoch,
+                                       sync_id=sync_id)
             calls = 0
             names = []
             try:
@@ -205,9 +206,13 @@ def main() -> int:
             log(f"{tag} synced {calls} params (v{policy_version}, digest {digest[:12]})")
             return begin, loaded, calls
 
-        sync_v0, loaded_v0, _ = do_sync(0, ckpt_v0["checkpoint_manifest_sha256"], "v0")
-        canary_v0 = control.canary_passed(0, ckpt_v0["checkpoint_manifest_sha256"], epoch,
-                                          sync_v0[0].sync_id, {"max_token_drift": 0}, required_epoch=epoch)
+        if not RESUME:
+            sync_v0, loaded_v0, _ = do_sync(0, ckpt_v0["checkpoint_manifest_sha256"], "v0")
+            canary_v0 = control.canary_passed(0, ckpt_v0["checkpoint_manifest_sha256"], epoch,
+                                              sync_v0[0].sync_id, {"max_token_drift": 0}, required_epoch=epoch)
+        else:
+            # resume: the v0 sync/canary events already exist in the log
+            canary_v0 = None
         runtime.set_load_epoch(1)
 
         # GSM8K task (framework portability): simple arithmetic word problems
@@ -273,7 +278,9 @@ def main() -> int:
             # chain for the continued run
             resume_ver = resume_from - 1
             resume_sha = resume_ckpt.get("checkpoint_manifest_sha256") or resume_ckpt.get("manifest", {}).get("checkpoint_manifest_sha256")
-            sync_r, _, _ = do_sync(resume_ver, resume_sha, "resume")
+            # unique sync_id: the interrupted run already holds sync-run-{ver}
+            sync_r, _, _ = do_sync(resume_ver, resume_sha, "resume",
+                                   sync_id=f"sync-resume-{resume_ver}-{int(time.time())}")
             canary_r = control.canary_passed(resume_ver, resume_sha, epoch, sync_r[0].sync_id,
                                              {"max_token_drift": None}, required_epoch=epoch)
             ckpt_prev = resume_ckpt
