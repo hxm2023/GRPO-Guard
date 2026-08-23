@@ -1159,6 +1159,12 @@ Kill 条件：当天无法跑上游 smoke，则只交付 CPU contract prototype�
 
 ### Day 2：唯一真实在线闭环
 
+> **状态注记（2026-08-23，decision D14）**：v0.1 release 证据仍以"唯一
+> 真实在线闭环"为准（Day 2 锁定不变）。v0.1 之后，用户批准追加一个
+> 多步闭环扩展证据（v0→v1→v2→v3 连续 3 次 committed update-sync-rollout，
+> 使权重真实移动、loss 非零），记录于 DECISION_LOG D14，预算内执行。
+
+
 - 接入上游 sync lifecycle；
 - 记录 runtime load epoch、policy/checkpoint、token/logprob/mask；
 - 接入 guarded batch materializer，确认合法 update 路径不再次调用 tokenizer；

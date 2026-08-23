@@ -209,3 +209,29 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if any family stops firing or any normal generation is
   rejected, the claim is narrowed to the observed subset and the
   discrepancy is investigated before any release claim.
+
+## D14 — Multi-step closed loop + context stress (2026-08-23, user-approved)
+
+- **Decision**: extend the online evidence with (1) a MULTI-STEP guarded
+  closed loop — 3 consecutive committed update-sync-rollout cycles on the
+  real server (v0→v1→v2→v3), so the optimizer's weights genuinely move
+  across steps (the v0.1 loop's single update consumed its own policy's
+  trajectories, loss≈0; a multi-step run yields nonzero loss and a
+  measurable weight delta between v0 and v3); (2) a longer max-context
+  rollout (near the 2048 limit) to stress the mask/span reconstruction at
+  the boundary.  Design doc §17 Day 2 locked ONE real online closed loop
+  for the v0.1 release evidence — that evidence stands untouched; this is
+  a post-release extension recorded here BEFORE the run, within the
+  remaining ~14 GPU·h.
+- **Evidence**: machine-readable JSON + PolicyManifests per step,
+  committed under artifacts/; honest reporting (loss, ratio stats, weight
+  deltas per step, parallel-with state).
+- **Alternative**: stop at v0.1 evidence — rejected: the user directed
+  deeper real-load evidence ("多步 GRPO 更新让权重真实移动").
+- **Why rejected others**: a longer single loop (more rollouts per step)
+  would burn budget for the same evidence class; multi-step is the only
+  change that yields genuinely new evidence (nonzero loss + real weight
+  movement + multi-cycle canary).
+- **Falsification**: if any step fails validation/canary, the multi-step
+  claim is narrowed to the steps that passed and the discrepancy is
+  investigated before any release claim.
