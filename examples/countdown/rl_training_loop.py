@@ -34,7 +34,7 @@ REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/r
 MAX_COMPLETION = 64
 N_GENS = 4
 N_PROMPTS = 8
-N_STEPS = 30
+N_STEPS = 20
 LR = 5e-5
 N_GENS = 8
 
