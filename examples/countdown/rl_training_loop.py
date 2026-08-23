@@ -35,7 +35,7 @@ MAX_COMPLETION = 64
 N_GENS = 4
 N_PROMPTS = 8
 N_STEPS = 30
-LR = 1e-3
+LR = 1e-4
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
