@@ -26,7 +26,9 @@ re-read it at every gate.
 - **Compatibility matrix frozen BEFORE work** (`compatibility_profile.yaml`); the
   official server-mode GRPO smoke must pass before F1 online experiments.
 - **F1-F4 canonical faults** (static rollout / misbound old-logprob / retokenization /
-  mask shift) with normal + boundary + held-out variants; F5-F8 deferred to v0.2.
+  mask shift) with normal + boundary + held-out variants; F5-F8 are formal
+  v0.2 families (decision D12, 2026-08-23 — design doc §11 upgrade condition
+  met; NOT part of the v0.1 matrix).
 - **Producer ownership + event lineage + content hashing** (EventBase, PolicyManifest,
   GenerationEvent, ScoringEvent, RewardEvent, TrajectoryEnvelope, ValidationDecision;
   canonical JSON, SHA-256, append-only store, single-writer lease + fencing).

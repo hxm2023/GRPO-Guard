@@ -124,7 +124,7 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 
 | experiment | result | evidence |
 |---|---|---|
-| F1-F8 online matrix | F1-F4 4/4 reject, normal 4/4 ALLOW; F5-F8 4/4 (v0.2-preview) | `online/fault_matrix_online.json`, `v0.2.0-dev/fault_matrix_online.json` |
+| F1-F8 online matrix | F1-F4 4/4 reject, normal 4/4 ALLOW; F5-F8 4/4 (formal v0.2) | `online/fault_matrix_online.json`, `v0.2.0-dev/fault_matrix_online.json` |
 | bounded off-policy online | lag≤bound+correction ALLOW; lag>bound reject P005; missing correction reject P006 — 3/3 | `bounded/bounded_online.json` |
 | tag v0.1.0 clean smoke | 1 committed step, 398 sync calls (release commit reproduced) | `smoke_v010/smoke_result.json` |
 | Day 2/5 guarded closed loop | 32/32 ALLOW → real update → 398-param sync → canary v1 pass → v1 rollout | `loop/` |
@@ -133,10 +133,11 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | canary determinism stress | 10/10 repeated greedy sketches drift 0 (8 prompts incl. near-max-context) | `canary_stress/canary_stress.json` |
 | v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |
 
-## v0.2-preview: fault families F5-F8
+## v0.2: fault families F5-F8 (formal, decision D12)
 
-Implemented as preview (CPU-only, clearly scoped — NOT part of the v0.1
-matrix; design doc §11 upgrades them to formal families in v0.2):
+F5-F8 are FORMAL v0.2 families (D12, 2026-08-23) — the design doc §11
+upgrade condition (frozen injection protocol + passing matrix) is met
+(`docs/INJECTION_PROTOCOL_v02.md`). CPU-only; NOT part of the v0.1 matrix:
 
 | Fault | Rule | Decision | Evidence |
 |---|---|---|---|
@@ -146,7 +147,7 @@ matrix; design doc §11 upgrades them to formal families in v0.2):
 | F8 artifact mutation | `T001_ARTIFACT_HASH_MISMATCH` (isolated store) | reject | same |
 
 `uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop` → 4/4 matched,
-normal 4/4 allow, GATE PASS (v0.2-preview).
+normal 4/4 allow, GATE PASS.
 
 ## Limitations (design doc §21)
 
@@ -154,9 +155,9 @@ normal 4/4 allow, GATE PASS (v0.2-preview).
   ratio ≈ 1) — the gradient-impact evidence comes from the Day 4 paired
   replay, which runs at v1 weights + a documented deterministic drift.
 - The canary is a behavior sketch (greedy tokens), not a per-byte proof.
-- Faults F5–F8 (split leakage, evaluator alias, event reorder, artifact
-  mutation) are deferred to v0.2; the validator's general checks cover
-  minimal F7/F8 fixtures but they are not part of the v0.1 matrix.
+- F5–F8 are formal v0.2 families (decision D12) but are not part of the
+  v0.1 matrix; the v0.1 validator's general checks cover minimal F7/F8
+  fixtures.
 - No cryptographic tamper-resistance against a malicious producer
   (design doc §5.3).
 

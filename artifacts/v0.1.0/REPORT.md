@@ -58,7 +58,7 @@ REVISE round found shared-base contamination, missing ALLOW verification,
 hardcoded stale-acceptance, overclaimed v1 count — all fixed and re-run
 green. See git history for the fix commits.
 
-## v0.2-preview — F5-F8 fault families (2026-08-22)
+## v0.2 — F5-F8 fault families (formal, decision D12 2026-08-23)
 
 Evidence: `artifacts/v0.2.0-dev/fault_matrix.json`, `tests/frozen/f5_f8_v02/`
 (pre-registered expectations in `configs/faults/f5_f8_v02.yaml`).
@@ -71,8 +71,9 @@ Evidence: `artifacts/v0.2.0-dev/fault_matrix.json`, `tests/frozen/f5_f8_v02/`
 | F8 artifact mutation | T001_ARTIFACT_HASH_MISMATCH | reject |
 
 v0.2 matrix over the REAL loop artifacts: **4/4 matched**, normal 4/4 allow.
-Explicitly v0.2-preview per design doc §11 — NOT part of the v0.1 matrix;
-no GPU budget spent.
+Formal v0.2 families per decision D12 (design doc §11 upgrade condition
+met: `docs/INJECTION_PROTOCOL_v02.md` frozen + all matrices pass) — NOT
+part of the v0.1 matrix; no GPU budget spent.
 
 ## Online matrix + release reproducibility (2026-08-22, autodl2)
 
@@ -92,8 +93,8 @@ run (8 real rollouts); validator decides live:
 | F7 event reorder | reject | L005_SCORING_AFTER_UPDATE |
 | F8 artifact mutation | reject | T001_ARTIFACT_HASH_MISMATCH |
 
-normal set (real generations): 4/4 ALLOW.  F5-F8 remain v0.2-preview per
-design doc §11.
+normal set (real generations): 4/4 ALLOW.  F5-F8 are formal v0.2 families
+per decision D12.
 
 **Release reproducibility**: tag `v0.1.0` checked out and the official
 server-mode smoke re-run on autodl2 from that exact commit →

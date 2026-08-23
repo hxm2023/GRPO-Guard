@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", default="artifacts/v0.1.0")
     p.set_defaults(fn=_cmd_day3)
 
-    p = sub.add_parser("v02-matrix", help="v0.2-preview F5-F8 matrix over real loop artifacts")
+    p = sub.add_parser("v02-matrix", help="v0.2 F5-F8 matrix over real loop artifacts")
     p.add_argument("--loop-dir", required=True)
     p.add_argument("--config", default="configs/faults/f5_f8_v02.yaml")
     p.add_argument("--out", default="artifacts/v0.2.0-dev")

@@ -870,6 +870,14 @@ F1–F4 每类至少准备：
 
 范围说明：v0.1 的通用 validator 与 unit/property tests 已检查 event order 和 artifact hash，因此能拒绝最小 F7/F8 fixture；但 F7/F8 不进入 v0.1 的四项 canonical 在线 fault matrix、影响实验或简历检测数字。只有 v0.2 冻结完整 injection protocol 后，才把它们升级为正式 fault families。
 
+> **v0.2 状态注记（2026-08-23，decision D12）**：升级条件已满足 ——
+> `docs/INJECTION_PROTOCOL_v02.md` 已冻结完整 injection protocol，F5-F8
+> 在三层矩阵全部通过预注册预期（frozen variants 12/12、online 4/4、
+> batch online 256/256+512/512+512/512，normal 4/4+32/32+64/64+128/128
+> ALLOW）。F5-F8 据此升级为正式 v0.2 fault families（D12）；仍不属于
+> v0.1 四项 canonical 矩阵。evidence 位于 artifacts/v0.2.0-dev/ 与
+> tests/frozen/f5_f8_v02/。
+
 ---
 
 ## 12. 确定性 paired replay

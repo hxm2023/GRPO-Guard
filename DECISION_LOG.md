@@ -166,3 +166,25 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if the 128-rollout results diverge from the 64-rollout
   results (any family stops firing), the claim is narrowed and the
   discrepancy investigated before release claims.
+
+## D12 — F5-F8 upgraded from v0.2-preview to formal v0.2 families (2026-08-23, user-approved)
+
+- **Decision**: F5-F8 (split leakage / evaluator alias / event reorder /
+  artifact mutation) become FORMAL v0.2 fault families.  The design doc
+  §11 upgrade condition — "v0.2 冻结完整 injection protocol 后才升级为
+  正式 fault families" — is met: `docs/INJECTION_PROTOCOL_v02.md` is frozen
+  and the families pass every pre-registered expectation across all three
+  matrix levels (frozen variants 12/12, online 4/4, batch online 256/256 +
+  512/512 + 512/512, normal 4/4 + 32/32 + 64/64 + 128/128 ALLOW).
+- **Evidence**: docs/INJECTION_PROTOCOL_v02.md; tests/frozen/f5_f8_v02/;
+  artifacts/v0.2.0-dev/fault_matrix.json, fault_matrix_online.json;
+  artifacts/v0.1.0/batch_online*/batch_online_matrix.json.
+- **Alternative**: keep the preview label — rejected: the formalization
+  condition in the design doc is satisfied, and the preview label
+  understates completed, evidence-backed work on the resume.
+- **Why rejected others**: no protocol or schema change is required — the
+  formalization is a scope/status change only; v0.2.0-dev artifact paths
+  stay as-is to preserve SHA256SUMS/CI integrity.
+- **Falsification**: if any F5-F8 case is later found mis-classified
+  (missed fault or false reject), the formal status is withdrawn and the
+  discrepancy is disclosed before any further claim.
