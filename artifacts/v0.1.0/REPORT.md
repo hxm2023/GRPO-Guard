@@ -211,13 +211,18 @@ the run at step 2:
 - **P0-4**: CPU torch in CI — grpo_loss/guarded-step/sync-state tests
   run (no skips); core coverage gate 87%.
 
-Pending (blocked by agent-ttrl's multi-hour GPU occupancy, not by the
-code): the full 20-step P0-fixed RL rerun (`rl_training_loop.py
---resume` against the preserved event log) and the no-op sync detection
-experiment (`sync_noop_experiment.py`).  Both are launch-ready;
-`examples/countdown/sync_noop_experiment.py` includes the
-server-vs-trainer greedy-sketch detector that exposes a silent no-op
-sync — the original static-rollout accident.
+**P0-2 stale-runtime detection on real GPU (D18)** —
+`artifacts/v0.1.0/sync_noop/sync_noop_result.json`: the original
+static-rollout accident made machine-checkable.  The vLLM server serves
+v0 while the trainer holds the trained v20 (||dθ||≈9.5 from the full RL
+run); the server-vs-trainer greedy sketch diverges by **7 tokens →
+STALE RUNTIME DETECTED** — the guard would reject consuming that
+runtime's rollouts before any optimizer step.
+
+The full 20-step P0-fixed RL rerun also completed (see above), resumed
+three times from the event log after shared-card interruptions — the
+resume path (P0-1/P0-2/P0-3 fixes) is now exercised end-to-end on real
+hardware.
 
 **P0-fixed RL training — FULL 20-step run (D18, 2026-08-24)** —
 `artifacts/v0.1.0/rl_training_final/`: the complete bounded off-policy
