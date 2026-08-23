@@ -235,3 +235,28 @@ Alternative · Why rejected · Falsification.
 - **Falsification**: if any step fails validation/canary, the multi-step
   claim is narrowed to the steps that passed and the discrepancy is
   investigated before any release claim.
+
+## D15 — Real off-policy RL training loop (2026-08-23, user-approved)
+
+- **Decision**: run the framework's first REAL multi-step RL training loop
+  on autodl2 — bounded off-policy (lag=1 via a one-step rollout buffer):
+  each step's update consumes the PREVIOUS step's rollouts while the
+  model has already advanced one update, so ratios deviate from 1, loss
+  is nonzero, and the bf16 weights genuinely move (the D14 on-policy
+  loop could not move weights — math constraint, recorded there).  ~30
+  steps of GRPO on Qwen3-4B countdown, tracking success rate per step
+  (v0 baseline ~25% from the Day 2 rewards), with the guard active on
+  EVERY step (identity + pre-update ALLOW required, observed sync,
+  canary check, committed manifest per step).  Budget: ~8-10 GPU·h of
+  the remaining ~11.
+- **Evidence**: rl_training.json with per-step loss/ratio/success/sync/
+  canary + the training curve; committed under artifacts/; honest
+  reporting (every step).
+- **Alternative**: stop at the D14 multi-step loop — rejected: the user
+  directed an experiment whose success-rate curve proves the framework
+  guards REAL learning, the strongest interview signal.
+- **Why rejected others**: on-policy repeats the D14 zero-delta result;
+  a pure simulation would not produce real server rollouts.
+- **Falsification**: if success rate does not improve over ~30 steps (or
+  any step fails validation/canary), the claim is narrowed to the
+  observed curve and the discrepancy is investigated before any claim.
