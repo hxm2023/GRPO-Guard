@@ -178,6 +178,10 @@ def main() -> int:
 
         # ---- v0 manifest + sync + canary ------------------------------------
         ckpt_v0 = hash_existing_checkpoint(0)
+        # init the weight-sync communicator ONCE after calibration (the server
+        # was reloaded 5x; re-initing per step breaks vLLM's pynccl group —
+        # D14 find).  Must precede the FIRST real update_named_param (v0 sync).
+        client.init_communicator(device=torch.device("cuda:0"))
         # P0-2: sync_failed must be recorded (never runtime_loaded) if a real
         # per-param call fails; runtime_loaded carries the observed call count
         # + name/shape digest.
@@ -260,9 +264,6 @@ def main() -> int:
             return float(np.sqrt(total))
 
         # ---- steps -------------------------------------------------------------
-        # init the weight-sync communicator ONCE after calibration (the server was
-        # reloaded 5x; re-initing per step breaks vLLM's pynccl group — D14 find).
-        client.init_communicator(device=torch.device("cuda:0"))
         bounded = ProtocolConfig(name="bounded_v01", mode="bounded_off_policy",
                                  max_policy_lag_versions=2, importance_correction="importance-ratio-v1")
         steps = []
