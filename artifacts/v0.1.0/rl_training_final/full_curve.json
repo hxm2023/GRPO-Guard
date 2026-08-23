@@ -1,0 +1,162 @@
+[
+ {
+  "step": 1,
+  "loss": -0.00137,
+  "success": 0.3438,
+  "parent": 0,
+  "ratio_max": 1.38,
+  "dtheta": 2.5018
+ },
+ {
+  "step": 2,
+  "loss": 0.00072,
+  "success": 0.6562,
+  "parent": 1,
+  "ratio_max": 1.504,
+  "dtheta": 2.4971
+ },
+ {
+  "step": 3,
+  "loss": -0.00091,
+  "success": 0.5938,
+  "parent": 2,
+  "ratio_max": 2.117,
+  "dtheta": 2.4948
+ },
+ {
+  "step": 4,
+  "loss": 0.00018,
+  "success": 0.3594,
+  "parent": 3,
+  "ratio_max": 5.301,
+  "dtheta": 2.4969
+ },
+ {
+  "step": 5,
+  "loss": -0.00779,
+  "success": 0.4531,
+  "parent": 4,
+  "ratio_max": 26.739,
+  "dtheta": 3.972
+ },
+ {
+  "step": 6,
+  "loss": -0.00042,
+  "success": 0.6094,
+  "parent": 5,
+  "ratio_max": 69.97,
+  "dtheta": 5.0355
+ },
+ {
+  "step": 7,
+  "loss": -0.00553,
+  "success": 0.4531,
+  "parent": 6,
+  "ratio_max": 47.116,
+  "dtheta": 5.8168
+ },
+ {
+  "step": 8,
+  "loss": -0.01583,
+  "success": 0.6406,
+  "parent": 7,
+  "ratio_max": 144.887,
+  "dtheta": 6.4375
+ },
+ {
+  "step": 9,
+  "loss": -0.00888,
+  "success": 0.5312,
+  "parent": 8,
+  "ratio_max": 17.316,
+  "dtheta": 6.9394
+ },
+ {
+  "step": 10,
+  "loss": -0.01544,
+  "success": 0.5469,
+  "parent": 9,
+  "ratio_max": 324.254,
+  "dtheta": 7.3574
+ },
+ {
+  "step": 11,
+  "loss": -0.00599,
+  "success": 0.5938,
+  "parent": 10,
+  "ratio_max": 618.109,
+  "dtheta": 7.7118
+ },
+ {
+  "step": 12,
+  "loss": -0.00387,
+  "success": 0.5312,
+  "parent": 11,
+  "ratio_max": 28.705,
+  "dtheta": 8.0172
+ },
+ {
+  "step": 13,
+  "loss": -0.00038,
+  "success": 0.6562,
+  "parent": 12,
+  "ratio_max": 275.18,
+  "dtheta": 8.281
+ },
+ {
+  "step": 14,
+  "loss": -0.0029,
+  "success": 0.5469,
+  "parent": 13,
+  "ratio_max": 38.802,
+  "dtheta": 8.5103
+ },
+ {
+  "step": 15,
+  "loss": -0.01418,
+  "success": 0.4531,
+  "parent": 14,
+  "ratio_max": 104.175,
+  "dtheta": 8.7185
+ },
+ {
+  "step": 16,
+  "loss": -0.00355,
+  "success": 0.4531,
+  "parent": 15,
+  "ratio_max": 649.522,
+  "dtheta": 8.905
+ },
+ {
+  "step": 17,
+  "loss": -0.0004,
+  "success": 0.3594,
+  "parent": 16,
+  "ratio_max": 179.244,
+  "dtheta": 9.0759
+ },
+ {
+  "step": 18,
+  "loss": 0.01364,
+  "success": 0.4062,
+  "parent": 17,
+  "ratio_max": 34.303,
+  "dtheta": 9.2373
+ },
+ {
+  "step": 19,
+  "loss": -0.00563,
+  "success": 0.4219,
+  "parent": 18,
+  "ratio_max": 890.733,
+  "dtheta": 9.3886
+ },
+ {
+  "step": 20,
+  "loss": -0.01026,
+  "success": 0.4844,
+  "parent": 19,
+  "ratio_max": 405.231,
+  "dtheta": 9.5307
+ }
+]

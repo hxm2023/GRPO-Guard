@@ -219,6 +219,29 @@ experiment (`sync_noop_experiment.py`).  Both are launch-ready;
 server-vs-trainer greedy-sketch detector that exposes a silent no-op
 sync — the original static-rollout accident.
 
+**P0-fixed RL training — FULL 20-step run (D18, 2026-08-24)** —
+`artifacts/v0.1.0/rl_training_final/`: the complete bounded off-policy
+GRPO loop re-run with ALL P0 fixes (guarded_optimizer_step,
+sync_begin/complete/failed, canary_mismatch events, P0-3 contract with
+REAL lag=1, micro-batched loss).  Recovered from the event log after
+THREE interruptions (shared-card GPU0 OOM with agent-ttrl's
+full-finetune; each interruption resumed from the next step):
+
+| metric | value |
+|---|---|
+| steps | 20/20 committed updates (B=64 each) |
+| success rate | 34.4% first → 48.4% last, peak 65.6% (step 13) |
+| loss != 0 | all 20 steps (range −0.016 … +0.014) |
+| final weight delta \|\|θ_v20 − θ_v0\|\| | 9.53 (fp32, measured) |
+| P0-3 contract | every training_step event: parent = k−1, behavior = k−2 → **REAL lag=1 in the event chain** |
+| sync | 20× runtime_loaded with observed 398 calls + digest ea30291bc583… |
+| canary | mismatch steps recorded as canary_mismatch (D17) then recalibrated (P003-safe) |
+| identity + pre-update ALLOW | every step |
+
+Success curve (in-train rollout reward, not held-out — reported as
+measured): 0.34, 0.66, 0.59, 0.36, 0.45, 0.61, 0.45, 0.64, 0.53, 0.55,
+0.59, 0.53, 0.66, 0.55, 0.45, 0.45, 0.36, 0.41, 0.42, 0.48.
+
 **Multi-step guarded closed loop** (`artifacts/v0.1.0/multi_step/`,
 decision D14): **3 consecutive committed update-sync-rollout cycles**
 v0→v1→v2→v3 on the real server, plus a near-max-context boundary rollout:
