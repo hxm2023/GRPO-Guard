@@ -117,7 +117,9 @@ def test_update_fails_closed_on_tokenizer_call():
         behavior_logprobs=np.zeros(1, dtype=np.float32), rewards=np.zeros(1, dtype=np.float32),
         layout_sha256="0" * 64,
     )
-    handle = ValidatedBatchHandle(ev, batch)
+    from grpo_guard.adapters.guarded_update import _HANDLE_ISSUER
+
+    handle = ValidatedBatchHandle(ev, batch, _HANDLE_ISSUER)  # white-box test mint
     adapter = GuardedUpdateAdapter(t.store, decision_verifier=_allow_verifier)
     with pytest.raises(RuntimeError):
         adapter.update(handle)

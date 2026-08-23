@@ -19,7 +19,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from grpo_guard.adapters.guarded_update import ValidatedBatchHandle
+from grpo_guard.adapters.guarded_update import MaterializedBatch, ValidatedBatchHandle
 
 
 @dataclass
@@ -35,9 +35,8 @@ def _as_tensor(arr: np.ndarray, dtype=torch.float32) -> torch.Tensor:
     return torch.as_tensor(arr, dtype=dtype)
 
 
-def _stack_handles(handles: Sequence[ValidatedBatchHandle]):
-    """Consume every handle and stack its tensors into one padded batch."""
-    batches = [h.consume() for h in handles]
+def _stack_batches(batches: Sequence[MaterializedBatch]):
+    """Stack already-materialized batches into one padded batch (no consume)."""
     T_max = max(b.sequence_token_ids.shape[0] for b in batches)
     B = len(batches)
     seq = np.zeros((B, T_max), dtype=np.int32)
@@ -57,20 +56,22 @@ def _stack_handles(handles: Sequence[ValidatedBatchHandle]):
     return seq, mask, logprobs, rewards
 
 
-def grpo_loss(
+def _loss_from_batches(
     model: torch.nn.Module,
-    handles: ValidatedBatchHandle | Sequence[ValidatedBatchHandle],
+    batches: Sequence[MaterializedBatch],
     group_size: int,
     clip_epsilon: float = 0.2,
     beta: float = 0.04,
 ) -> GuardedLossResult:
-    """GRPO loss on the handle tensors; only masked positions contribute."""
-    if isinstance(handles, ValidatedBatchHandle):
-        handles = [handles]
-    if not isinstance(handles, (list, tuple)) or not all(isinstance(h, ValidatedBatchHandle) for h in handles):
-        raise TypeError("grpo_loss accepts only ValidatedBatchHandle(s), no text fallback")
+    """GRPO loss over ALREADY-materialized batches (consumed handles).
 
-    seq_np, mask_np, lp_np, rewards_np = _stack_handles(handles)
+    Internal shared path for ``grpo_loss`` and ``guarded_optimizer_step``:
+    the optimizer may only reach the loss through validated, consumed
+    handles — never through raw tensors taken out by the caller.
+    """
+    if not batches:
+        raise ValueError("no materialized batches")
+    seq_np, mask_np, lp_np, rewards_np = _stack_batches(batches)
     device = next(model.parameters()).device
     seq = _as_tensor(seq_np).to(device)
     loss_mask = _as_tensor(mask_np).to(device)
@@ -123,3 +124,20 @@ def grpo_loss(
         "group_size": int(group_size),
     }
     return GuardedLossResult(loss=loss, metrics=metrics)
+
+
+def grpo_loss(
+    model: torch.nn.Module,
+    handles: ValidatedBatchHandle | Sequence[ValidatedBatchHandle],
+    group_size: int,
+    clip_epsilon: float = 0.2,
+    beta: float = 0.04,
+) -> GuardedLossResult:
+    """GRPO loss on the handle tensors; only masked positions contribute."""
+    if isinstance(handles, ValidatedBatchHandle):
+        handles = [handles]
+    if not isinstance(handles, (list, tuple)) or not all(isinstance(h, ValidatedBatchHandle) for h in handles):
+        raise TypeError("grpo_loss accepts only ValidatedBatchHandle(s), no text fallback")
+
+    batches = [h.consume() for h in handles]
+    return _loss_from_batches(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta)

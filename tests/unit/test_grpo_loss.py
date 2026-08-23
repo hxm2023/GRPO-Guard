@@ -56,7 +56,9 @@ def _make_handle(run_id, seq, mask, logprobs, rewards, nonce):
         sequence_token_ids=seq, loss_mask=mask, behavior_logprobs=logprobs,
         rewards=rewards, layout_sha256="0" * 64,
     )
-    return ValidatedBatchHandle(ev, batch)
+    from grpo_guard.adapters.guarded_update import _HANDLE_ISSUER
+
+    return ValidatedBatchHandle(ev, batch, _HANDLE_ISSUER)  # white-box test mint
 
 
 def test_grpo_loss_runs_and_masks_padding():

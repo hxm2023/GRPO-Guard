@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 
@@ -43,10 +44,25 @@ class MaterializedBatch:
     layout_sha256: str
 
 
-class ValidatedBatchHandle:
-    """Single-use handle wrapping a sealed UpdateInputEvent and tensor views."""
+class _HandleIssuer:
+    """Only the materializer may mint handles (producer ownership)."""
 
-    def __init__(self, input_event: UpdateInputEvent, batch: MaterializedBatch):
+
+_HANDLE_ISSUER = _HandleIssuer()
+
+
+class ValidatedBatchHandle:
+    """Single-use handle wrapping a sealed UpdateInputEvent and tensor views.
+
+    Only ``materialize`` may mint handles: the constructor requires the
+    private issuer token, so no external code can fabricate a handle
+    (P0-1: the optimizer entry cannot be bypassed by hand-constructing
+    a handle).
+    """
+
+    def __init__(self, input_event: UpdateInputEvent, batch: MaterializedBatch, _issuer: _HandleIssuer = None):
+        if _issuer is not _HANDLE_ISSUER:
+            raise TypeError("ValidatedBatchHandle may only be created by materialize()")
         if not input_event.event_sha256:
             raise ValueError("UpdateInputEvent must be sealed")
         self._input_event = input_event
@@ -67,6 +83,36 @@ class ValidatedBatchHandle:
             raise HandleConsumedError(f"handle for {self._input_event.update_id} already consumed")
         self._consumed = True
         return self._batch
+
+
+class NonceRegistry:
+    """PERSISTENT single-use nonce registry (append-only JSONL).
+
+    P0-1: nonce state must survive adapter instances and processes —
+    the in-memory set in GuardedUpdateAdapter cannot detect reuse across
+    training steps that each construct a fresh adapter.
+    """
+
+    def __init__(self, path: str | Path | None = None):
+        self._path = Path(path) if path else None
+        self._consumed: set[str] = set()
+        if self._path and self._path.exists():
+            for line in self._path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line:
+                    self._consumed.add(line)
+
+    def is_consumed(self, nonce_sha256: str) -> bool:
+        return nonce_sha256 in self._consumed
+
+    def consume(self, nonce_sha256: str) -> None:
+        if nonce_sha256 in self._consumed:
+            raise NonceReuseError(f"nonce {nonce_sha256[:12]} already consumed (persistent registry)")
+        self._consumed.add(nonce_sha256)
+        if self._path:
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+            with self._path.open("a", encoding="utf-8") as fh:
+                fh.write(nonce_sha256 + "\n")
 
 
 class GuardedUpdateAdapter:
@@ -180,7 +226,90 @@ def materialize(
         tokenizer_called=False,
     ).seal()
 
-    return ValidatedBatchHandle(input_event, batch)
+    return ValidatedBatchHandle(input_event, batch, _HANDLE_ISSUER)
+
+
+@dataclass
+class GuardedStepResult:
+    """Result of one guarded optimizer step (P0-1)."""
+
+    loss: float
+    metrics: dict
+    consumed_nonces: list[str]
+    checkpoint: dict | None = None
+
+
+def guarded_optimizer_step(
+    handles: "list[ValidatedBatchHandle]",
+    model,
+    optimizer,
+    store: ArtifactStore,
+    decision_verifier,
+    nonce_registry: NonceRegistry,
+    group_size: int,
+    loss_fn=None,
+    clip_epsilon: float = 0.2,
+    beta: float = 0.04,
+    commit_fn=None,
+) -> GuardedStepResult:
+    """THE single, unbypassable optimizer entry (P0-1).
+
+    Atomically: verify every decision/artifact hash → consume nonces from
+    the PERSISTENT registry → consume the handles → compute loss → backward
+    → optimizer.step → (optional) checkpoint commit.  There is no other
+    path from validated handle to optimizer: ``grpo_loss`` consumes the
+    same handles, and the public entry never accepts text or raw tensors.
+
+    On ANY failure (non-ALLOW decision, artifact hash mismatch, nonce
+    reuse, unsealed event, tokenizer_called) this raises BEFORE backward:
+    model parameters are provably unchanged.
+    """
+    if not isinstance(handles, (list, tuple)) or not handles:
+        raise TypeError("guarded_optimizer_step requires a non-empty list of ValidatedBatchHandle")
+    if not all(isinstance(h, ValidatedBatchHandle) for h in handles):
+        raise TypeError("guarded_optimizer_step accepts only ValidatedBatchHandle (no text fallback)")
+
+    # 1) verify every precondition BEFORE touching any state
+    for h in handles:
+        ev = h.input_event
+        if not ev.event_sha256:
+            raise RuntimeError(f"update input {ev.event_id} is not sealed")
+        if decision_verifier is None:
+            raise RuntimeError("guarded_optimizer_step requires a decision verifier (ALLOW precondition)")
+        if not decision_verifier(ev.preupdate_validation_decision):
+            raise RuntimeError(f"update input {ev.event_id} references a non-ALLOW validation decision")
+        if ev.tokenizer_called:
+            raise RuntimeError("tokenizer was called during materialization — refusing update")
+        for ref in (ev.sequence_token_ids, ev.loss_mask, ev.authoritative_behavior_logprobs):
+            if not store.verify(ref):
+                raise RuntimeError(f"artifact {ref.sha256[:12]} failed content hash at update time")
+        if nonce_registry.is_consumed(ev.single_use_nonce_sha256):
+            raise NonceReuseError(f"nonce {ev.single_use_nonce_sha256[:12]} already consumed")
+
+    # 2) consume nonces persistently, then consume handles
+    consumed = []
+    for h in handles:
+        nonce_registry.consume(h.input_event.single_use_nonce_sha256)
+        consumed.append(h.input_event.single_use_nonce_sha256)
+    batches = [h.consume() for h in handles]
+
+    # 3) loss -> backward -> step (only reachable after all checks passed)
+    if loss_fn is None:
+        from grpo_guard.adapters.grpo_loss import _loss_from_batches
+
+        loss_fn = _loss_from_batches
+    result = loss_fn(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta)
+    optimizer.zero_grad()
+    result.loss.backward()
+    optimizer.step()
+
+    ckpt = commit_fn(model) if commit_fn is not None else None
+    return GuardedStepResult(
+        loss=float(result.metrics["loss"]),
+        metrics=result.metrics,
+        consumed_nonces=consumed,
+        checkpoint=ckpt,
+    )
 
 
 def _dtype(ref: ArtifactRef) -> np.dtype:

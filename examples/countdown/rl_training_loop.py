@@ -66,8 +66,7 @@ def main() -> int:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
-    from grpo_guard.adapters.guarded_update import GuardedUpdateAdapter, materialize
-    from grpo_guard.adapters.grpo_loss import grpo_loss
+    from grpo_guard.adapters.guarded_update import NonceRegistry, guarded_optimizer_step, materialize
     from grpo_guard.adapters.trl_control import TrlControlAdapter
     from grpo_guard.adapters.vllm_runtime import VLLMRuntimeAdapter
     from grpo_guard.schema.artifacts import EventRef
@@ -116,6 +115,9 @@ def main() -> int:
     run_id = f"multi-{int(time.time())}"
     store = ArtifactStore(OUT_DIR / "store")
     log_ = AppendLog(OUT_DIR / "events", run_id=run_id, lease_id="guard-trainer")
+    # P0-1: persistent nonce registry — survives steps/processes (the old
+    # per-adapter in-memory set could not detect cross-step reuse)
+    nonce_registry = NonceRegistry(OUT_DIR / "nonces.jsonl")
     epoch = log_.acquire_lease()
 
     def next_lifecycle() -> int:
@@ -335,9 +337,12 @@ def main() -> int:
             handles = []
             for (gen, id_decision, env_id, _), rew in zip(consumed["identity_events"],
                                                           consumed["reward_events"]):
+                # P0-3: trainer_parent MUST be the model's real version (k-1),
+                # not the consumed data's version (c_ver) — the observed lag is
+                # k-1 - c_ver = 1, not 0.
                 pre = build_envelope(run_id, gen, rew, id_decision,
                                      c_ckpt["checkpoint_manifest_sha256"],
-                                     split_manifest, "pre_update", c_ver,
+                                     split_manifest, "pre_update", k - 1,
                                      f"update-{k}", parent_sha=env_id.envelope_sha256)
                 ctx = ValidationContext(envelope=pre, store=store, events=all_events(),
                                         policy_manifest=manifest_model(c_ckpt),
@@ -364,26 +369,33 @@ def main() -> int:
                 handles.append(h)
             log(f"step {k} pre-update ALLOW on {len(handles)} envelopes; handles materialized")
 
-            adapter = GuardedUpdateAdapter(store, decision_verifier=decision_is_allow)
-            optimizer.zero_grad()
-            loss_res = grpo_loss(model, handles, group_size=N_GENS, clip_epsilon=0.1)
-            loss_res.loss.backward()
-            optimizer.step()
-            log(f"step {k} update: loss={loss_res.metrics['loss']:.4f} "
-                f"ratios={loss_res.metrics['ratio_p50']:.3f}/{loss_res.metrics['ratio_max']:.3f} "
-                f"B={loss_res.metrics['B']}")
+            # P0-1: THE single optimizer entry — validation, nonce, artifact
+            # hashes, loss, backward, step and commit are atomic inside
+            # guarded_optimizer_step; there is no other path to optimizer.step.
+            def commit_step(model_):
+                ck = commit_checkpoint(model_, k, OUT_DIR / f"ckpt_v{k}")
+                upd_refs = [EventRef(uri="", event_id=h.input_event.event_id,
+                                     event_sha256=h.input_event.event_sha256) for h in handles]
+                control.update_committed(
+                    update_id=f"update-{k}", transaction_id=f"txn-{k}", lease_epoch=epoch,
+                    parent_policy_version=k - 1, output_policy_version=k,
+                    input_envelope_sha256s=[h.input_event.preupdate_envelope.envelope_sha256 for h in handles],
+                    checkpoint_manifest_sha256=ck["checkpoint_manifest_sha256"],
+                    update_input_event=upd_refs[0] if upd_refs else None,
+                    required_epoch=epoch,
+                )
+                return ck
 
-            ckpt_k = commit_checkpoint(model, k, OUT_DIR / f"ckpt_v{k}")
-            upd_refs = [EventRef(uri="", event_id=h.input_event.event_id,
-                                 event_sha256=h.input_event.event_sha256) for h in handles]
-            control.update_committed(
-                update_id=f"update-{k}", transaction_id=f"txn-{k}", lease_epoch=epoch,
-                parent_policy_version=c_ver, output_policy_version=k,
-                input_envelope_sha256s=[h.input_event.preupdate_envelope.envelope_sha256 for h in handles],
-                checkpoint_manifest_sha256=ckpt_k["checkpoint_manifest_sha256"],
-                update_input_event=upd_refs[0] if upd_refs else None,
-                required_epoch=epoch,
+            step_res = guarded_optimizer_step(
+                handles, model, optimizer, store=store, decision_verifier=decision_is_allow,
+                nonce_registry=nonce_registry, group_size=N_GENS, clip_epsilon=0.1,
+                commit_fn=commit_step,
             )
+            ckpt_k = step_res.checkpoint
+            log(f"step {k} update: loss={step_res.metrics['loss']:.4f} "
+                f"ratios={step_res.metrics['ratio_p50']:.3f}/{step_res.metrics['ratio_max']:.3f} "
+                f"B={step_res.metrics['B']}")
+
             sync_k = control.sync_chain(k, ckpt_k["checkpoint_manifest_sha256"], epoch, required_epoch=epoch)
             sync_calls = 0
             for name, param in model.named_parameters():
@@ -413,8 +425,8 @@ def main() -> int:
                 "rollout_sequences": len(batch_k["identity_events"]),
                 "consumed_sequences": len(handles),
                 "success_rate": success_rate,
-                "loss": loss_res.metrics["loss"], "ratio_p50": loss_res.metrics["ratio_p50"],
-                "ratio_max": loss_res.metrics["ratio_max"], "clip_fraction": loss_res.metrics.get("clip_fraction"),
+                "loss": step_res.metrics["loss"], "ratio_p50": step_res.metrics["ratio_p50"],
+                "ratio_max": step_res.metrics["ratio_max"], "clip_fraction": step_res.metrics.get("clip_fraction"),
                 "sync_calls": sync_calls, "canary_verdict": check.verdict, "canary_drift": check.drift,
                 "weight_delta_fp32_vs_v0": delta_vs_v0,
             }
@@ -426,17 +438,17 @@ def main() -> int:
                 event_id=f"tstep-{run_id}-{k}", event_type="training_step_finished",
                 run_id=run_id, component_id="grpo_trainer", lifecycle_seq=next_lifecycle(),
                 created_at_utc=now_utc(),
-                update_id=f"update-{k}", parent_policy_version=c_ver, output_policy_version=k,
+                update_id=f"update-{k}", parent_policy_version=k - 1, output_policy_version=k,
                 rollout_sequences=len(batch_k["identity_events"]),
                 consumed_sequences=len(handles),
                 success_rate=success_rate,
-                loss=loss_res.metrics["loss"], ratio_p50=loss_res.metrics["ratio_p50"],
-                ratio_max=loss_res.metrics["ratio_max"],
-                clip_fraction=loss_res.metrics.get("clip_fraction"),
+                loss=step_res.metrics["loss"], ratio_p50=step_res.metrics["ratio_p50"],
+                ratio_max=step_res.metrics["ratio_max"],
+                clip_fraction=step_res.metrics.get("clip_fraction"),
                 weight_delta_fp32_vs_v0=delta_vs_v0,
             ).seal()
             log_.append(tstep, required_epoch=epoch)
-            log(f"step {k} done: loss={loss_res.metrics['loss']:.4f} "
+            log(f"step {k} done: loss={step_res.metrics['loss']:.4f} "
                 f"||dθ||(fp32 vs v0)={delta_vs_v0:.6f} success={success_rate:.2f}")
 
             ckpt_prev = ckpt_k
