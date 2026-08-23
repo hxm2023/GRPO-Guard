@@ -114,6 +114,25 @@ def _cmd_v02(args) -> int:
     return 0 if s["gate_pass"] else 1
 
 
+def _cmd_events(args) -> int:
+    from grpo_guard.monitor import event_search
+
+    hits = event_search(args.dir, event_type=args.type, component_id=args.component,
+                        reason_code=args.code, prompt_id=args.prompt)
+    for e in hits:
+        print(f"{e.get('event_type')} {e.get('event_id')} {e.get('component_id')}")
+    print(f"{len(hits)} events")
+    return 0
+
+
+def _cmd_alert_scan(args) -> int:
+    from grpo_guard.monitor import alert_non_allow
+
+    summary = alert_non_allow(args.dir, args.webhook)
+    print(f"scanned={summary['scanned']} sent={summary['sent']} failed={summary['failed']}")
+    return 0 if summary["failed"] == 0 else 1
+
+
 def _cmd_report(args) -> int:
     from grpo_guard.report import build_report
 
@@ -172,6 +191,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--config", default="configs/faults/f5_f8_v02.yaml")
     p.add_argument("--out", default="artifacts/v0.2.0-dev")
     p.set_defaults(fn=_cmd_v02)
+
+    p = sub.add_parser("events", help="search the append-only event log")
+    p.add_argument("--dir", required=True, help="events dir (canonical json files)")
+    p.add_argument("--type", default=None, help="event_type filter")
+    p.add_argument("--component", default=None, help="component_id filter")
+    p.add_argument("--code", default=None, help="reason code filter (validation decisions)")
+    p.add_argument("--prompt", default=None, help="prompt_id filter (generation events)")
+    p.set_defaults(fn=_cmd_events)
+
+    p = sub.add_parser("alert-scan", help="scan non-ALLOW decisions and POST to a webhook")
+    p.add_argument("--dir", required=True, help="events dir")
+    p.add_argument("--webhook", required=True, help="webhook URL (generic JSON or Slack-compatible)")
+    p.set_defaults(fn=_cmd_alert_scan)
 
     p = sub.add_parser("report", help="build run_manifest.json + REPORT.md + SHA256SUMS")
     p.add_argument("--artifact-dir", default="artifacts/v0.1.0")
