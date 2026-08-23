@@ -62,10 +62,16 @@ def test_canary_mismatch_is_not_canary_passed(tmp_path):
     assert "canary_mismatch" in types
 
 
-def test_noop_sync_stub_returns_success_but_drops_weights():
-    from examples.countdown.sync_noop_experiment import NoopSyncStub
+class _NoopSyncStub:
+    def __init__(self):
+        self.calls = 0
 
-    stub = NoopSyncStub()
+    def update_named_param(self, name, param) -> None:
+        self.calls += 1  # silently drop the weight
+
+
+def test_noop_sync_stub_returns_success_but_drops_weights():
+    stub = _NoopSyncStub()
     stub.update_named_param("model.layers.0.weight", object())  # returns None, no raise
     assert stub.calls == 1
 
