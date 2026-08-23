@@ -176,9 +176,9 @@ def main() -> int:
             return client.generate([prompt], n=n, temperature=temperature, top_p=1.0,
                                    top_k=0, max_tokens=max_tokens, logprobs=0)
 
-        def canary_sketch():
-            return suite.sketch(lambda p, **kw: _unpack_gen(client.generate(
-                p, n=1, temperature=0.0, top_p=1.0, top_k=1, max_tokens=8, logprobs=0)))
+        def canary_gen(p, **kw):
+            return _unpack_gen(client.generate(p, n=1, temperature=0.0, top_p=1.0,
+                                               top_k=1, max_tokens=8, logprobs=0))
 
         def weight_delta_fp32(v_new, v_old) -> float:
             total = 0.0
@@ -304,7 +304,7 @@ def main() -> int:
                 sync_calls += 1
             log(f"step {k} synced {sync_calls} params (v{k})")
 
-            check = suite.check(canary_sketch, k, v0_baseline, tolerance)
+            check = suite.check(canary_gen, k, v0_baseline, tolerance)
             if check.verdict != "pass":
                 raise RuntimeError(f"canary MISMATCH after v{k} sync: {check.drift}")
             canary_k = control.canary_passed(k, ckpt_k["checkpoint_manifest_sha256"], epoch,
