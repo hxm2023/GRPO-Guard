@@ -448,7 +448,8 @@ def main() -> int:
                 # production path — the guard-on arm is the shipped one)
                 from grpo_guard.adapters.grpo_loss import grpo_loss
 
-                loss_res = grpo_loss(model, handles, group_size=N_GENS, clip_epsilon=0.1)
+                loss_res = grpo_loss(model, handles, group_size=N_GENS, clip_epsilon=0.1,
+                                     max_micro_batch=8)
                 optimizer.zero_grad()
                 loss_res.loss.backward()
                 optimizer.step()

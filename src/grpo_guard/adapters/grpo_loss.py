@@ -166,6 +166,7 @@ def grpo_loss(
     group_size: int,
     clip_epsilon: float = 0.2,
     beta: float = 0.04,
+    max_micro_batch: int | None = None,
 ) -> GuardedLossResult:
     """GRPO loss on the handle tensors; only masked positions contribute."""
     if isinstance(handles, ValidatedBatchHandle):
@@ -174,4 +175,5 @@ def grpo_loss(
         raise TypeError("grpo_loss accepts only ValidatedBatchHandle(s), no text fallback")
 
     batches = [h.consume() for h in handles]
-    return _loss_from_batches(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta)
+    return _loss_from_batches(model, batches, group_size, clip_epsilon=clip_epsilon, beta=beta,
+                              max_micro_batch=max_micro_batch)
