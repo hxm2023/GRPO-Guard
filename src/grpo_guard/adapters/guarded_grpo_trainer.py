@@ -105,9 +105,18 @@ class GuardedGRPOTrainer:
 
     def _guard_validate_rollouts(self, result) -> None:
         """Check + record every rollout in the official batch result."""
-        prompt_ids_list = result.get("prompt_ids") or []
-        completion_ids_list = result.get("completion_ids") or []
-        logprobs_list = result.get("logprobs") or []
+        # TRL returns torch tensors; normalize to python lists
+        def _to_lists(key):
+            v = result.get(key)
+            if v is None:
+                return []
+            if hasattr(v, "cpu"):  # torch tensor -> numpy -> list
+                v = v.cpu().numpy().tolist()
+            return v
+
+        prompt_ids_list = _to_lists("prompt_ids")
+        completion_ids_list = _to_lists("completion_ids")
+        logprobs_list = _to_lists("logprobs")
         for i, (pids, cids) in enumerate(zip(prompt_ids_list, completion_ids_list)):
             violations = _align_checks(pids, cids)
             lp = logprobs_list[i] if i < len(logprobs_list) else None
