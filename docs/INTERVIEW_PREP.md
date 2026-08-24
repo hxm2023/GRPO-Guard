@@ -101,6 +101,24 @@ gate-passed 数字，不扩大范围）。
   指标（决策/原因码/canary/训练成功率）；`alert-scan` 非 ALLOW 决策
   webhook 告警。全部在 CI 里跑。
 
+**Q10: optimizer 真的只能消费验证后的数据吗？怎么证明不可绕过？**
+- `guarded_optimizer_step` 是**唯一**的 optimizer 入口：验证（decision ALLOW
+  + artifact hash + tokenizer_called）→ 持久化 nonce 消费 → handle 消费 →
+  loss → backward → step → commit 原子完成；任何失败在 backward 前抛出，
+  参数证明不变（测试断言）。
+- handle 只能由 materializer 铸造（issuer token，外部构造 → TypeError）；
+  nonce 跨进程持久化（JSONL registry，复用 → NonceReuseError）。
+- 真实 GPU 验证：20 步 RL 训练全部走此入口（每步 loss 非零、B=64
+  微批次化防 OOM）；被共享服务器中断 3 次后 `--resume` 从事件日志无缝续跑。
+
+**Q11: 怎么证明 runtime 真的加载了新权重（静态 rollout 检测）？**
+- 事件链：runtime_loaded 只在真实 398 次 update_named_param 调用后记录
+  （带调用数 + name digest，P0-2）；canary mismatch 记录为
+  canary_mismatch（绝不写 canary_passed）。
+- 数据面：server-vs-trainer greedy sketch 对比 —— 实测 server 服务 v0
+  而 trainer 持训练后 v20 时 drift=7 → **STALE RUNTIME DETECTED**
+  （原始静态 rollout 事故的机器检测，guard 在 optimizer 前阻断）。
+
 ## 演示要点（3-5 分钟）
 
 `uv run python examples/countdown/demo.py`（CPU）：
