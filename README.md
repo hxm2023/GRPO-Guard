@@ -65,8 +65,10 @@ Key invariants (design doc §6-§9):
   (e.g. `P004_STALE_POLICY_STRICT`, `T002_TOKENIZER_MISMATCH`,
   `M004_CANONICAL_MASK_MISMATCH`, `L003_SCORER_POLICY_MISMATCH`).
   Only envelopes with **both** identity and pre-update `ALLOW` may update
-  parameters; the guarded update adapter refuses anything else and any nonce
-  reuse.
+  parameters; `guarded_optimizer_step` is the SINGLE optimizer entry —
+  validation, persistent nonce, artifact hashes, loss, backward, step and
+  commit are atomic inside it (any failure leaves parameters provably
+  unchanged; handles can only be minted by the materializer).
 - **Deterministic paired replay**: fault pairs are derived from the same
   frozen producer artifacts; gradients are compared with cosine / relative
   L2 / update norm / ratio / clip metrics (`undefined_near_zero` when norms
@@ -136,6 +138,7 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | 256-rollout batch matrix (D13) | 256 real rollouts: normal 256/256 ALLOW; F1-F8 injected per trajectory — 2048 decisions all matching the frozen oracle | `batch_online_256/batch_online_matrix.json` |
 | multi-step closed loop (D14) | 3× committed update-sync-rollout (v0→v3), 3×398-param sync, 3× canary pass, 1876-token boundary rollout ALLOW | `multi_step/multi_step.json` |
 | real RL training (D15/D17) | 19 committed GRPO updates (bounded off-policy lag-1), nonzero loss, real weight delta 10.4, guard ALLOW every step; success curve reported honestly (in-train reward, not held-out) | `rl_training/rl_training.json` |
+| P0-fixed RL training (D18) | FULL 20-step rerun: real lag=1 in event chain, 20 committed updates (B=64, micro-batched), 3× interruption+resume; stale-runtime detection (server v0 vs trained v20 → drift 7 → DETECTED) | `rl_training_final/`, `sync_noop/` |
 | v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |
 
 ## v0.2: fault families F5-F8 (formal, decision D12)
