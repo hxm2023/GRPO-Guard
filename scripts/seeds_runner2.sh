@@ -15,6 +15,22 @@ for mode in on off; do
       echo "$(date) skip (done): $mode seed=$seed" >> $LOG
       continue
     fi
+    # wait for a clean GPU window (agent-ttrl gets priority): no ttrl
+    # processes AND both GPUs mostly free AND low util for 60s
+    IDLE_SINCE=""
+    while true; do
+      F0=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader | awk -F'[, ]+' '/^0/{print $2}')
+      F1=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader | awk -F'[, ]+' '/^1/{print $2}')
+      TTRL=$(ps aux | grep -E '[t]au2_agent_stream\.py|[M]istral-7B-Instruct|[t]rain\.py' | grep -v grep | wc -l)
+      if [ -n "$F0" ] && [ -n "$F1" ] && [ "$F0" -gt 60000 ] && [ "$F1" -gt 60000 ] && [ "$TTRL" = "0" ]; then
+        if [ -z "$IDLE_SINCE" ]; then IDLE_SINCE=$(date +%s); echo "$(date) idle window begins" >> $LOG; fi
+        NOW=$(date +%s)
+        if [ $((NOW - IDLE_SINCE)) -ge 60 ]; then break; fi
+      else
+        IDLE_SINCE=""
+      fi
+      sleep 45
+    done
     rm -rf $OUT
     echo "$(date) run: $mode seed=$seed" >> $LOG
     if [ "$mode" = "off" ]; then
