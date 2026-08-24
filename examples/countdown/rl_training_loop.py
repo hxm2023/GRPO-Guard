@@ -94,6 +94,9 @@ def main() -> int:
     # --resume: continue an interrupted run from its event log + checkpoints
     # (the event stream + ckpt dirs of the previous run must be intact).
     RESUME = "--resume" in sys.argv
+    GUARD_OFF = "--guard-off" in sys.argv
+    if GUARD_OFF:
+        log("GUARD OFF mode (P1-2 comparison): validation and guarded step skipped")
     resume_from = 0  # first step to run (0 = full run)
     resume_ckpt = None  # PolicyManifest dict of the checkpoint to load
     if RESUME:
@@ -326,11 +329,25 @@ def main() -> int:
                     ctx = ValidationContext(envelope=env_id, store=store, events=all_events(),
                                             policy_manifest=manifest_model(ckpt_ref),
                                             split_manifest=split_model(split_manifest), protocol=bounded)
-                    decision = validate_envelope(ctx, "identity_pre_reward")
-                    if decision.decision_payload.decision != "allow":
-                        raise RuntimeError(f"identity FAILED {env_id.envelope_id}: "
-                                           f"{decision.decision_payload.reason_codes}")
-                    log_.append(decision, required_epoch=epoch)
+                    if GUARD_OFF:
+                        # P1-2 guard-off arm: synthetic ALLOW decision, no validation
+                        from grpo_guard.schema.decisions import ValidationDecision
+                        from grpo_guard.schema.events import ValidationDecisionEvent
+
+                        decision = ValidationDecisionEvent(
+                            event_id=f"vdec-{gen.event_id}-noguard", event_type="validation_decision",
+                            run_id=run_id, component_id="validator", lifecycle_seq=next_lifecycle(),
+                            created_at_utc=now_utc(),
+                            decision_payload=ValidationDecision(decision="allow",
+                                                                validation_stage="identity_pre_reward",
+                                                                reason_codes=["G999_GUARD_OFF"])).seal()
+                        log_.append(decision, required_epoch=epoch)
+                    else:
+                        decision = validate_envelope(ctx, "identity_pre_reward")
+                        if decision.decision_payload.decision != "allow":
+                            raise RuntimeError(f"identity FAILED {env_id.envelope_id}: "
+                                               f"{decision.decision_payload.reason_codes}")
+                        log_.append(decision, required_epoch=epoch)
                     ids.append((gen, decision, env_id, text))
 
                     r = gsm8k_rule_verifier(text, p["golden_answer"])
@@ -382,10 +399,13 @@ def main() -> int:
                 ctx = ValidationContext(envelope=pre, store=store, events=all_events(),
                                         policy_manifest=manifest_model(c_ckpt),
                                         split_manifest=split_model(split_manifest), protocol=bounded)
-                decision = validate_envelope(ctx, "full_pre_update")
-                if decision.decision_payload.decision != "allow":
-                    raise RuntimeError(f"pre-update FAILED {pre.envelope_id}: "
-                                       f"{decision.decision_payload.reason_codes}")
+                if GUARD_OFF:
+                    decision = id_decision  # guard-off arm: reuse the synthetic allow
+                else:
+                    decision = validate_envelope(ctx, "full_pre_update")
+                    if decision.decision_payload.decision != "allow":
+                        raise RuntimeError(f"pre-update FAILED {pre.envelope_id}: "
+                                           f"{decision.decision_payload.reason_codes}")
                 log_.append(decision, required_epoch=epoch)
                 h = materialize(
                     store=store, run_id=run_id, update_id=f"update-{k}",
@@ -421,12 +441,24 @@ def main() -> int:
                 )
                 return ck
 
-            step_res = guarded_optimizer_step(
-                handles, model, optimizer, store=store, decision_verifier=decision_is_allow,
-                nonce_registry=nonce_registry, group_size=N_GENS, clip_epsilon=0.1,
-                max_micro_batch=8,  # D18: bound per-forward memory (64-seq peak OOMs one 84GB card)
-                commit_fn=commit_step,
-            )
+            if GUARD_OFF:
+                # P1-2 guard-off arm: plain loss/step, no guard (never the
+                # production path — the guard-on arm is the shipped one)
+                from grpo_guard.adapters.grpo_loss import grpo_loss
+
+                loss_res = grpo_loss(model, handles, group_size=N_GENS, clip_epsilon=0.1)
+                optimizer.zero_grad()
+                loss_res.loss.backward()
+                optimizer.step()
+                ckpt_k = commit_step(model)
+                step_res = type("R", (), {"metrics": loss_res.metrics, "checkpoint": ckpt_k})()
+            else:
+                step_res = guarded_optimizer_step(
+                    handles, model, optimizer, store=store, decision_verifier=decision_is_allow,
+                    nonce_registry=nonce_registry, group_size=N_GENS, clip_epsilon=0.1,
+                    max_micro_batch=8,  # D18: bound per-forward memory (64-seq peak OOMs one 84GB card)
+                    commit_fn=commit_step,
+                )
             ckpt_k = step_res.checkpoint
             log(f"step {k} update: loss={step_res.metrics['loss']:.4f} "
                 f"ratios={step_res.metrics['ratio_p50']:.3f}/{step_res.metrics['ratio_max']:.3f} "
