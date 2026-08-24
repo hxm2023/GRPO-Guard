@@ -37,9 +37,9 @@ def main() -> int:
     from examples.countdown.smoke_train import _patch_device_normalization
 
     _patch_device_normalization()
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.4, device="1")
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
     args = GRPOConfig(
         output_dir=str(OUT_DIR / "ckpt"),
         run_name="grpo-guard-guarded-smoke",
