@@ -57,25 +57,97 @@ def test_guarded_rollout_fails_closed_on_violation(tmp_path):
     assert "M005_EMPTY_COMPLETION" in str(exc.value)
 
 
-def test_guarded_rollout_records_and_passes(tmp_path):
+def test_guarded_rollout_records_real_artifacts(tmp_path):
+    """P0-4: mask/logprob/reward artifacts are REAL bytes, not placeholders."""
     t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
     good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
-            "logprobs": [[0.1, 0.2, 0.3]]}
+            "logprobs": [[0.1, 0.2, 0.3]], "rewards": [[0.5]]}
     out = t._generate_and_score_completions(good)
     assert out == good
-    assert len(t._guard_rollouts) == 1
-    assert t._guard_rollouts[0]["completion_len"] == 3
+    rec = t._guard_rollouts[0]
+    assert rec["completion_len"] == 3
+    for ref in (rec["sequence_ref"], rec["mask_ref"], rec["logprob_ref"], rec["reward_ref"]):
+        assert ref.sha256 != "0" * 64
+        assert t._guard_store.verify(ref)  # bytes actually stored + hashable
     events = list(t._guard_log.iterate())
     assert len(events) == 1
     assert events[0]["event_type"] == "generation_finished"
+    assert events[0]["service_behavior_logprobs"]["sha256"] == rec["logprob_ref"].sha256
 
 
-def test_guarded_training_step_passes(tmp_path):
+def _rollout_inputs(good):
+    pids, cids = good["prompt_ids"][0], good["completion_ids"][0]
+    seq = np.asarray(pids + cids, dtype=np.int32)
+    lp_row = np.zeros(len(pids) + len(cids), dtype=np.float32)
+    lp_row[len(pids):] = good["logprobs"][0]
+    return {"input_ids": seq.reshape(1, -1), "logprobs": lp_row.reshape(1, -1)}
+
+
+def test_guarded_training_step_verifies_actual_inputs_and_rotates(tmp_path):
+    """P0-4: the ACTUAL consumed tensors must match the recorded artifacts;
+    records rotate after the step (no stale validation)."""
     t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
     good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
             "logprobs": [[0.1, 0.2, 0.3]]}
     t._generate_and_score_completions(good)
-    assert t.training_step(None, {}, 1) == "step-ok"
+    assert t.training_step(None, _rollout_inputs(good), 1) == "step-ok"
+    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 1}
+    assert t._guard_rollouts == []  # rotated
+
+
+def test_guarded_training_step_refuses_retokenized_tokens(tmp_path):
+    """P0-4: tampered input_ids (retokenization wiring bug) fail BEFORE
+    super().training_step — i.e. before loss/backward."""
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
+            "logprobs": [[0.1, 0.2, 0.3]]}
+    t._generate_and_score_completions(good)
+    bad = _rollout_inputs(good)
+    bad["input_ids"][0][3] = 999  # completion tokens re-encoded
+    with pytest.raises(GuardViolation, match="T001"):
+        t.training_step(None, bad, 1)
+
+
+def test_guarded_training_step_refuses_misbound_logprobs(tmp_path):
+    """P0-4: tampered old logprobs (misbinding wiring bug) fail before step."""
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
+            "logprobs": [[0.1, 0.2, 0.3]]}
+    t._generate_and_score_completions(good)
+    bad = _rollout_inputs(good)
+    bad["logprobs"][0][4] = -9.9  # different old-logprob values
+    with pytest.raises(GuardViolation, match="L004"):
+        t.training_step(None, bad, 1)
+
+
+def test_guarded_training_step_refuses_row_count_mismatch(tmp_path):
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
+            "logprobs": [[0.1, 0.2, 0.3]]}
+    t._generate_and_score_completions(good)
+    bad = {"input_ids": np.zeros((2, 6), dtype=np.int32)}  # 2 rows, 1 recorded
+    with pytest.raises(GuardViolation, match="batch rows"):
+        t.training_step(None, bad, 1)
+
+
+def test_guarded_training_step_refuses_missing_input_ids(tmp_path):
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
+            "logprobs": [[0.1, 0.2, 0.3]]}
+    t._generate_and_score_completions(good)
+    with pytest.raises(GuardViolation, match="no input_ids"):
+        t.training_step(None, {}, 1)
+
+
+def test_guarded_training_step_refuses_reward_misbinding(tmp_path):
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = {"prompt_ids": [[1, 2, 3]], "completion_ids": [[10, 11, 12]],
+            "logprobs": [[0.1, 0.2, 0.3]]}
+    t._generate_and_score_completions(good)
+    bad = _rollout_inputs(good)
+    bad["advantages"] = np.zeros((3, 1), dtype=np.float32)  # 3 rows != 1 recorded
+    with pytest.raises(GuardViolation, match="advantages rows"):
+        t.training_step(None, bad, 1)
 
 
 def test_guarded_commit_records_sha(tmp_path):

@@ -1,0 +1,51 @@
+{
+  "manifest_id": "pm-1",
+  "model_id": "Qwen/Qwen3-4B",
+  "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "policy_version": 1,
+  "parent_policy_version": 0,
+  "weights": [
+    {
+      "uri": "artifact://model-00001-of-00005.safetensors",
+      "media_type": "application/safetensors",
+      "num_bytes": 5189335016,
+      "sha256": "c645f7505e96fa182dfc499c39e577b1d0943b9e0dc9b012a9185f4a64265e38",
+      "producer_event_id": "ckpt-commit-v1"
+    },
+    {
+      "uri": "artifact://model-00002-of-00005.safetensors",
+      "media_type": "application/safetensors",
+      "num_bytes": 3633520656,
+      "sha256": "77ecc63750e8167e016c6d146883bc52567e688ae980e58a804f210c79785c84",
+      "producer_event_id": "ckpt-commit-v1"
+    },
+    {
+      "uri": "artifact://model-00003-of-00005.safetensors",
+      "media_type": "application/safetensors",
+      "num_bytes": 3633520664,
+      "sha256": "c028482e304ac344b5d444c1463e81f5ad55b33278d62d9709731099a6622c90",
+      "producer_event_id": "ckpt-commit-v1"
+    },
+    {
+      "uri": "artifact://model-00004-of-00005.safetensors",
+      "media_type": "application/safetensors",
+      "num_bytes": 3633520664,
+      "sha256": "09d4cfa5a476de223cc14d3c588311c46d1eafbd2fd04f8577bf798e5ec5901d",
+      "producer_event_id": "ckpt-commit-v1"
+    },
+    {
+      "uri": "artifact://model-00005-of-00005.safetensors",
+      "media_type": "application/safetensors",
+      "num_bytes": 1555845424,
+      "sha256": "6e094d399aa5d44d9764d41381894b9894b4369271d0375c2bc0eba5a2f47af8",
+      "producer_event_id": "ckpt-commit-v1"
+    }
+  ],
+  "checkpoint_manifest_sha256": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70",
+  "tokenizer_sha256": "74c7b759fd46b8b9f85c1b69a863cdf5bafc87a42d3547ed23588398f0abd0b6",
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "precision": "bf16",
+  "adapter_kind": "full",
+  "code_commit_sha": "local",
+  "config_sha256": "7bc9ec2702f961b3e39e8b83723259e963a78a4be4c908073eb4829dcc831bf0"
+}

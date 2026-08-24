@@ -1,0 +1,26 @@
+{
+  "scope": "P0-fixed RL training partial run (D18): step 1 complete, step 2 interrupted by GPU0 OOM (agent-ttrl shared-card memory contention)",
+  "n_events": 842,
+  "steps": [
+    {
+      "step": 1,
+      "parent": 0,
+      "loss": -0.001372971455566585,
+      "success_rate": 0.34375,
+      "ratio_p50": 1.0,
+      "ratio_max": 1.3800394535064697
+    }
+  ],
+  "syncs": [
+    "observed 398 update_named_param calls, digest ea30291bc58332813dfcf3f30642e3054d769d0238cb04530c64cc00374b67f1",
+    "observed 398 update_named_param calls, digest ea30291bc58332813dfcf3f30642e3054d769d0238cb04530c64cc00374b67f1"
+  ],
+  "canaries": [
+    "canary drift {'max_token_drift': 0}",
+    "canary drift {'max_token_drift': 0}"
+  ],
+  "update_committed": {
+    "parent": 0,
+    "output": 1
+  }
+}

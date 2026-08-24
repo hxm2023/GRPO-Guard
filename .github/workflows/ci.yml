@@ -28,7 +28,13 @@ jobs:
             --cov=grpo_guard.verify --cov=grpo_guard.resume \
             --cov=grpo_guard.monitor --cov=grpo_guard.prometheus \
             --cov=grpo_guard.doctor --cov-report=term \
+            --cov-report=xml:coverage.xml \
             --cov-fail-under=80
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
       - name: Frozen contract check (F1-F4)
         run: uv run grpo-guard contract-check --cases tests/frozen/f1_f4_v01 --out /tmp/cc_f14
       - name: Frozen contract check (F5-F8, v0.2)
@@ -39,9 +45,11 @@ jobs:
         run: uv run grpo-guard day3-matrix --loop-dir artifacts/v0.1.0/loop --out /tmp/gate_f14
       - name: v0.2 Gate re-verify on real artifacts (F5-F8)
         run: uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop --out /tmp/gate_f58
-      - name: Evidence chain integrity (SHA256SUMS)
+      - name: Evidence chain integrity (SHA256SUMS — all published packs)
         run: |
-          cd artifacts/v0.1.0
-          sha256sum -c SHA256SUMS
+          for pack in artifacts/v0.1.0 artifacts/v0.2.0-dev artifacts/v0.4.0; do
+            echo "== verifying $pack =="
+            (cd "$pack" && sha256sum -c SHA256SUMS)
+          done
       - name: Evidence chain verification (seals, order, refs)
-        run: uv run grpo-guard verify --artifact-dir artifacts/v0.1.0 --events artifacts/v0.1.0/loop/events/events
+        run: uv run grpo-guard verify --artifact-dir artifacts/v0.4.0 --events artifacts/v0.4.0/loop/events/events

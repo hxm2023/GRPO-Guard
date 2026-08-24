@@ -1,0 +1,94 @@
+{
+  "release": "v0.4.0-dev",
+  "code_commit": "d8c650e4edc8c1a9c8a856cd41eb4078ac5740aa",
+  "created_at_utc": "2026-08-25T00:00:00Z",
+  "platform": {
+    "system": "Linux (autodl2)",
+    "gpus": "2x RTX 6000D 84GB",
+    "cuda": "12.8",
+    "python": "3.12.3"
+  },
+  "stages": {
+    "day1_compatibility": {
+      "status": "passed",
+      "evidence": ["smoke/", "smoke_v010/"],
+      "note": "official TRL 1.10.0 + vLLM 0.26.0 server-mode smoke; 398 update_named_param calls per sync; compatibility_profile.yaml frozen"
+    },
+    "day2_closed_loop": {
+      "status": "passed",
+      "evidence": ["online/", "bounded/"],
+      "note": "32/32 identity + 32/32 pre-update ALLOW; 1 real committed optimizer step; canary v1 pass (5 reload calibrations, tolerance 0)"
+    },
+    "day3_correctness": {
+      "status": "passed",
+      "evidence": ["contract_check.json", "fault_matrix.json", "batch_online_64/", "batch_online_128/", "batch_online_256/", "batch_online_512/"],
+      "note": "canonical 4/4; v0.2 variants 12/12; normal 0 false-reject; boundary 4/4; stale acceptance 0; F1-F8 injected on real rollouts (2048/4096 decisions match frozen oracle)"
+    },
+    "day4_impact_overhead": {
+      "status": "passed",
+      "evidence": ["replay/", "replay_all/", "day4_summary.json", "overhead.json"],
+      "note": "24 paired gradient probes (F2 0.93 / F3 0.53 / F4 0.19 mean cosine); overhead 0.59-0.63 ms/envelope online, 40.4 ms/batch offline; F1 update norm 0.0"
+    },
+    "day5_release": {
+      "status": "passed",
+      "evidence": ["REPORT.md", "SHA256SUMS"],
+      "note": "fresh clone + uv sync --frozen + full test suite; tags v0.1.0/v0.2.0/v0.3.0 (historical packs; this pack is the frozen v0.4.0-dev snapshot)"
+    },
+    "v0_2_f5_f8": {
+      "status": "passed",
+      "evidence": ["fault_matrix.json", "batch_online_*"],
+      "note": "F5-F8 formalized; injection protocol frozen; online 4/4; variants 12/12; P008 canary-mismatch online reject"
+    },
+    "v0_2_1_f9_f10": {
+      "status": "passed",
+      "evidence": ["contract_check.json"],
+      "note": "reward injection R008 + prompt poisoning D004; frozen 3/3 + normal 4/4"
+    },
+    "real_rl_training_d15_d17": {
+      "status": "passed",
+      "evidence": ["rl_training/", "rl_training_final/", "rl_training_p0/"],
+      "note": "19-commit legacy run + 20-step P0-fixed run with 3x interruption/resume; loss non-zero (off-policy ratio != 1); weight delta 10.4/9.53 fp32; in-train success curve reported honestly (not held-out)"
+    },
+    "multi_step_d14": {
+      "status": "passed",
+      "evidence": ["multi_step/"],
+      "note": "3x committed update-sync-rollout; 3x canary pass; 1876-token boundary ALLOW"
+    },
+    "max_load_d13": {
+      "status": "passed",
+      "evidence": ["batch_online_256/", "batch_online_512/"],
+      "note": "256/512 rollouts: normal ALLOW 100%; F1-F4 and F5-F8 injected decisions all match frozen oracle"
+    },
+    "stale_runtime_detection": {
+      "status": "passed",
+      "evidence": ["sync_noop/"],
+      "note": "server-vs-trainer greedy sketch: drift 7 -> STALE RUNTIME DETECTED; canary_mismatch recorded, never canary_passed"
+    },
+    "p1_1_official_trainer": {
+      "status": "passed_1_step_smoke",
+      "evidence": ["guarded_trainer/"],
+      "note": "GuardedGRPOTrainer rollout/step/commit seams on official TRL GRPOTrainer; 1-step server-mode: 4 rollouts + events + commit sha. NOT a full guarded update of official optimizer inputs (documented limitation; P0-4 CPU-level actual-input verification added in v0.4.0-dev)"
+    },
+    "p1_2_guard_on_off": {
+      "status": "passed",
+      "evidence": ["guard_seeds/", "heldout/"],
+      "note": "3 seeds x 10 steps: guard-on 0.698+-0.049 vs off 0.709+-0.050 (preliminary no-degradation smoke, NOT statistical equivalence); frozen held-out 8 prompts: 25% -> 25% (no generalization - honest)"
+    },
+    "p1_3_tool_use": {
+      "status": "passed",
+      "evidence": ["src/grpo_guard/adapters/tool_env.py (code, not in pack)"],
+      "note": "action-only mask, stale/duplicate/orphan observation detection (deterministic environment)"
+    }
+  },
+  "interruptions": [
+    "rl_training_final: 3 interruptions (shared-server contention); each resumed via grpo-guard resume from event log; recovered: true",
+    "rl_training (legacy): vLLM engine died at step 20; training recovered from event log"
+  ],
+  "exit_status": "runs completed or resumed-to-completion; failures preserved as evidence (collapse, engine death, canary mismatches) rather than deleted",
+  "commands": [
+    "uv run python examples/countdown/rl_training_loop.py [--resume] (20-step bounded off-policy GRPO)",
+    "uv run python examples/countdown/sync_noop_experiment.py (stale-runtime detection)",
+    "scripts/seeds_runner2.sh, scripts/quick_runner.sh (server-side runners)",
+    "uv run grpo-guard verify --artifact-dir artifacts/v0.4.0 --events artifacts/v0.4.0/loop/events/events"
+  ]
+}

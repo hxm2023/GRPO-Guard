@@ -1,0 +1,25 @@
+{
+  "workload": {
+    "trajectories": 8,
+    "repeats": 3
+  },
+  "guard_on_ms": {
+    "raw_ms": [
+      47.68,
+      40.02,
+      40.71
+    ],
+    "mean_ms": 42.8,
+    "stdev_ms": 4.24
+  },
+  "guard_off_ms": {
+    "raw_ms": [
+      1.98,
+      2.62,
+      2.48
+    ],
+    "mean_ms": 2.36,
+    "stdev_ms": 0.34
+  },
+  "overhead_mean_ms": 40.44
+}

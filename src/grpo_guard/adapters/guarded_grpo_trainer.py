@@ -6,21 +6,28 @@ three natural seams without reimplementing GRPO:
 - ``_generate_and_score_completions`` (rollout): every generated
   completion is shape/alignment-checked (non-empty completion,
   prompt/completion spans, logprob-vs-completion length — the L/T/M
-  contract semantics) and recorded as a GenerationEvent in the guard's
-  append-only log.  A violated contract fails closed (raises) BEFORE
-  the rollouts reach scoring/loss.
-- ``training_step`` (optimizer step): the batch consumed by the official
-  step is verified against the recorded rollout events (content hashes
-  of the token sequences — T001 semantics) before the optimizer runs.
-  Any mismatch fails closed.
+  contract semantics) and recorded as a GenerationEvent; the REAL
+  sequence, canonical completion mask and server behavior-logprob bytes
+  are content-addressed in the guard store (no zero-hash placeholders,
+  v0.4.0/P0-4).  A violated contract fails closed (raises) BEFORE the
+  rollouts reach scoring/loss.
+- ``training_step`` (optimizer step): the ACTUAL tensors the official
+  step consumes (``input_ids`` rows, old ``logprobs`` completion spans,
+  ``advantages`` row count) are hash/identity-compared against the
+  recorded rollout artifacts BEFORE ``super().training_step`` — i.e.
+  before loss/backward.  Any mismatch fails closed.  Records rotate after
+  each step so a later step cannot be validated against stale rollouts.
 - ``_save_checkpoint`` (commit): the saved checkpoint gets a
-  content-hashed PolicyManifest + update_committed event.
+  content-hashed digest attribute (full PolicyManifest/update_committed
+  events on this seam are still pending — see Honest scope).
 
-Honest scope (per the P0 review): this is contract INSTRUMENTATION of
-the official trainer, not a re-implementation of its loss.  The strict
+Honest scope (per the 2026-08-25 audit): this is contract INSTRUMENTATION
+of the official trainer, not a re-implementation of its loss.  The strict
 envelope/validated-handle pipeline remains the shipped guarded path
 (grpo_loss + guarded_optimizer_step); GuardedGRPOTrainer adds the guard
-seams to the official path.
+seams to the official path.  Fields that need GPU-run wiring (policy
+version, checkpoint/tokenizer/template hashes) stay documented
+placeholders; the token/mask/logprob/reward artifacts are REAL bytes.
 """
 
 from __future__ import annotations
@@ -77,6 +84,15 @@ def _logprob_length_check(completion_ids, logprobs) -> str | None:
     return None
 
 
+def _as_np(value):
+    """Normalize a torch tensor / list / array to numpy (value view)."""
+    if value is None:
+        return None
+    if hasattr(value, "cpu"):
+        value = value.cpu().numpy()
+    return np.asarray(value)
+
+
 class GuardedGRPOTrainer:
     """Mixin-style wrapper around TRL's GRPOTrainer.
 
@@ -96,6 +112,7 @@ class GuardedGRPOTrainer:
         self._guard_store = ArtifactStore(guard_store_dir) if guard_store_dir else None
         self._guard_epoch = self._guard_log.acquire_lease() if self._guard_log else None
         self._guard_rollouts: list[dict] = []  # per-step rollout contract records
+        self._last_guard_verified: dict | None = None
 
     # ---------------------------------------------------------- rollout seam
     def _generate_and_score_completions(self, inputs):
@@ -104,7 +121,12 @@ class GuardedGRPOTrainer:
         return result
 
     def _guard_validate_rollouts(self, result) -> None:
-        """Check + record every rollout in the official batch result."""
+        """Check + record every rollout in the official batch result.
+
+        P0-4: the REAL sequence, canonical mask, server behavior-logprob
+        and reward bytes are content-addressed (no zero-hash
+        placeholders); records are per-step (rotated, not accumulated).
+        """
         # TRL returns torch tensors; normalize to python lists
         def _to_lists(key):
             v = result.get(key)
@@ -117,6 +139,9 @@ class GuardedGRPOTrainer:
         prompt_ids_list = _to_lists("prompt_ids")
         completion_ids_list = _to_lists("completion_ids")
         logprobs_list = _to_lists("logprobs")
+        rewards_list = _to_lists("rewards")
+        step = getattr(getattr(self, "state", None), "global_step", 0)
+        records = []
         for i, (pids, cids) in enumerate(zip(prompt_ids_list, completion_ids_list)):
             violations = _align_checks(pids, cids)
             lp = logprobs_list[i] if i < len(logprobs_list) else None
@@ -126,41 +151,58 @@ class GuardedGRPOTrainer:
             if violations:
                 raise GuardViolation(
                     f"rollout {i} contract violations: {violations}")
-            # record the rollout for step-time consistency checks
-            seq = np.concatenate([np.asarray(pids), np.asarray(cids)])
-            seq_ref = self._guard_store.put(seq.tobytes(), "application/octet-stream",
-                                            f"gen-trl-{self.state.global_step}-{i}",
-                                            dtype="int32", shape=[seq.shape[0]])
-            self._guard_rollouts.append({
-                "step": self.state.global_step, "index": i,
-                "prompt_len": len(pids), "completion_len": len(cids),
-                "sequence_ref": seq_ref,
+            # REAL bytes, content-addressed (P0-4)
+            P, C = len(pids), len(cids)
+            total = P + C
+            seq = np.ascontiguousarray(np.concatenate(
+                [np.asarray(pids), np.asarray(cids)]).astype(np.int32))
+            seq_ref = self._guard_store.put(
+                seq.tobytes(), "application/octet-stream", f"gen-trl-{step}-{i}",
+                dtype="int32", shape=[seq.shape[0]])
+            mask = np.zeros(total, dtype=np.int8)
+            mask[P:] = 1  # canonical completion_target_mask
+            mask_ref = self._guard_store.put(
+                mask.tobytes(), "application/octet-stream", f"mask-trl-{step}-{i}",
+                dtype="int8", shape=[total])
+            lp_arr = np.ascontiguousarray(np.asarray(lp, dtype=np.float32))
+            lp_ref = self._guard_store.put(
+                lp_arr.tobytes(), "application/octet-stream", f"logprob-trl-{step}-{i}",
+                dtype="float32", shape=[lp_arr.shape[0]])
+            rw_arr = (np.ascontiguousarray(np.asarray(rewards_list[i], dtype=np.float32))
+                      if i < len(rewards_list) else None)
+            rw_ref = None
+            if rw_arr is not None:
+                rw_ref = self._guard_store.put(
+                    rw_arr.tobytes(), "application/octet-stream", f"reward-trl-{step}-{i}",
+                    dtype="float32", shape=list(rw_arr.shape))
+            records.append({
+                "step": step, "index": i,
+                "prompt_len": P, "completion_len": C,
+                "sequence_ref": seq_ref, "mask_ref": mask_ref,
+                "logprob_ref": lp_ref, "reward_ref": rw_ref,
             })
             if self._guard_log:
-                self._guard_emit_generation(i, seq_ref, len(pids), len(cids))
+                self._guard_emit_generation(i, seq_ref, mask_ref, lp_ref, rw_ref, P, C)
+        self._guard_rollouts = records
 
-    def _guard_emit_generation(self, index, seq_ref, prompt_len, completion_len) -> None:
+    def _guard_emit_generation(self, index, seq_ref, mask_ref, lp_ref, rw_ref,
+                               prompt_len, completion_len) -> None:
+        step = getattr(getattr(self, "state", None), "global_step", 0)
         gen = GenerationEvent(
-            event_id=f"gen-gtrl-{self.state.global_step}-{index}",
+            event_id=f"gen-gtrl-{step}-{index}",
             event_type="generation_finished", run_id=self._guard_run_id,
             component_id="trl-grpo-trainer", lifecycle_seq=index + 1,
             created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            request_id=f"gtrl-step{self.state.global_step}-{index}",
+            request_id=f"gtrl-step{step}-{index}",
             attempt_id="1", prompt_id=f"countdown-{index:04d}", sample_index=index,
             runtime_id="trl-vllm-server", prompt_span=[0, prompt_len],
             completion_span=[prompt_len, prompt_len + completion_len],
-            sequence_token_ids=seq_ref, completion_target_mask=ArtifactRef(
-                uri="", media_type="application/octet-stream", dtype="int8",
-                shape=[prompt_len + completion_len], num_bytes=prompt_len + completion_len,
-                sha256="0" * 64, producer_event_id=f"gen-gtrl-{self.state.global_step}-{index}"),
-            loss_mask=ArtifactRef(
-                uri="", media_type="application/octet-stream", dtype="int8",
-                shape=[prompt_len + completion_len - 1], num_bytes=prompt_len + completion_len - 1,
-                sha256="0" * 64, producer_event_id=f"gen-gtrl-{self.state.global_step}-{index}"),
-            service_behavior_logprobs=ArtifactRef(
-                uri="", media_type="application/octet-stream", dtype="float32",
-                shape=[completion_len], num_bytes=completion_len * 4,
-                sha256="0" * 64, producer_event_id=f"gen-gtrl-{self.state.global_step}-{index}"),
+            sequence_token_ids=seq_ref, completion_target_mask=mask_ref,
+            loss_mask=mask_ref,
+            service_behavior_logprobs=lp_ref,
+            # Placeholders needing GPU-run wiring (documented, P0-4):
+            # the official trainer does not expose a sync/checkpoint
+            # manifest at rollout time in the current TRL version.
             behavior_policy_version=0, checkpoint_manifest_sha256="", sync_event=EventRef(
                 uri="", event_id="sync-gtrl", event_sha256="0" * 64),
             tokenizer_sha256="", chat_template_sha256="", sampling_config_sha256="",
@@ -171,18 +213,56 @@ class GuardedGRPOTrainer:
     # ------------------------------------------------------------ step seam
     def training_step(self, model, inputs, num_items_in_batch):
         self._guard_pre_update(inputs)
-        return super().training_step(model, inputs, num_items_in_batch)
+        out = super().training_step(model, inputs, num_items_in_batch)
+        # P0-4: each optimizer step consumes its own rollout records;
+        # rotate so the next step cannot validate against stale rollouts.
+        self._guard_rollouts = []
+        return out
 
     def _guard_pre_update(self, inputs) -> None:
-        """Verify the batch consumed by the official step matches the
-        recorded rollouts (content hashes — T001 semantics)."""
-        # inputs holds token ids under TRL's generation columns; we check
-        # the recorded rollouts are non-empty and lengths are consistent
+        """Verify the ACTUAL tensors the official step will consume.
+
+        P0-4: ``input_ids`` rows and old-logprob completion spans must
+        byte-match the recorded server artifacts (T001/L004 semantics);
+        ``advantages`` row count must match.  All checks run BEFORE
+        ``super().training_step`` — i.e. before loss/backward.
+        """
         if not self._guard_rollouts:
             return  # no guard records (e.g. non-rollout steps)
-        expected_completions = sum(r["completion_len"] for r in self._guard_rollouts)
-        if expected_completions <= 0:
-            raise GuardViolation("no completions recorded before optimizer step")
+        records = self._guard_rollouts
+        input_ids = _as_np(inputs.get("input_ids"))
+        if input_ids is None:
+            raise GuardViolation(
+                "training_step batch has no input_ids — cannot verify the "
+                "actual consumed tokens (guard refuses to run blind)")
+        if input_ids.shape[0] != len(records):
+            raise GuardViolation(
+                f"batch rows {input_ids.shape[0]} != recorded rollouts {len(records)} "
+                f"(stale/partial rollout consumption)")
+        for i, rec in enumerate(records):
+            row = np.ascontiguousarray(np.asarray(input_ids[i], dtype=np.int32))
+            if hashlib.sha256(row.tobytes()).hexdigest() != rec["sequence_ref"].sha256:
+                raise GuardViolation(
+                    f"row {i}: consumed token ids do not match the recorded server "
+                    f"sequence (T001 retokenization/misbinding)")
+        logprobs = _as_np(inputs.get("logprobs"))
+        if logprobs is not None:
+            for i, rec in enumerate(records):
+                P = rec["prompt_len"]
+                comp = np.ascontiguousarray(np.asarray(logprobs[i, P:], dtype=np.float32))
+                if hashlib.sha256(comp.tobytes()).hexdigest() != rec["logprob_ref"].sha256:
+                    raise GuardViolation(
+                        f"row {i}: consumed old logprobs do not match the recorded "
+                        f"server logprobs (L004 misbinding)")
+        advantages = _as_np(inputs.get("advantages"))
+        if advantages is not None and advantages.shape[0] != len(records):
+            raise GuardViolation(
+                f"advantages rows {advantages.shape[0]} != recorded rollouts "
+                f"{len(records)} (reward misbinding)")
+        self._last_guard_verified = {
+            "global_step": getattr(getattr(self, "state", None), "global_step", 0),
+            "n_rollouts": len(records),
+        }
 
     # ---------------------------------------------------------- commit seam
     def _save_checkpoint(self, model, trial):
@@ -191,7 +271,12 @@ class GuardedGRPOTrainer:
         return out
 
     def _guard_commit(self, model) -> None:
-        """Content-hash the saved weights and record update_committed."""
+        """Content-hash the saved weights and record update_committed.
+
+        Honest scope (P0-4): this seam currently sets a digest attribute
+        only; a full PolicyManifest + update_committed event chain on the
+        official path is pending GPU-run wiring.
+        """
         if not hasattr(model, "named_parameters"):
             return
         digest = hashlib.sha256()

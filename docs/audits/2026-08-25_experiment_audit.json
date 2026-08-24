@@ -1,0 +1,69 @@
+{
+  "date": "2026-08-25",
+  "auditor": "codex-same-context-local",
+  "review_independence": "same-context-local",
+  "acceptance_status": "provisional",
+  "project": "hxm2023/GRPO-Guard",
+  "snapshot": "d8c650e4edc8c1a9c8a856cd41eb4078ac5740aa",
+  "release_tag": "v0.3.0",
+  "release_commit": "31bb20d4f27e904ff5eb7067ee13ded7ca00f10a",
+  "overall_verdict": "fail",
+  "integrity_status": "fail",
+  "checks": {
+    "gt_provenance": {
+      "status": "pass_with_qualifier",
+      "details": "Frozen deterministic fault oracle is valid for regression; 2048 decisions are targeted mutations of 256 real rollouts, not natural incident ground truth."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "No deceptive self-normalization found; replay still requires synthetic-drift qualifier."
+    },
+    "result_existence": {
+      "status": "fail",
+      "details": "Current v0.1.0 snapshot passes 327 checksums and event verification, but two of three v0.2.0-dev checksums mismatch and historical version directories were mutated after releases."
+    },
+    "dead_code": {
+      "status": "warn",
+      "details": "Custom guarded loop calls guarded_optimizer_step, but official GuardedGRPOTrainer does not compare actual inputs and does not gate the real optimizer step."
+    },
+    "scope": {
+      "status": "warn",
+      "details": "Single Qwen3-4B family, single-box two-GPU, short hand-written math tasks; no multi-node, NPU, or real agent benchmark."
+    },
+    "eval_type": "real_rollout_with_targeted_synthetic_fault_injection_and_mechanism_replay"
+  },
+  "claims": [
+    {
+      "id": "C1_256_real_2048_injected",
+      "impact": "needs_qualifier"
+    },
+    {
+      "id": "C2_natural_incidents_2048",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C3_gradient_probe_24",
+      "impact": "needs_qualifier"
+    },
+    {
+      "id": "C4_model_quality_28_to_78",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C5_atomic_unbypassable_update",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C6_official_trainer_strict_guard",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C7_core_coverage_at_least_80",
+      "impact": "supported"
+    },
+    {
+      "id": "C8_current_snapshot_v01_checksum_event_verify",
+      "impact": "supported_with_current_snapshot_scope"
+    }
+  ]
+}

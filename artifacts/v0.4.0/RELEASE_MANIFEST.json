@@ -1,0 +1,57 @@
+{
+  "release": "v0.4.0-dev",
+  "pack_status": "frozen-snapshot (pre-release; formal v0.4.0 release gate pending)",
+  "code_commit": "d8c650e4edc8c1a9c8a856cd41eb4078ac5740aa",
+  "dirty_at_freeze": false,
+  "created_at_utc": "2026-08-25T00:00:00Z",
+  "purpose": "Immutable evidence pack for the P0/P1 audit fixes (2026-08-25). The historical artifacts/v0.1.0 directory was appended to after its release — documented in this manifest and in docs/audits/ — and is now frozen as-is; this pack is the frozen snapshot of ALL current evidence. New experiments must go to a new pack/version.",
+  "hardware": {
+    "server": "autodl2 (shared with agent-ttrl; GPU-priority rules per CLAUDE.md)",
+    "gpus": "2x RTX 6000D 84GB (GPU0 trainer, GPU1 rollout vLLM)",
+    "ram_gb": 1024,
+    "cuda": "12.8"
+  },
+  "framework": {
+    "python": "3.12.3",
+    "torch": "2.11.0+cu130",
+    "trl": "1.10.0",
+    "vllm": "0.26.0",
+    "transformers": "5.15.1",
+    "accelerate": "1.14.0",
+    "compatibility_profile": "cuda-cu130-server-v01"
+  },
+  "model": {
+    "id": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "precision": "bf16",
+    "adapter": "full"
+  },
+  "dataset": "Frozen countdown/GSM8K-style manifests in examples/countdown (8 training prompts, 8 disjoint frozen held-out prompts)",
+  "artifact_count": 330,
+  "total_bytes": 2914026,
+  "checksums": "SHA256SUMS (regenerated at freeze; sha256sum -c must pass)",
+  "runs": {
+    "rl_training": "19-step legacy bounded off-policy run, recovered from events; in-train curve with collapse (success 0.28->0.78->0.09), weight delta 10.4 fp32",
+    "rl_training_final": "20-step P0-fixed run, 3x interruption/resume, step 4-20 + full_curve.json, final weight delta 9.53",
+    "rl_training_p0": "P0-fixed loop runs",
+    "batch_online_512": "512 real rollouts x 8 injected faults = 4096 decisions (main snapshot evidence)",
+    "batch_online_256": "256 real rollouts x 8 injected faults = 2048 decisions",
+    "sync_noop": "stale-runtime detection (server v0 vs trainer v20, drift 7 -> STALE RUNTIME DETECTED)",
+    "guard_seeds": "P1-2 guard on/off 3-seed comparison (0.698+-0.049 vs 0.709+-0.050)",
+    "guarded_trainer": "P1-1 official GuardedGRPOTrainer 1-step server-mode smoke (4 rollouts + commit sha)",
+    "heldout": "frozen 8-prompt held-out probe: base v0 25% vs trained v10 25% (no generalization - honest negative)",
+    "replay": "24 paired gradient probes (F2 0.93 / F3 0.53 / F4 0.19 mean cosine)",
+    "bounded": "lag=1 bounded off-policy closed loop",
+    "multi_step": "D14 multi-step update-sync-rollout cycles",
+    "guard_compare": "guard overhead measurements",
+    "overhead.json": "guard overhead 0.59-0.63 ms/envelope (n=32/64)"
+  },
+  "honest_notes": [
+    "256/512-rollout fault decisions are TARGETED deterministic injections of F1-F8 over real rollouts - NOT natural online incidents",
+    "Gradient probes use v1 weights + documented deterministic drift (seed=7, sigma=0.005) - mechanism probes, not natural incidents",
+    "Canary is a greedy behavior sketch, not byte-level attestation",
+    "No malicious-producer resistance claimed; targets silent wiring errors in dev environments",
+    "run_manifest.json in this pack carries the real provenance; the historical v0.1.0/run_manifest.json was a Windows-shell placeholder (documented gap, now fixed)"
+  ],
+  "verify_command": "cd artifacts/v0.4.0 && sha256sum -c SHA256SUMS && cd ../.. && uv run grpo-guard verify --artifact-dir artifacts/v0.4.0 --events artifacts/v0.4.0/loop/events/events"
+}

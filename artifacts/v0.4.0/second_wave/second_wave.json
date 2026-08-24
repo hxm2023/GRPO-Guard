@@ -1,0 +1,24 @@
+{
+  "run_id": "second-wave-1787416339",
+  "scope": "bounded off-policy online closed loop (design doc §9.2, ONE committed update) + F1 gradient impact",
+  "phase_b_bounded": {
+    "bounded_rollouts": 8,
+    "bounded_update": {
+      "ratio_p50": 1.0,
+      "ratio_p95": 1.0503531694412231,
+      "ratio_max": 1.1832513809204102,
+      "clip_fraction": 0.0,
+      "loss": 0.0,
+      "B": 8,
+      "T": 90,
+      "group_size": 4
+    },
+    "bounded_sync_params": 398,
+    "bounded_committed_checkpoint_sha": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70",
+    "note": "committed manifest hash equals the Day-2 v1 hash because both commits re-serialize the same v0≈ weights (loss≈0, weights did not materially move) — expected and consistent"
+  },
+  "phase_c_f1_gradient": {
+    "stale_vs_correct_gradient_cosine": "undefined_near_zero",
+    "interpretation": "F1 is a CONTRACT fault (policy lag), not a value fault — the tensors are identical, so the gradient impact is nil; the guard stops the stale consumption at validation (P004) before any optimizer step (design doc §12.3: do not fabricate a cosine)."
+  }
+}

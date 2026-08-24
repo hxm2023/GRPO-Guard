@@ -1,0 +1,84 @@
+{
+  "run_id": "multi-1787464745",
+  "scope": "multi-step guarded closed loop (D14): 3 committed update-sync-rollout cycles + near-max-context boundary rollout, real server (Qwen3-4B)",
+  "n_steps": 3,
+  "prompts_per_step": 8,
+  "gens_per_prompt": 4,
+  "lr": 0.0001,
+  "canary_calibration_reloads": 5,
+  "canary_tolerance": 0,
+  "steps": [
+    {
+      "step": 1,
+      "update_id": "update-1",
+      "policy_version": 1,
+      "checkpoint_manifest_sha256": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70",
+      "rollout_sequences": 32,
+      "loss": 0.0,
+      "ratio_p50": 1.0,
+      "ratio_max": 2.4342923164367676,
+      "clip_fraction": 0.02197265625,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 0.0
+    },
+    {
+      "step": 2,
+      "update_id": "update-2",
+      "policy_version": 2,
+      "checkpoint_manifest_sha256": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70",
+      "rollout_sequences": 32,
+      "loss": 0.0,
+      "ratio_p50": 1.0,
+      "ratio_max": 1.414290189743042,
+      "clip_fraction": 0.0166015625,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 0.0
+    },
+    {
+      "step": 3,
+      "update_id": "update-3",
+      "policy_version": 3,
+      "checkpoint_manifest_sha256": "a61b4009ca6780cabfe3dd7754e067c25bcf2fe730cbe43fc855409d1e36cc70",
+      "rollout_sequences": 32,
+      "loss": 0.0,
+      "ratio_p50": 1.0,
+      "ratio_max": 1.3250443935394287,
+      "clip_fraction": 0.0126953125,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 0.0
+    }
+  ],
+  "long_context_rollout": {
+    "prompt_tokens": 1876,
+    "completion_tokens": 32,
+    "identity_decision": "allow",
+    "reason_codes": [
+      "L001_MISSING_BEHAVIOR_LOGPROB",
+      "L002_SOURCE_EVENT_MISMATCH"
+    ]
+  },
+  "summary": {
+    "committed_updates": 3,
+    "all_canaries_pass": true,
+    "all_identity_allow": true,
+    "max_weight_delta_fp32_vs_v0": 0.0,
+    "final_weight_delta_fp32_vs_v0": 0.0,
+    "losses": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+}

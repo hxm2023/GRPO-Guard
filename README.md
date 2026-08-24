@@ -25,12 +25,17 @@ It does not reimplement TRL, vLLM or GRPO: it wraps them with content-addressed
 artifacts, append-only events, reason-coded validation and a single-use
 guarded update handle.
 
-> **Status: v0.3.0 (released).** All three gates (Compatibility /
+> **Status: v0.4.0-dev (post-audit).** All three gates (Compatibility /
 > Correctness / Impact+Overhead) have passed on autodl2 (2×RTX 6000D) with
-> Qwen/Qwen3-4B.  The authoritative design is
-> `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (v1.0).  Every number in this
-> README traces to `artifacts/v0.1.0/` + commit + SHA256SUMS.  This is a
-> production-oriented prototype: single-box 2-GPU validation, CPU CI, no
+> Qwen/Qwen3-4B, and the 2026-08-25 evidence audit (docs/audits/) drove the
+> P0 fixes: transactional SQLite nonce registry, crash-consistent update
+> WAL, actual-input binding (reward/group/model), official-trainer
+> input verification, and frozen release packs.  The authoritative design
+> is `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (v1.0).  Every number in
+> this README traces to `artifacts/v0.4.0/` (frozen pack) + commit +
+> SHA256SUMS; `artifacts/v0.1.0/` is the historical pack (was appended to
+> after its release — documented gap, see RELEASE_MANIFEST.json).  This is
+> a production-oriented prototype: single-box 2-GPU validation, CPU CI, no
 > multi-node/DDP runs yet (docs/PROJECT_INTRO.md honest boundaries).
 
 ## Architecture
@@ -65,10 +70,22 @@ Key invariants (design doc §6-§9):
   (e.g. `P004_STALE_POLICY_STRICT`, `T002_TOKENIZER_MISMATCH`,
   `M004_CANONICAL_MASK_MISMATCH`, `L003_SCORER_POLICY_MISMATCH`).
   Only envelopes with **both** identity and pre-update `ALLOW` may update
-  parameters; `guarded_optimizer_step` is the SINGLE optimizer entry —
-  validation, persistent nonce, artifact hashes, loss, backward, step and
-  commit are atomic inside it (any failure leaves parameters provably
-  unchanged; handles can only be minted by the materializer).
+  parameters; `guarded_optimizer_step` is the capability-gated optimizer
+  entry (handles can only be minted by the materializer).
+
+## Capability status (exact, post-audit)
+
+| Capability | Current status |
+|---|---|
+| precondition fail-before-backward (non-ALLOW, tampered artifact, reward substitution, wrong group/model, nonce reuse, tokenizer call) | implemented + tested (params provably unchanged) |
+| transactional exactly-once nonce across processes | implemented (SQLite, 32-process race test) |
+| crash-consistent update lifecycle (WAL PREPARED → APPLIED → CHECKPOINTED → COMMITTED / ABORTED) | implemented + failpoint tests; recovery = discard worker, resume from last committed checkpoint |
+| atomic checkpoint promotion (fsync + rename) | implemented |
+| in-memory parameter rollback after a failed step | **not claimed** (crash consistency, not DB-style transactions) |
+| actual reward/group-size/group-order/model identity bound to the handle | implemented (v0.4.0) |
+| official GuardedGRPOTrainer verifies ACTUAL step inputs (tokens / old logprobs / advantages) | implemented at CPU level (P0-4); full official-path GPU run pending |
+| persistent nonce across sequential restarts | implemented (legacy JSONL auto-imported) |
+| malicious-producer resistance | out of scope (detects silent wiring errors in dev environments) |
 - **Deterministic paired replay**: fault pairs are derived from the same
   frozen producer artifacts; gradients are compared with cosine / relative
   L2 / update norm / ratio / clip metrics (`undefined_near_zero` when norms
@@ -111,7 +128,7 @@ print(d.decision, d.reason_codes)                   # reject ['M002_PROMPT_SELEC
 PY
 ```
 
-## Results (gate-passed, artifacts in `artifacts/v0.1.0/`)
+## Results (gate-passed, artifacts in `artifacts/v0.4.0/` — frozen pack)
 
 | Gate | Result | Evidence |
 |---|---|---|
@@ -124,7 +141,7 @@ PY
 
 All runs below executed on autodl2 (2xRTX 6000D) against the REAL vLLM
 server (trl vllm-serve + Qwen3-4B), evidence committed under
-`artifacts/v0.1.0/`:
+`artifacts/v0.4.0/` (frozen; historical runs live under `artifacts/v0.1.0/`):
 
 | experiment | result | evidence |
 |---|---|---|

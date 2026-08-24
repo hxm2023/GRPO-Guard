@@ -142,6 +142,16 @@ class UpdateInputEvent(EventBase):
     materialized_layout_sha256: str
     single_use_nonce_sha256: str
     tokenizer_called: bool = Field(default=False)
+    # P0-3 (v0.4.0): bind the ACTUAL tensors/semantics the optimizer will
+    # consume — reward values, GRPO group size/membership and expected
+    # parent policy — so wiring bugs that pair a validated envelope with
+    # the wrong rewards/group/model fail before backward.
+    reward_value_sha256: str = ""
+    reward_shape: list[int] = Field(default_factory=list)
+    reward_dtype: str = ""
+    group_size: int | None = None
+    group_members: list[str] = Field(default_factory=list)
+    parent_policy_manifest: str = ""
 
 
 class GenerationEvent(EventBase):

@@ -1,0 +1,41 @@
+{
+  "run_id": "bounded-1787374152",
+  "scope": "bounded off-policy online (design doc \u00a79.2)",
+  "source": "autodl2 vLLM server",
+  "generation": "gen-0-bounded-1787374152-0001",
+  "results": [
+    {
+      "case_id": "lag1_within_bound_corrected",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH"
+      ],
+      "expected": "allow",
+      "match": true
+    },
+    {
+      "case_id": "lag5_exceeds_bound",
+      "decision": "reject",
+      "reason_codes": [
+        "P005_LAG_EXCEEDS_BOUND"
+      ],
+      "expected": "reject",
+      "match": true
+    },
+    {
+      "case_id": "bounded_without_correction",
+      "decision": "reject",
+      "reason_codes": [
+        "P006_CORRECTION_UNDECLARED"
+      ],
+      "expected": "reject",
+      "match": true
+    }
+  ],
+  "summary": {
+    "matched": 3,
+    "total": 3
+  }
+}

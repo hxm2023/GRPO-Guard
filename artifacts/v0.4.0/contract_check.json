@@ -1,0 +1,517 @@
+{
+  "command": "contract-check",
+  "cases_root": "tests\\frozen\\f1_f4_v01",
+  "results": [
+    {
+      "case_id": "boundary_dual_source_diagnostic",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "boundary_empty_completion",
+      "expected_decision": "quarantine",
+      "decision": "quarantine",
+      "reason_codes": [
+        "M005_EMPTY_COMPLETION"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "boundary_left_padding",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "boundary_truncation",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f1_static_rollout_boundary",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f1_static_rollout_canonical",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f1_static_rollout_held_out",
+      "expected_decision": "quarantine",
+      "decision": "quarantine",
+      "reason_codes": [
+        "P003_MISSING_SYNC_EVENT"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f2_misbound_logprob_boundary",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f2_misbound_logprob_canonical",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f2_misbound_logprob_held_out",
+      "expected_decision": "quarantine",
+      "decision": "quarantine",
+      "reason_codes": [
+        "L006_UNSUPPORTED_PROVENANCE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f3_retokenization_boundary",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f3_retokenization_canonical",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f3_retokenization_held_out",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "T004_TOKEN_SEQUENCE_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f4_mask_shift_boundary",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f4_mask_shift_canonical",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "f4_mask_shift_held_out",
+      "expected_decision": "reject",
+      "decision": "reject",
+      "reason_codes": [
+        "M004_CANONICAL_MASK_MISMATCH"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_0",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_1",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_2",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_3",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_4",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_5",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_6",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    },
+    {
+      "case_id": "normal_7",
+      "expected_decision": "allow",
+      "decision": "allow",
+      "reason_codes": [
+        "L001_MISSING_BEHAVIOR_LOGPROB",
+        "L002_SOURCE_EVENT_MISMATCH",
+        "L003_SCORER_POLICY_MISMATCH",
+        "L004_TOKEN_LOGPROB_LENGTH_MISMATCH",
+        "L005_SCORING_AFTER_UPDATE",
+        "L006_UNSUPPORTED_PROVENANCE",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS",
+        "L008_NONAUTHORITATIVE_LOGPROB_CONSUMED",
+        "M001_MASK_SHAPE_MISMATCH",
+        "M002_PROMPT_SELECTED",
+        "M003_PADDING_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH",
+        "M005_EMPTY_COMPLETION",
+        "P001_MISSING_POLICY_MANIFEST",
+        "P002_CHECKPOINT_HASH_MISMATCH",
+        "P003_MISSING_SYNC_EVENT",
+        "P004_STALE_POLICY_STRICT",
+        "P005_LAG_EXCEEDS_BOUND",
+        "P006_CORRECTION_UNDECLARED",
+        "P007_EVENT_ORDER_INVALID",
+        "P008_CANARY_MISMATCH",
+        "R004_REWARD_PRESENT_PRE_REWARD",
+        "T001_ARTIFACT_HASH_MISMATCH",
+        "T002_TOKENIZER_MISMATCH",
+        "T003_CHAT_TEMPLATE_MISMATCH",
+        "T004_TOKEN_SEQUENCE_MISMATCH",
+        "T005_SPAN_OUT_OF_RANGE"
+      ],
+      "match": true
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "passed": 24
+  }
+}

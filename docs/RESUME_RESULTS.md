@@ -10,13 +10,13 @@ artifact).
 > GRPO-Guard：在线 GRPO 轨迹一致性审计与故障注入框架｜PyTorch、TRL、vLLM
 > - 从 Agent-RL 静态 rollout 事故中抽象 policy version / server token / behavior logprob / loss mask / reward lineage 契约，设计 content-addressed event/artifact store、分阶段 validator 与确定性 paired replay
 > - 基于 256 条 Qwen3-4B/vLLM 真实生成轨迹，对 F1-F8 八类预定义接线故障逐条注入，2048 次判定全部符合冻结 oracle，正常轨迹 256/256 通过；24 对离线梯度 probe 量化 retokenization 与 mask shift 对更新方向的影响
-> - 发布 Apache-2.0 开源仓库、版本化 artifacts/SHA256 验证与 CPU contract CI（core coverage 87%），并向 Hugging Face TRL 提交依赖兼容修复 PR #6876（open）
+> - 发布 Apache-2.0 开源仓库、不可变证据包（SHA256 校验 + RELEASE_MANIFEST + 双版本 CI，coverage 报告作为 CI artifact 可下载，门槛 ≥80%），并向 Hugging Face TRL 提交依赖兼容修复 PR #6876（open）
 
 **English version:**
 > **GRPO-Guard** — online GRPO trajectory-consistency audit & fault-injection framework | PyTorch, TRL, vLLM
 > - Abstracted policy-version / server-token / behavior-logprob / loss-mask / reward-lineage contracts from a real static-rollout incident; designed a content-addressed event/artifact store, staged validator and deterministic paired replay
 > - On 256 real Qwen3-4B/vLLM rollouts, injected all 8 predefined wiring faults and got 2048/2048 decisions matching the frozen oracle, 256/256 normal trajectories allowed; 24 paired gradient probes quantify retokenization/mask-shift impact on update direction
-> - Released an Apache-2.0 repo with versioned artifacts/SHA256 verification and CPU contract CI (core coverage 87%); opened huggingface/trl #6876 (open) dependency-compat fix
+> - Released an Apache-2.0 repo with immutable evidence packs (SHA256 verification + RELEASE_MANIFEST) and dual-version CPU contract CI (coverage gate >=80%, report downloadable as CI artifact); opened huggingface/trl #6876 (open) dependency-compat fix
 
 ## Resume bullets (设计文档 §20.3 长版 — Release Gate passed)
 
@@ -56,6 +56,7 @@ artifact).
 | Day 3 Correctness | ✅ | canonical 4/4；12/12 变体；32/32 normal；boundary 4/4；stale acceptance 0 |
 | Day 4 Impact/Overhead | ✅ | 24 对梯度分布；overhead 40.4 ms/batch（3 重复）；F1 update norm 0.0 |
 | Day 5 Release | ✅ | fresh clone + uv sync --frozen + 全量测试；README/demo/REPORT/SHA256SUMS；tag v0.1.0/v0.2.0 |
+| v0.4.0-dev 审计整改（2026-08-25） | ✅（CPU 验证） | SQLite 事务 nonce（32 进程竞争恰好一个成功）；WAL PREPARED→COMMITTED + 五类 failpoint；reward/group/model 实际输入绑定；官方 Trainer 实际 inputs 校验；冻结 v0.4.0 证据包 + RELEASE_MANIFEST + CI 遍历全部 packs |
 | v0.2（F5-F8 正式化） | ✅ | 注入协议冻结；在线 4/4；变体 12/12；P008 在线 reject |
 | v0.2.1（F9-F10） | ✅ | reward 注入 R008 + prompt 投毒 D004；frozen 3/3 + normal 4/4 GATE PASS |
 | 真实 RL 训练（D15/D17） | ✅ | 19 committed updates；loss 非零；权重 delta 10.4（fp32 实测）；全程 ALLOW；成功率曲线如实报告（训练内 reward，非 held-out） |
@@ -76,6 +77,11 @@ artifact).
   vLLM engine 第 20 步死亡后从事件日志恢复（recovered: true，无伪造）。
 - canary 是行为 sketch（greedy tokens），非逐字节证明（设计文档 §5.3）；
   训练中为漂移监视器（D17），非训练场景保持 fail-closed（P008）。
+- 2026-08-25 审计后：`guarded_optimizer_step` 的"原子"表述已降级为精确
+  claim——所有 precondition 在 backward 前失败（参数不变）；step 后的
+  失败走 crash recovery（WAL + 丢弃 worker + 从 last committed checkpoint
+  续跑），不做内存回滚。failpoint 测试与 32 进程 nonce 竞争测试已入库
+  （docs/audits/ 保留完整审计链）。
 - 无密码学防篡改；检测的是研发环境静默接线错误，不是恶意攻击者。
 - canary.py 曾有一个常量 sketch bug（dict 解包），已修复并添加回归测试；
   Day 2 闭环路径经核实未受影响——全部如实披露在 REPORT.md 与

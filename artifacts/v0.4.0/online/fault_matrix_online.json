@@ -1,0 +1,61 @@
+{
+  "run_id": "online-1787372893",
+  "scope": "F1-F4 online (real server rollouts)",
+  "source": "autodl2 vLLM server",
+  "results": [
+    {
+      "case_id": "f1_static_rollout",
+      "decision": "reject",
+      "reason_codes": [
+        "P004_STALE_POLICY_STRICT"
+      ]
+    },
+    {
+      "case_id": "f2_misbound_logprob",
+      "decision": "reject",
+      "reason_codes": [
+        "L003_SCORER_POLICY_MISMATCH",
+        "L007_AUTHORITATIVE_SOURCE_AMBIGUOUS"
+      ]
+    },
+    {
+      "case_id": "f3_retokenization",
+      "decision": "reject",
+      "reason_codes": [
+        "T002_TOKENIZER_MISMATCH"
+      ]
+    },
+    {
+      "case_id": "f4_mask_shift",
+      "decision": "reject",
+      "reason_codes": [
+        "M002_PROMPT_SELECTED",
+        "M004_CANONICAL_MASK_MISMATCH"
+      ]
+    }
+  ],
+  "normal": [
+    {
+      "generation": "gen-0-online-1787372893-0001",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-online-1787372893-0002",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-online-1787372893-0003",
+      "decision": "allow"
+    },
+    {
+      "generation": "gen-0-online-1787372893-0004",
+      "decision": "allow"
+    }
+  ],
+  "summary": {
+    "matched": 4,
+    "total": 4,
+    "normal_allow": 4,
+    "normal_total": 4
+  }
+}

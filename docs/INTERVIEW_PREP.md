@@ -114,12 +114,19 @@ gate-passed 数字，不扩大范围）。
   契约全程守护"。
 
 **Q10: optimizer 真的只能消费验证后的数据吗？怎么证明不可绕过？**
-- `guarded_optimizer_step` 是**唯一**的 optimizer 入口：验证（decision ALLOW
-  + artifact hash + tokenizer_called）→ 持久化 nonce 消费 → handle 消费 →
-  loss → backward → step → commit 原子完成；任何失败在 backward 前抛出，
-  参数证明不变（测试断言）。
+- `guarded_optimizer_step` 是 capability-gated 的 optimizer 入口：
+  验证（decision ALLOW + artifact hash + reward hash + group/model 身份 +
+  tokenizer_called）→ 事务化 nonce 消费（SQLite，跨进程 exactly-once）→
+  handle 消费 → loss → backward → step → commit。所有 precondition 失败
+  都发生在 backward 之前，参数可证明不变（测试断言）。
 - handle 只能由 materializer 铸造（issuer token，外部构造 → TypeError）；
-  nonce 跨进程持久化（JSONL registry，复用 → NonceReuseError）。
+  nonce 跨进程持久化（SQLite 唯一约束，复用 → NonceReuseError；
+  32 进程竞争测试恰好一个成功）。
+- 诚实边界（2026-08-25 审计后）：step 之后的失败（checkpoint/commit）不做
+  内存参数回滚——WAL 记录 PREPARED→APPLIED→CHECKPOINTED→COMMITTED，
+  恢复语义是"丢弃 worker，从 last committed checkpoint 续跑"（crash
+  consistency，不是数据库式事务原子）。failpoint 测试覆盖
+  loss/backward/step/checkpoint/commit 五处。
 - 真实 GPU 验证：20 步 RL 训练全部走此入口（每步 loss 非零、B=64
   微批次化防 OOM）；被共享服务器中断 3 次后 `--resume` 从事件日志无缝续跑。
 

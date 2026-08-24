@@ -67,7 +67,14 @@ def main() -> int:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
 
-    from grpo_guard.adapters.guarded_update import NonceRegistry, guarded_optimizer_step, materialize
+    from grpo_guard.adapters.guarded_update import (
+        NonceRegistry,
+        UpdateWal,
+        atomic_checkpoint_promotion,
+        guarded_optimizer_step,
+        materialize,
+        policy_manifest,
+    )
     from grpo_guard.adapters.trl_control import TrlControlAdapter
     from grpo_guard.adapters.vllm_runtime import VLLMRuntimeAdapter
     from grpo_guard.schema.artifacts import EventRef
@@ -129,9 +136,16 @@ def main() -> int:
     run_id = f"multi-{int(time.time())}"
     store = ArtifactStore(OUT_DIR / "store")
     log_ = AppendLog(OUT_DIR / "events", run_id=run_id, lease_id="guard-trainer")
-    # P0-1: persistent nonce registry — survives steps/processes (the old
-    # per-adapter in-memory set could not detect cross-step reuse)
+    # P0-1/2: transactional nonce registry (SQLite, exactly-once across
+    # processes; legacy JSONL auto-imported) + crash-consistent update WAL.
     nonce_registry = NonceRegistry(OUT_DIR / "nonces.jsonl")
+    update_wal = UpdateWal(OUT_DIR / "update_wal.jsonl")
+    dangling = update_wal.dangling()
+    if dangling:
+        # recovery protocol: the worker must be discarded and training
+        # resumes from the last committed checkpoint (no in-memory rollback)
+        log(f"WAL: {len(dangling)} dangling updates {dangling[:5]}{'...' if len(dangling) > 5 else ''} "
+            f"— discarded; resuming from last committed checkpoint")
     epoch = log_.acquire_lease()
 
     def next_lifecycle() -> int:
@@ -396,6 +410,7 @@ def main() -> int:
             log(f"step {k} consume: {len(consumed['identity_events'])} seqs from v{c_ver} "
                 f"(model at v{k - 1}) — bounded off-policy lag=1")
             handles = []
+            prepared = []
             for (gen, id_decision, env_id, _), rew in zip(consumed["identity_events"],
                                                           consumed["reward_events"]):
                 # P0-3: trainer_parent MUST be the model's real version (k-1),
@@ -417,6 +432,13 @@ def main() -> int:
                         raise RuntimeError(f"pre-update FAILED {pre.envelope_id}: "
                                            f"{decision.decision_payload.reason_codes}")
                 log_.append(decision, required_epoch=epoch)
+                prepared.append((pre, gen, rew, decision))
+            # P0-3: freeze the GRPO group membership/order and the parent
+            # policy identity into every handle BEFORE materialization, so a
+            # rewired group/model fails before backward.
+            group_members = [p[0].ref().envelope_sha256 for p in prepared]
+            parent_manifest = policy_manifest(model)
+            for pre, gen, rew, decision in prepared:
                 h = materialize(
                     store=store, run_id=run_id, update_id=f"update-{k}",
                     preupdate_envelope=pre.ref(),
@@ -429,16 +451,24 @@ def main() -> int:
                     nonce=f"nonce-{gen.event_id}",
                     rewards=np.asarray([rew.components["correctness"]], dtype=np.float32),
                     lifecycle_seq=next_lifecycle(),
+                    group_size=N_GENS, group_members=group_members,
+                    parent_policy_manifest=parent_manifest,
                 )
                 log_.append(h.input_event, required_epoch=epoch)
                 handles.append(h)
             log(f"step {k} pre-update ALLOW on {len(handles)} envelopes; handles materialized")
 
-            # P0-1: THE single optimizer entry — validation, nonce, artifact
-            # hashes, loss, backward, step and commit are atomic inside
-            # guarded_optimizer_step; there is no other path to optimizer.step.
+            # P0-1: THE capability-gated optimizer entry — validation, nonce,
+            # artifact hashes, loss, backward and step; every precondition
+            # fails before backward.  Post-step failures follow crash
+            # recovery (WAL; no in-memory rollback claimed).
             def commit_step(model_):
-                ck = commit_checkpoint(model_, k, OUT_DIR / f"ckpt_v{k}")
+                ck_tmp = OUT_DIR / f"ckpt_v{k}.tmp"
+                shutil.rmtree(ck_tmp, ignore_errors=True)
+                ck = commit_checkpoint(model_, k, ck_tmp)
+                # P0-1: fsync shards, then atomic rename — a reader sees the
+                # complete checkpoint or the previous one, never a partial.
+                atomic_checkpoint_promotion(ck_tmp, OUT_DIR / f"ckpt_v{k}")
                 upd_refs = [EventRef(uri="", event_id=h.input_event.event_id,
                                      event_sha256=h.input_event.event_sha256) for h in handles]
                 control.update_committed(
@@ -468,7 +498,7 @@ def main() -> int:
                     handles, model, optimizer, store=store, decision_verifier=decision_is_allow,
                     nonce_registry=nonce_registry, group_size=N_GENS, clip_epsilon=0.1,
                     max_micro_batch=8,  # D18: bound per-forward memory (64-seq peak OOMs one 84GB card)
-                    commit_fn=commit_step,
+                    commit_fn=commit_step, update_wal=update_wal,
                 )
             ckpt_k = step_res.checkpoint
             log(f"step {k} update: loss={step_res.metrics['loss']:.4f} "
