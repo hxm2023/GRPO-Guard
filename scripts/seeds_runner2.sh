@@ -16,7 +16,9 @@ for mode in on off; do
       continue
     fi
     # wait for a clean GPU window (agent-ttrl gets priority): no ttrl
-    # processes AND both GPUs mostly free AND low util for 60s
+    # processes AND both GPUs mostly free for IDLE_SECS (agent-ttrl's
+    # inter-run gaps are ~30-45s, so 30s balances fit vs. collision)
+    IDLE_SECS=30
     IDLE_SINCE=""
     while true; do
       F0=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader | awk -F'[, ]+' '/^0/{print $2}')
@@ -25,11 +27,11 @@ for mode in on off; do
       if [ -n "$F0" ] && [ -n "$F1" ] && [ "$F0" -gt 60000 ] && [ "$F1" -gt 60000 ] && [ "$TTRL" = "0" ]; then
         if [ -z "$IDLE_SINCE" ]; then IDLE_SINCE=$(date +%s); echo "$(date) idle window begins" >> $LOG; fi
         NOW=$(date +%s)
-        if [ $((NOW - IDLE_SINCE)) -ge 60 ]; then break; fi
+        if [ $((NOW - IDLE_SINCE)) -ge $IDLE_SECS ]; then break; fi
       else
         IDLE_SINCE=""
       fi
-      sleep 45
+      sleep 20
     done
     rm -rf $OUT
     echo "$(date) run: $mode seed=$seed" >> $LOG
