@@ -240,6 +240,17 @@ overhead).  Same first-step 0.344 across all six runs confirms seed
 determinism.  The guard-off arm exists ONLY as the comparison arm — the
 shipped path is the guarded one.
 
+**Held-out evaluation (P1-2, D18 2026-08-25)** —
+`artifacts/v0.1.0/heldout/heldout_eval.json`: frozen 8 held-out
+GSM8K-style prompts (disjoint from the 8 training prompts), greedy
+decode: **base v0 25% vs trained v10 25% — held-out delta 0.0**.
+Honest finding: the in-train improvement (34% → 80% rollout reward)
+does NOT generalize to held-out prompts (the 10-step run overfits the
+training prompt set).  This is the data-backed confirmation of the
+review's warning — in-train rollout reward is NOT a capability claim;
+the framework's value is the contract evidence chain, not an accuracy
+headline.
+
 **GuardedGRPOTrainer — official TRL Trainer wrapped (P1-1, D18 2026-08-24)** —
 `artifacts/v0.1.0/guarded_trainer/guarded_trainer_smoke.json`: the OFFICIAL
 `trl.GRPOTrainer` (server mode) runs through `GuardedGRPOTrainer`
