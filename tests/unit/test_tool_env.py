@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from grpo_guard.adapters.tool_env import STATE_VERSION, ToolCall, ToolEnv, TrajectoryTurn, validate_tool_trajectory
+from grpo_guard.adapters.tool_env import STATE_VERSION, ToolCall, ToolEnv, ToolResult, TrajectoryTurn, validate_tool_trajectory
 
 
 def _turn(index, action, calls=None, results=None):
@@ -13,10 +13,11 @@ def test_valid_trajectory_passes():
     env = ToolEnv()
     call = ToolCall(call_id="c1", name="add", args={"a": 1, "b": 2})
     res = env.execute(call)
+    c2 = ToolCall(call_id="c2", name="add", args={"a": 10, "b": 20})
+    r2 = ToolResult(call_id="c2", state_version=STATE_VERSION, observation="30")
     turns = [
         _turn(0, [1, 2, 3], calls=[call], results=[res]),
-        _turn(1, [4, 5], results=[ToolResult(call_id="c2", state_version=STATE_VERSION,
-                                             observation="done")]),
+        _turn(1, [4, 5], calls=[c2], results=[r2]),
     ]
     assert validate_tool_trajectory(turns) == []
 
