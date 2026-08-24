@@ -33,9 +33,11 @@ def main() -> int:
 
     from grpo_guard.adapters.guarded_grpo_trainer import GuardedGRPOTrainer
 
+    from examples.countdown.closed_loop import start_server, stop_server
     from examples.countdown.smoke_train import _patch_device_normalization
 
     _patch_device_normalization()
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.4, device="1")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     args = GRPOConfig(
@@ -86,6 +88,7 @@ def main() -> int:
     }
     (OUT_DIR / "guarded_trainer_smoke.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
+    stop_server(server)
     return 0 if gen_events else 1
 
 
