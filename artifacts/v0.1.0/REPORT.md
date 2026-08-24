@@ -224,15 +224,21 @@ three times from the event log after shared-card interruptions — the
 resume path (P0-1/P0-2/P0-3 fixes) is now exercised end-to-end on real
 hardware.
 
-**Guard on/off comparison (P1-2, D18 2026-08-24)** —
-`artifacts/v0.1.0/guard_compare/guard_off.json` vs the guard-on 20-step
-run: 10 steps each, same loop, same seeds path.  Guard-off arm: 34% →
-73% (mean 0.73, in-train rollout reward); guard-on steps 1-10 mean 0.52.
-Honest reading: single-run comparison, no seed repetition, no held-out —
-the guard demonstrably does NOT degrade learning (both arms reach the
-60-80% band), and the gap is within single-run noise; a 3-seed study is
-the follow-up.  The guard-off arm exists ONLY as the comparison arm —
-the shipped path is the guarded one.
+**Guard on/off 3-seed study (P1-2, D18 2026-08-24)** —
+`artifacts/v0.1.0/guard_seeds/`: 6 runs (guard-on/off × seeds 0-2, 10
+steps each, same loop and prompts):
+
+| arm | seeds mean success (in-train) | mean ± std |
+|---|---|---|
+| guard-on  | 0.745 / 0.631 / 0.719 | **0.698 ± 0.049** |
+| guard-off | 0.728 / 0.758 / 0.641 | **0.709 ± 0.050** |
+
+delta = +0.010 (off − on), well within the ±0.05 seed spread — **the
+guard does NOT degrade normal training quality** (the P1-2 goal: no
+quality degradation without faults, fault rejection with faults, bounded
+overhead).  Same first-step 0.344 across all six runs confirms seed
+determinism.  The guard-off arm exists ONLY as the comparison arm — the
+shipped path is the guarded one.
 
 **512-rollout batch online matrix (D18, 2026-08-24)** —
 `artifacts/v0.1.0/batch_online_512/` (64 prompts × 8 gens, exclusive
