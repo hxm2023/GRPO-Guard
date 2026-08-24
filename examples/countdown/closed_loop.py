@@ -56,10 +56,24 @@ def now_utc() -> str:
 
 # ---------------------------------------------------------------- server
 
+def _port_free(port: int) -> bool:
+    import socket
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1)
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
 def start_server(server_log: Path, port: int | None = None, model: str | None = None,
                  mem_util: float = 0.5, device: str = "1") -> subprocess.Popen:
     port = port or VLLM_PORT
     model = model or MODEL_PATH
+    # a previous vLLM engine may still be draining the port (stop_server
+    # race): wait for the port to free up BEFORE launching
+    for _ in range(60):
+        if _port_free(port):
+            break
+        time.sleep(1)
     log(f"starting vLLM server (GPU{device}) at :{port} model={model} mem_util={mem_util}")
     trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
     proc = subprocess.Popen(
