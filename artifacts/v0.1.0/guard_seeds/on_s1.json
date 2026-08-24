@@ -1,0 +1,284 @@
+{
+  "run_id": "multi-1787573234",
+  "scope": "real RL training loop (D15): bounded off-policy (lag=1 via FIFO rollout buffer) GRPO training, ~30 steps, Qwen3-4B GSM8K-style math QA, guard active on every step (identity + pre-update ALLOW, observed sync, canary, committed manifest per step)",
+  "n_steps": 10,
+  "prompts_per_step": 8,
+  "gens_per_prompt": 8,
+  "lr": 5e-05,
+  "protocol": "bounded_v01 (lag<=2, importance-ratio-v1)",
+  "canary_calibration_reloads": 5,
+  "canary_tolerance": 0,
+  "steps": [
+    {
+      "step": 1,
+      "update_id": "update-1",
+      "policy_version": 1,
+      "consumed_data_version": 0,
+      "checkpoint_manifest_sha256": "3bd57e73cd43d787e49fbf162e2ff51e50f410f5872eb2c1cb5f0df86fd92398",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.34375,
+      "loss": -0.0004702754085883498,
+      "ratio_p50": 1.0,
+      "ratio_max": 2.055556058883667,
+      "clip_fraction": 0.0478515625,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 2.497891495884231
+    },
+    {
+      "step": 2,
+      "update_id": "update-2",
+      "policy_version": 2,
+      "consumed_data_version": 0,
+      "checkpoint_manifest_sha256": "5f2a96efcb93050434d141f6b7f0e6cb3df2681f296fd1059ae5b9156b0364e0",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.8125,
+      "loss": 0.002010189462453127,
+      "ratio_p50": 0.9914649724960327,
+      "ratio_max": 74.12460327148438,
+      "clip_fraction": 0.513671875,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 3.9843877990720475
+    },
+    {
+      "step": 3,
+      "update_id": "update-3",
+      "policy_version": 3,
+      "consumed_data_version": 1,
+      "checkpoint_manifest_sha256": "8975d5b555727bff6cff34c692864cf3ca881852e24af7ee182501130cdf49e4",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.71875,
+      "loss": -0.00971335917711258,
+      "ratio_p50": 0.9992647171020508,
+      "ratio_max": 111.46746826171875,
+      "clip_fraction": 0.3916015625,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 1
+      },
+      "weight_delta_fp32_vs_v0": 5.033886128583639
+    },
+    {
+      "step": 4,
+      "update_id": "update-4",
+      "policy_version": 4,
+      "consumed_data_version": 2,
+      "checkpoint_manifest_sha256": "334d756027095def0be1d1c6d7859b8013bd44c7ac46621075c87d2bbe705a7c",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.953125,
+      "loss": -0.00041519920341670513,
+      "ratio_p50": 0.9981634020805359,
+      "ratio_max": 43.27690505981445,
+      "clip_fraction": 0.39306640625,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 7
+      },
+      "weight_delta_fp32_vs_v0": 5.817396689687761
+    },
+    {
+      "step": 5,
+      "update_id": "update-5",
+      "policy_version": 5,
+      "consumed_data_version": 3,
+      "checkpoint_manifest_sha256": "b969d99405dd37fa14228237ffa0c31d135990bcd1cc47b9929073cb43b9ce4b",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.78125,
+      "loss": -0.0008441769750788808,
+      "ratio_p50": 0.9997586011886597,
+      "ratio_max": 42.817771911621094,
+      "clip_fraction": 0.265625,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 7
+      },
+      "weight_delta_fp32_vs_v0": 6.431518452344457
+    },
+    {
+      "step": 6,
+      "update_id": "update-6",
+      "policy_version": 6,
+      "consumed_data_version": 4,
+      "checkpoint_manifest_sha256": "591a2354d4c211423b695dd9657eaf94b79a410e348dc33924718f74b47275ac",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.703125,
+      "loss": -0.006996392272412777,
+      "ratio_p50": 0.9995211362838745,
+      "ratio_max": 27.183895111083984,
+      "clip_fraction": 0.287353515625,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 7
+      },
+      "weight_delta_fp32_vs_v0": 6.923287071020748
+    },
+    {
+      "step": 7,
+      "update_id": "update-7",
+      "policy_version": 7,
+      "consumed_data_version": 5,
+      "checkpoint_manifest_sha256": "deccc1b5990774626803b5e1e4b511c44188b64b2571c46528fd36cd053dca59",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.671875,
+      "loss": -0.002161844167858362,
+      "ratio_p50": 0.9984462261199951,
+      "ratio_max": 62.587833404541016,
+      "clip_fraction": 0.283935546875,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 3
+      },
+      "weight_delta_fp32_vs_v0": 7.32621055535387
+    },
+    {
+      "step": 8,
+      "update_id": "update-8",
+      "policy_version": 8,
+      "consumed_data_version": 6,
+      "checkpoint_manifest_sha256": "bf53c435f5eefee85d0a5b13a0e37f85f30c4d789157667bfc2e72f30910b464",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.46875,
+      "loss": 0.0013654932845383883,
+      "ratio_p50": 0.9891760349273682,
+      "ratio_max": 95.77806091308594,
+      "clip_fraction": 0.374755859375,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 7.6597570314872785
+    },
+    {
+      "step": 9,
+      "update_id": "update-9",
+      "policy_version": 9,
+      "consumed_data_version": 7,
+      "checkpoint_manifest_sha256": "55c13a233bbf458137b2714bad3f3e6502e3656b411e6be850191b72ef042426",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.453125,
+      "loss": 0.002673666924238205,
+      "ratio_p50": 0.9724920988082886,
+      "ratio_max": 63.804649353027344,
+      "clip_fraction": 0.449951171875,
+      "sync_calls": 398,
+      "canary_verdict": "mismatch",
+      "canary_drift": {
+        "max_token_drift": 8
+      },
+      "weight_delta_fp32_vs_v0": 7.949394960864592
+    },
+    {
+      "step": 10,
+      "update_id": "update-10",
+      "policy_version": 10,
+      "consumed_data_version": 8,
+      "checkpoint_manifest_sha256": "043c4243565b29f105f32fa24e91a4fc312220085e2b1637a4cad6cbe84a9701",
+      "rollout_sequences": 64,
+      "consumed_sequences": 64,
+      "success_rate": 0.40625,
+      "loss": -0.00544227659702301,
+      "ratio_p50": 0.979620099067688,
+      "ratio_max": 44.28960418701172,
+      "clip_fraction": 0.476806640625,
+      "sync_calls": 398,
+      "canary_verdict": "pass",
+      "canary_drift": {
+        "max_token_drift": 0
+      },
+      "weight_delta_fp32_vs_v0": 8.201563097846437
+    }
+  ],
+  "success_curve": [
+    {
+      "step": 1,
+      "policy_version": 0,
+      "success_rate": 0.34375
+    },
+    {
+      "step": 2,
+      "policy_version": 1,
+      "success_rate": 0.8125
+    },
+    {
+      "step": 3,
+      "policy_version": 2,
+      "success_rate": 0.71875
+    },
+    {
+      "step": 4,
+      "policy_version": 3,
+      "success_rate": 0.953125
+    },
+    {
+      "step": 5,
+      "policy_version": 4,
+      "success_rate": 0.78125
+    },
+    {
+      "step": 6,
+      "policy_version": 5,
+      "success_rate": 0.703125
+    },
+    {
+      "step": 7,
+      "policy_version": 6,
+      "success_rate": 0.671875
+    },
+    {
+      "step": 8,
+      "policy_version": 7,
+      "success_rate": 0.46875
+    },
+    {
+      "step": 9,
+      "policy_version": 8,
+      "success_rate": 0.453125
+    },
+    {
+      "step": 10,
+      "policy_version": 9,
+      "success_rate": 0.40625
+    }
+  ],
+  "long_context_rollout": {
+    "prompt_tokens": 1876,
+    "completion_tokens": 32,
+    "identity_decision": "allow",
+    "reason_codes": [
+      "L001_MISSING_BEHAVIOR_LOGPROB",
+      "L002_SOURCE_EVENT_MISMATCH"
+    ]
+  },
+  "summary": {
+    "committed_updates": 10,
+    "all_canaries_pass": false,
+    "all_identity_allow": true,
+    "success_rate_first": 0.34375,
+    "success_rate_last": 0.40625,
+    "success_rate_delta": 0.0625,
+    "final_weight_delta_fp32_vs_v0": 8.201563097846437,
+    "nonzero_loss_steps": 10
+  }
+}
