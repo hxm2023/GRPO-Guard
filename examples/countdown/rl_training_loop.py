@@ -97,6 +97,14 @@ def main() -> int:
     GUARD_OFF = "--guard-off" in sys.argv
     if "--steps" in sys.argv:
         N_STEPS = int(sys.argv[sys.argv.index("--steps") + 1])
+    if "--seed" in sys.argv:
+        import random
+
+        seed = int(sys.argv[sys.argv.index("--seed") + 1])
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        random.seed(seed)
+        log(f"seed set to {seed}")
     if GUARD_OFF:
         log("GUARD OFF mode (P1-2 comparison): validation and guarded step skipped")
     resume_from = 0  # first step to run (0 = full run)
