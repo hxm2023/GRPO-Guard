@@ -95,6 +95,8 @@ def main() -> int:
     # (the event stream + ckpt dirs of the previous run must be intact).
     RESUME = "--resume" in sys.argv
     GUARD_OFF = "--guard-off" in sys.argv
+    if "--steps" in sys.argv:
+        N_STEPS = int(sys.argv[sys.argv.index("--steps") + 1])
     if GUARD_OFF:
         log("GUARD OFF mode (P1-2 comparison): validation and guarded step skipped")
     resume_from = 0  # first step to run (0 = full run)
