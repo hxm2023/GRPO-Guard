@@ -1,0 +1,115 @@
+{
+  "scope": "P1-2 held-out evaluation (D18): frozen 8 prompts disjoint from training, greedy decode, base v0 vs trained v10",
+  "held_out_prompts": 8,
+  "base_v0": {
+    "n": 8,
+    "correct": 2,
+    "accuracy": 0.25,
+    "per_question": [
+      {
+        "question": "A farmer has 12 cows and buys 7 more. Ho",
+        "golden": 19,
+        "completion": "The farmer has 19 cows. \n\nStep-by-Step E",
+        "correct": false
+      },
+      {
+        "question": "Sara has 4 bags with 3 apples in each. H",
+        "golden": 12,
+        "completion": "12\n\nStep-by-step explanation:\n- Sara has",
+        "correct": false
+      },
+      {
+        "question": "A bus starts with 20 passengers. 5 get o",
+        "golden": 23,
+        "completion": "Let me know if you need help.\n\nSo the bu",
+        "correct": false
+      },
+      {
+        "question": "A rectangle is 6 units wide and 4 units ",
+        "golden": 24,
+        "completion": "The area is ___ square units.\n\nAnswer: 2",
+        "correct": true
+      },
+      {
+        "question": "Tom reads 5 pages a day for a whole week",
+        "golden": 35,
+        "completion": "Let me know if you need more help.\n\nTom ",
+        "correct": false
+      },
+      {
+        "question": "There are 3 boxes with 6 pens each, and ",
+        "golden": 22,
+        "completion": "Let me know if you need more help.\n\nTo f",
+        "correct": false
+      },
+      {
+        "question": "A shop sells 12 cupcakes on Monday and t",
+        "golden": 24,
+        "completion": "The shop sells 24 cupcakes on Tuesday. T",
+        "correct": true
+      },
+      {
+        "question": "A train covers 45 miles in 1 hour. How f",
+        "golden": 180,
+        "completion": "180\n\nStep-by-step explanation:\nIf the tr",
+        "correct": false
+      }
+    ]
+  },
+  "trained_v10": {
+    "n": 8,
+    "correct": 2,
+    "accuracy": 0.25,
+    "per_question": [
+      {
+        "question": "A farmer has 12 cows and buys 7 more. Ho",
+        "golden": 19,
+        "completion": "If he originally had 12 and then 7 were ",
+        "correct": false
+      },
+      {
+        "question": "Sara has 4 bags with 3 apples in each. H",
+        "golden": 12,
+        "completion": "Sara has 4 bags with 3 each, so 4 x",
+        "correct": false
+      },
+      {
+        "question": "A bus starts with 20 passengers. 5 get o",
+        "golden": 23,
+        "completion": "Initially 20, 5 left, 8 added, so 1",
+        "correct": false
+      },
+      {
+        "question": "A rectangle is 6 units wide and 4 units ",
+        "golden": 24,
+        "completion": "The answer is 6 x 4 = 24. The answer is",
+        "correct": true
+      },
+      {
+        "question": "Tom reads 5 pages a day for a whole week",
+        "golden": 35,
+        "completion": "If he reads 5 per day and there are 7 da",
+        "correct": false
+      },
+      {
+        "question": "There are 3 boxes with 6 pens each, and ",
+        "golden": 22,
+        "completion": "If there are 3 boxes with 6 each and 4 e",
+        "correct": false
+      },
+      {
+        "question": "A shop sells 12 cupcakes on Monday and t",
+        "golden": 24,
+        "completion": "If the answer is 12 on Monday and 24 on ",
+        "correct": true
+      },
+      {
+        "question": "A train covers 45 miles in 1 hour. How f",
+        "golden": 180,
+        "completion": "The answer is 45 miles per hour. The ans",
+        "correct": false
+      }
+    ]
+  },
+  "held_out_delta": 0.0
+}
