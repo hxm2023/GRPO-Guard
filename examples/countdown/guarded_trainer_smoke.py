@@ -28,7 +28,7 @@ from examples.countdown.smoke_train import build_dataset, reward_func  # noqa: E
 
 def main() -> int:
     import torch
-    from trl import GRPOConfig
+    from trl import GRPOConfig, GRPOTrainer
     from trl.generation.vllm_client import VLLMClient
 
     from grpo_guard.adapters.guarded_grpo_trainer import GuardedGRPOTrainer
