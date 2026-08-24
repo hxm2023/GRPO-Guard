@@ -4,7 +4,7 @@ set -uo pipefail
 REPO=/root/autodl-tmp/grpo-guard/repo
 PY=/root/autodl-tmp/grpo-guard/.venv/bin/python
 LOG=/root/autodl-tmp/grpo-guard/seeds_runner.log
-export LD_LIBRARY_PATH=/root/autodl-tmp/grpo-guard/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/root/autodl-tmp/grpo-guard/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:${LD_LIBRARY_PATH:-}
 
 echo "$(date) seeds runner v2 start" >> $LOG
 for mode in on off; do
