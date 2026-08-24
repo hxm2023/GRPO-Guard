@@ -101,6 +101,18 @@ gate-passed 数字，不扩大范围）。
   指标（决策/原因码/canary/训练成功率）；`alert-scan` 非 ALLOW 决策
   webhook 告警。全部在 CI 里跑。
 
+**Q12: 和官方 TRL Trainer 的关系？**
+- `GuardedGRPOTrainer`（P1-1）：官方 `trl.GRPOTrainer` 的子类 mixin，在
+  rollout（`_generate_and_score_completions`）、step（`training_step`）、
+  commit（`_save_checkpoint`）三个 seam 插桩 —— 每个 completion 做
+  align/logprob 契约检查并记录 GenerationEvent，step 前一致性检查，
+  checkpoint 内容哈希。真实 1 步 server-mode 实跑通过（4 rollouts +
+  events + commit sha）。诚实边界：这是官方路径的契约插桩，严格
+  envelope/handle 管线是正式训练路径。
+- 训练内曲线（34%→80% rollout reward）经 held-out 评测（25%→25%）
+  证实不泛化 —— 所以我从不声称"能力提升"，只讲"训练循环真实执行 +
+  契约全程守护"。
+
 **Q10: optimizer 真的只能消费验证后的数据吗？怎么证明不可绕过？**
 - `guarded_optimizer_step` 是**唯一**的 optimizer 入口：验证（decision ALLOW
   + artifact hash + tokenizer_called）→ 持久化 nonce 消费 → handle 消费 →

@@ -62,6 +62,9 @@ artifact).
 | 多步闭环（D14） | ✅ | 3× committed update-sync-rollout；3× canary pass；1876-token 边界 ALLOW |
 | 最大真实负载（D13） | ✅ | 256 rollouts：normal 256/256；F1-F4 1024/1024；F5-F8 1024/1024 |
 | Infra 工具链 | ✅ | verify（证据链校验）/ resume（训练恢复）/ metrics（Prometheus）/ doctor（环境自检）/ alert-scan |
+| P1-1 官方 Trainer 包裹 | ✅ | GuardedGRPOTrainer：官方 TRL GRPOTrainer 的 rollout/step/commit 三 seam 插桩；真实 1 步 server-mode：4 rollouts 验证 + GenerationEvents + commit sha |
+| P1-2 guard on/off 3-seed | ✅ | guard-on 0.698±0.049 vs off 0.709±0.050（差异 <1σ，guard 不劣化）；held-out 25%→25%（训练内提升不泛化，诚实结论） |
+| P1-3 tool-use 契约 | ✅ | action-only mask、stale/duplicate/orphan observation 检测（确定性环境） |
 
 ## 诚实性声明（面试必答）
 
