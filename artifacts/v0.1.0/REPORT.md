@@ -224,6 +224,14 @@ three times from the event log after shared-card interruptions — the
 resume path (P0-1/P0-2/P0-3 fixes) is now exercised end-to-end on real
 hardware.
 
+**512-rollout batch online matrix (D18, 2026-08-24)** —
+`artifacts/v0.1.0/batch_online_512/` (64 prompts × 8 gens, exclusive
+GPU window after agent-ttrl finished): normal **512/512 ALLOW**; F1-F4
+**2048/2048 reject**; F5-F8 **2048/2048 reject/quarantine** — 4096 fault
+decisions all matching the frozen oracle (incl. the P0-3 P009 rule with
+zero false rejects on the bounded protocol envelopes); validator
+1.7 ms/env mean (1.54-3.05, n=512).
+
 **P0-fixed RL training — FULL 20-step run (D18, 2026-08-24)** —
 `artifacts/v0.1.0/rl_training_final/`: the complete bounded off-policy
 GRPO loop re-run with ALL P0 fixes (guarded_optimizer_step,
