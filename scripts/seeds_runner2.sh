@@ -16,9 +16,10 @@ for mode in on off; do
       continue
     fi
     # wait for a clean GPU window (agent-ttrl gets priority): no ttrl
-    # processes AND both GPUs mostly free for IDLE_SECS (agent-ttrl's
-    # inter-run gaps are ~30-45s, so 30s balances fit vs. collision)
-    IDLE_SECS=30
+    # processes AND both GPUs mostly free for IDLE_SECS.  agent-ttrl's
+    # stage3 (2x3x3 runs) leaves no usable gaps, so wait for FULL idle
+    # (600s) — the runs then execute in an exclusive window.
+    IDLE_SECS=600
     IDLE_SINCE=""
     while true; do
       F0=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader | awk -F'[, ]+' '/^0/{print $2}')
