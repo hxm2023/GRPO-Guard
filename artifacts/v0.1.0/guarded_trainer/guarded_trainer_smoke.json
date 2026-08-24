@@ -1,0 +1,7 @@
+{
+  "scope": "P1-1: official TRL GRPOTrainer wrapped by GuardedGRPOTrainer (rollout/step/commit seams), 1 real server-mode step",
+  "guard_generation_events": 4,
+  "guard_rollouts_recorded": 4,
+  "guard_commit_sha256": "3b36b4a4a06d096930d6141c554977b8406daabfabcffd7886baa2e4d86ffe6e",
+  "guard_violations_raised": 0
+}

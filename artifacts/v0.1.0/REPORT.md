@@ -240,6 +240,19 @@ overhead).  Same first-step 0.344 across all six runs confirms seed
 determinism.  The guard-off arm exists ONLY as the comparison arm — the
 shipped path is the guarded one.
 
+**GuardedGRPOTrainer — official TRL Trainer wrapped (P1-1, D18 2026-08-24)** —
+`artifacts/v0.1.0/guarded_trainer/guarded_trainer_smoke.json`: the OFFICIAL
+`trl.GRPOTrainer` (server mode) runs through `GuardedGRPOTrainer`
+(`src/grpo_guard/adapters/guarded_grpo_trainer.py`), instrumented at its
+three natural seams — rollout (`_generate_and_score_completions`: per
+completion align + logprob-length contract checks, GenerationEvents
+recorded; violations fail closed), step (`training_step`: pre-step
+consistency), commit (`_save_checkpoint`: content-hashed weights).
+Real 1-step run: **4 rollouts validated + 4 GenerationEvents + commit
+sha recorded, 0 violations**.  Honest scope: contract INSTRUMENTATION of
+the official path; the strict envelope/handle pipeline remains the
+shipped guarded path.
+
 **512-rollout batch online matrix (D18, 2026-08-24)** —
 `artifacts/v0.1.0/batch_online_512/` (64 prompts × 8 gens, exclusive
 GPU window after agent-ttrl finished): normal **512/512 ALLOW**; F1-F4
