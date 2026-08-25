@@ -85,12 +85,15 @@ def _cpu_np(v):
 
 
 def inject_misbound_logprobs(inputs: dict) -> dict:
-    """F2: row 0's old logprobs replaced by row 1's (misbinding)."""
+    """F2: misbind the old logprobs (row swap on multi-row slices; value
+    corruption on the single-row slices TRL hands per step)."""
     bad = dict(inputs)
     lp = np.array(_cpu_np(bad["old_per_token_logps"]), copy=True)
-    if lp.shape[0] >= 2:
+    if lp.ndim == 2 and lp.shape[0] >= 2:
         lp[0] = lp[1]  # behavior logprobs bound to the WRONG trajectory
-        bad["old_per_token_logps"] = lp
+    else:
+        lp[0, :] = lp[0, :] - 2.0  # single-row slice: corrupt the values
+    bad["old_per_token_logps"] = lp
     return bad
 
 
@@ -175,6 +178,12 @@ def main() -> int:
                 kind = faults.pop(step)
                 print(f"[fault] step {step} injected {kind} (arm={ARM})", flush=True)
                 self._injected.append({"step": step, "kind": kind})
+                if kind == "F2":
+                    import numpy as _np
+                    lp = inputs.get("old_per_token_logps")
+                    print(f"[fault] F2 diag: old_per_token_logps present="
+                          f"{lp is not None} type={type(lp).__name__} "
+                          f"shape={getattr(lp, 'shape', None)}", flush=True)
                 return INJECTORS[kind](inputs)
             return inputs
 
@@ -238,7 +247,7 @@ def main() -> int:
         "faults": trainer._injected,
         "fault_blocks": trainer._fault_blocks,
         "per_step": trainer._per_step,
-        "bad_updates_accepted": 0 if ARM == "on" else len(fault_steps),
+        "bad_updates_accepted": len(fault_steps) - len(trainer._fault_blocks),
         "detection_latency_steps": 0 if ARM == "on" else None,
         "wasted_steps": 0 if ARM == "on" else sum(N_STEPS - s for s in fault_steps),
         "success_series": [p["reward_mean"] for p in trainer._per_step],
@@ -249,6 +258,8 @@ def main() -> int:
                         "stale_detected": stale_detected},
         "ok": (ARM == "on" and len(trainer._fault_blocks) == len(fault_steps))
               or (ARM == "off" and len(trainer._fault_blocks) == 0),
+        "fault_blocks_missing": [f for f in trainer._injected
+                                 if f["step"] not in [b["step"] for b in trainer._fault_blocks]],
     }
     (OUT_DIR / "fault_survival.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
