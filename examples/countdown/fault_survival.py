@@ -207,6 +207,13 @@ def _attest(trainer, host, port, model_id) -> dict:
     import torch
     from transformers import AutoTokenizer
 
+    from grpo_guard.adapters.runtime_attest import (
+        CANARY,
+        drift,
+        model_logprob_fingerprint,
+        server_logprob_fingerprint,
+    )
+
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     sequences, prompt_lengths = [], []
     for prompt, _ in CANARY:
