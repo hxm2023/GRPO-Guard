@@ -200,7 +200,7 @@ def main() -> int:
         "train_reward_mean": round(float(np.mean([p["reward_mean"] for p in trainer._per_step])), 4),
         "mean_step_time_s": round(float(np.mean([p["wall_s"] for p in trainer._per_step])), 4),
         "wall_time_s": round(wall_s, 1),
-        "per_question": trained_eval["per_question"],
+        "per_question": trained_eval["per_q"],
     }
     (OUT_DIR / "non_inferiority.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
