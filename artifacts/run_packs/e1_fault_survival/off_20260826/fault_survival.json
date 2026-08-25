@@ -1,0 +1,356 @@
+{
+  "experiment": "E1 fault-injected training survival (official TRL path)",
+  "arm": "off",
+  "seed": 20260826,
+  "steps": 30,
+  "faults": [
+    {
+      "step": 10,
+      "kind": "F3"
+    },
+    {
+      "step": 20,
+      "kind": "F2"
+    }
+  ],
+  "fault_blocks": [],
+  "per_step": [
+    {
+      "step": 0,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 1.28,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 1,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.158,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 2,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.141,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 3,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.142,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 4,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.86,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 5,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 6,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.146,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 7,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.142,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 8,
+      "loss": 0.4995,
+      "reward_mean": 0.25,
+      "wall_s": 0.938,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 9,
+      "loss": 0.5713,
+      "reward_mean": 0.25,
+      "wall_s": 0.16,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 10,
+      "loss": -1.3496,
+      "reward_mean": 0.25,
+      "wall_s": 0.16,
+      "fault_injected": true,
+      "blocked": false
+    },
+    {
+      "step": 11,
+      "loss": 0.5749,
+      "reward_mean": 0.25,
+      "wall_s": 0.157,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 12,
+      "loss": -1.1203,
+      "reward_mean": 0.5,
+      "wall_s": 0.879,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 13,
+      "loss": -0.7748,
+      "reward_mean": 0.5,
+      "wall_s": 0.144,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 14,
+      "loss": 0.8659,
+      "reward_mean": 0.5,
+      "wall_s": 0.142,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 15,
+      "loss": 1.0516,
+      "reward_mean": 0.5,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 16,
+      "loss": 0.3683,
+      "reward_mean": 0.25,
+      "wall_s": 0.872,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 17,
+      "loss": 0.3994,
+      "reward_mean": 0.25,
+      "wall_s": 0.142,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 18,
+      "loss": -1.1531,
+      "reward_mean": 0.25,
+      "wall_s": 0.145,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 19,
+      "loss": 0.8933,
+      "reward_mean": 0.25,
+      "wall_s": 0.142,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 20,
+      "loss": 0.5713,
+      "reward_mean": 0.25,
+      "wall_s": 0.864,
+      "fault_injected": true,
+      "blocked": false
+    },
+    {
+      "step": 21,
+      "loss": -1.4942,
+      "reward_mean": 0.25,
+      "wall_s": 0.141,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 22,
+      "loss": 0.4578,
+      "reward_mean": 0.25,
+      "wall_s": 0.151,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 23,
+      "loss": 0.3608,
+      "reward_mean": 0.25,
+      "wall_s": 0.141,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 24,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.862,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 25,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.146,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 26,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.152,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 27,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.155,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 28,
+      "loss": 0.4817,
+      "reward_mean": 0.25,
+      "wall_s": 1.008,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 29,
+      "loss": 0.6491,
+      "reward_mean": 0.25,
+      "wall_s": 0.145,
+      "fault_injected": false,
+      "blocked": false
+    }
+  ],
+  "bad_updates_accepted": 2,
+  "detection_latency_steps": null,
+  "wasted_steps": 30,
+  "success_series": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.25,
+    0.25
+  ],
+  "loss_series": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.4995,
+    0.5713,
+    -1.3496,
+    0.5749,
+    -1.1203,
+    -0.7748,
+    0.8659,
+    1.0516,
+    0.3683,
+    0.3994,
+    -1.1531,
+    0.8933,
+    0.5713,
+    -1.4942,
+    0.4578,
+    0.3608,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.4817,
+    0.6491
+  ],
+  "mean_step_time_s": 0.3604,
+  "wall_time_s": 119.4,
+  "attestation": {
+    "start": {
+      "server": "b517a98da5cbd6df",
+      "model": "6ec79ab17b4dfb48",
+      "max_abs_logprob_drift": 0.073779,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    "end": {
+      "server": "963a767ba212534a",
+      "model": "527e84b2b38f72ea",
+      "max_abs_logprob_drift": 0.056105,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    "stale_detected": false
+  },
+  "ok": true,
+  "fault_blocks_missing": [
+    {
+      "step": 10,
+      "kind": "F3"
+    },
+    {
+      "step": 20,
+      "kind": "F2"
+    }
+  ]
+}

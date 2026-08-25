@@ -1,0 +1,28 @@
+{
+  "pack": "e1_fault_survival",
+  "kind": "run pack (E1: fault-injected training survival, official TRL path)",
+  "created_at_utc": "2026-08-25T22:30:00Z",
+  "code_commit": "ace6349 + F2 single-row injector fix (guarded_grpo_trainer.py capability gate, runtime_attest.py, fault_survival.py)",
+  "purpose": "E1 acceptance: pre-registered wiring faults injected into the ACTUAL step tensors of the official GRPOTrainer; guard on/off x 2 seeds. Guard blocks every fault BEFORE loss/backward; the guard-off baseline applies the corrupted updates.",
+  "hardware": "autodl2, 2x RTX 6000D 84GB (trainer GPU0, vLLM server GPU1, mem_util 0.25)",
+  "framework": "torch 2.11.0+cu130, trl 1.10.0, vllm 0.26.0, transformers 5.15.1",
+  "model": "Qwen/Qwen3-4B (revision 1cfa9a7208912126459214e8b04321603b3df60c)",
+  "config": "GRPOConfig(max_steps=30, per_device_train_batch_size=1, num_generations=4, max_completion_length=32, beta=0 (no ref model), gradient_checkpointing, use_vllm server); GSM8K-style prompts",
+  "faults": {
+    "step 10": "F3 retokenization (completion token id changed)",
+    "step 20": "F2 old-logprob misbinding (values corrupted on the single-row slice)"
+  },
+  "results": {
+    "guard-on (2 seeds)": "bad updates accepted 0/4; detection latency 0 steps; wasted steps 0; F3->T001 and F2->L004 blocked before backward; runs recovered on the clean batch",
+    "guard-off (2 seeds)": "bad updates accepted 4/4 (corrupted updates applied); never detected; 30 steps trained on corrupted weights afterwards",
+    "overhead": "mean step time on 0.349s vs off 0.352s (~1%); wall 116-119s per 30-step run",
+    "attestation": "dual-source runtime fingerprint start/end CONSISTENT (stale_detected false) in all 4 runs"
+  },
+  "honest_notes": [
+    "E1 measures fault blocking and damage avoidance, NOT training quality: beta=0 (no KL), 30 steps, in-train reward only; success deltas between arms are noise at this scale",
+    "F2 detection requires the batch to carry old_per_token_logps (TRL importance-sampling path); if upstream never produces them, the guard can only enforce the length contract (documented blind spot)",
+    "The step seam verifies the actual tensors the loss consumes (verified in _prepare_inputs); records are consumed per-slice, a row can never be reused",
+    "optimizer.step() is capability-gated on this path (no capability -> GuardViolation)"
+  ],
+  "verify_command": "cd artifacts/run_packs/e1_fault_survival && sha256sum -c SHA256SUMS"
+}
