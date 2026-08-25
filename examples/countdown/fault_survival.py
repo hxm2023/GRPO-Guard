@@ -115,6 +115,7 @@ def main() -> int:
         max_completion_length=MAX_COMPLETION,
         num_train_epochs=1,
         max_steps=N_STEPS,
+        gradient_checkpointing=True,  # 128-token completions peak ~45GB; checkpointing halves activations
         logging_steps=1,
         use_vllm=True,
         vllm_mode="server",
