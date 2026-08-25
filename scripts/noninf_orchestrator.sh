@@ -20,7 +20,7 @@ for arm in on off; do
       done
       [ "$ok" = 1 ] || { echo "NO_WINDOW"; break; }
       rm -rf /root/autodl-tmp/grpo-guard/noninf_out_${arm}_${seed}
-      GRPO_GUARD_ARM=$arm GRPO_GUARD_SEED=$seed bash scripts/launch_noninf.sh
+      GRPO_GUARD_ARM=$arm GRPO_GUARD_SEED=$seed GRPO_GUARD_VLLM_MEM=0.2 bash scripts/launch_noninf.sh
       echo "=== launched $arm s$seed; waiting ==="
       done_flag=0
       for j in $(seq 1 60); do

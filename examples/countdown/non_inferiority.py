@@ -105,7 +105,8 @@ def heldout_eval(model, tokenizer) -> dict:
             correct += 1 if ok else 0
             per_q.append({"q": q[:36], "golden": ans, "correct": ok})
     model.train()
-    return {"n": len(HELDOUT), "correct": correct, "accuracy": correct / len(HELDOUT)}
+    return {"n": len(HELDOUT), "correct": correct, "accuracy": correct / len(HELDOUT),
+            "per_q": per_q}
 
 
 def main() -> int:
