@@ -32,7 +32,7 @@ VLLM_HOST = os.environ.get("GRPO_GUARD_VLLM_HOST", "127.0.0.1")
 VLLM_PORT = int(os.environ.get("GRPO_GUARD_VLLM_PORT", "8012"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/repo"))
 N_STEPS = int(os.environ.get("GRPO_GUARD_STEPS", "30"))
-VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.35"))
+VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.25"))
 ARM = os.environ.get("GRPO_GUARD_ARM", "on")  # on | off
 SEED = int(os.environ.get("GRPO_GUARD_SEED", "20260825"))
 MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "128"))
@@ -99,7 +99,9 @@ def main() -> int:
 
     _patch_device_normalization()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=VLLM_MEM, device="1")
+    server = start_server(
+        OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=VLLM_MEM,
+        device=os.environ.get("GRPO_GUARD_SERVER_DEVICE", "1"))
 
     faults = {step: FAULT_KINDS[i % len(FAULT_KINDS)] for i, step in enumerate(FAULT_STEPS)}
 
