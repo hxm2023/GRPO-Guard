@@ -115,7 +115,7 @@ def test_guarded_training_step_verifies_actual_inputs_and_rotates(tmp_path):
     good = _good_result()
     t._generate_and_score_completions(good)
     assert t.training_step(None, good, 1) == "step-ok"
-    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 1}
+    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 0}  # consumed by this step
     assert t._guard_rollouts == []  # rotated
 
 
@@ -151,7 +151,7 @@ def test_guarded_step_accepts_list_of_sample_dicts(tmp_path):
     t._generate_and_score_completions(good)
     sample = {k: v[0] for k, v in good.items()}
     assert t.training_step(None, [sample], 1) == "step-ok"
-    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 1}
+    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 0}  # consumed by this step
 
 
 def test_guarded_step_rejects_tampered_token_in_list_of_dicts(tmp_path):
@@ -162,6 +162,36 @@ def test_guarded_step_rejects_tampered_token_in_list_of_dicts(tmp_path):
     sample["completion_ids"] = [10, 11, 999]  # re-encoded token
     with pytest.raises(GuardViolation, match="T001"):
         t.training_step(None, [sample], 1)
+
+
+def test_guarded_step_partial_consumption_and_reuse_detection(tmp_path):
+    """TRL slices the generation batch across steps: rows are consumed
+    per-step (subset semantics) and a consumed row can never be reused."""
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = _good_result(n=3)
+    # distinct rows (shared sha would collapse the multiset)
+    good["completion_ids"][1] = [10, 11, 13]
+    good["old_per_token_logps"][1] = [0.0, 0.0, 0.0, 0.1, 0.2, 0.4]
+    good["completion_ids"][2] = [10, 11, 14]
+    good["old_per_token_logps"][2] = [0.0, 0.0, 0.0, 0.1, 0.2, 0.5]
+    t._generate_and_score_completions(good)
+    # step A consumes rows 0 and 2 (shuffled slice)
+    step_a = {k: [good[k][0], good[k][2]] for k in good}
+    assert t.training_step(None, step_a, 2) == "step-ok"
+    assert len(t._guard_rollouts) == 1  # row 1 remains
+    # step B consumes the remaining row 1
+    step_b = {k: [good[k][1]] for k in good}
+    assert t.training_step(None, step_b, 1) == "step-ok"
+    assert t._guard_rollouts == []
+    # a stale row re-consumed after exhaustion fails (no records left)
+    assert t.training_step(None, step_b, 1) == "step-ok"  # no records -> early return
+    # reuse within the SAME generation window is impossible: records were
+    # consumed; a foreign row against remaining records fails T001
+    t._generate_and_score_completions(good)  # fresh window
+    foreign = {k: [good[k][0]] for k in good}
+    foreign["completion_ids"][0] = [10, 11, 999]
+    with pytest.raises(GuardViolation, match="T001"):
+        t.training_step(None, foreign, 1)
 
 
 def test_guarded_training_step_refuses_retokenized_tokens(tmp_path):

@@ -19,11 +19,12 @@ CONTENT, not by row position.
   sampling logprobs, the old logprobs the loss will consume, and the
   advantages are content-addressed in the guard store (no zero-hash
   placeholders).  A violated contract fails closed BEFORE loss/backward.
-- ``training_step`` (step seam): the ACTUAL tensors the official step
-  consumes are content-matched against the recorded artifacts
-  (token ids → T001, old-logprob completion span → L004, advantages →
-  reward binding) BEFORE ``super().training_step``.  Records rotate after
-  each step so a later step cannot validate against stale rollouts.
+- ``_prepare_inputs`` (step seam): the ACTUAL tensor batch the loss will
+  consume is content-matched against the not-yet-consumed recorded
+  artifacts (token ids → T001, old-logprob completion span → L004,
+  advantages → reward binding) BEFORE loss/backward.  TRL slices the
+  generation batch across steps, so matched records are consumed
+  per-row: a row can never be used twice, and stale/foreign rows fail.
 - ``_save_checkpoint`` (commit): the saved checkpoint gets a
   content-hashed digest attribute (full PolicyManifest/update_committed
   events on this seam are still pending — see Honest scope).
@@ -143,7 +144,8 @@ class GuardedGRPOTrainer:
                                     lease_id="guard-trl") if guard_events_dir else None
         self._guard_store = ArtifactStore(guard_store_dir) if guard_store_dir else None
         self._guard_epoch = self._guard_log.acquire_lease() if self._guard_log else None
-        self._guard_rollouts: list[dict] = []  # per-step rollout contract records
+        self._guard_rollouts: list[dict] = []  # per-generation rollout contract records
+        self._guard_gen_seq = 0  # monotonically increasing generation id (unique event/artifact ids)
         self._last_guard_verified: dict | None = None
 
     # ---------------------------------------------------------- rollout seam
@@ -176,6 +178,8 @@ class GuardedGRPOTrainer:
         old_lp_list = _to_lists("old_per_token_logps")
         advantages_list = _to_lists("advantages")
         step = getattr(getattr(self, "state", None), "global_step", 0)
+        gen_seq = self._guard_gen_seq
+        self._guard_gen_seq += 1
         records = []
         for i, (pids, cids) in enumerate(zip(prompt_ids_list, completion_ids_list)):
             pm = np.asarray(prompt_mask_list[i]) if i < len(prompt_mask_list) else None
@@ -199,12 +203,12 @@ class GuardedGRPOTrainer:
             # REAL bytes, content-addressed (P0-4)
             seq = np.ascontiguousarray(np.concatenate([real_p, real_c]).astype(np.int32))
             seq_ref = self._guard_store.put(
-                seq.tobytes(), "application/octet-stream", f"gen-trl-{step}-{i}",
+                seq.tobytes(), "application/octet-stream", f"gen-trl-{gen_seq}-{i}",
                 dtype="int32", shape=[seq.shape[0]])
             cmask = np.ascontiguousarray(cm.astype(np.int8) if cm is not None
                                          else np.ones(P + C, dtype=np.int8))
             cmask_ref = self._guard_store.put(
-                cmask.tobytes(), "application/octet-stream", f"mask-trl-{step}-{i}",
+                cmask.tobytes(), "application/octet-stream", f"mask-trl-{gen_seq}-{i}",
                 dtype="int8", shape=list(cmask.shape))
             old_span = None
             old_ref = None
@@ -213,18 +217,18 @@ class GuardedGRPOTrainer:
                 if old_span is not None:
                     old_ref = self._guard_store.put(
                         old_span.tobytes(), "application/octet-stream",
-                        f"oldlogprob-trl-{step}-{i}", dtype="float32", shape=[old_span.shape[0]])
+                        f"oldlogprob-trl-{gen_seq}-{i}", dtype="float32", shape=[old_span.shape[0]])
             sampling_ref = None
             if sampling_span is not None:
                 sampling_ref = self._guard_store.put(
                     sampling_span.tobytes(), "application/octet-stream",
-                    f"samplinglogprob-trl-{step}-{i}", dtype="float32",
+                    f"samplinglogprob-trl-{gen_seq}-{i}", dtype="float32",
                     shape=[sampling_span.shape[0]])
             adv_ref = None
             if i < len(advantages_list) and advantages_list[i] is not None:
                 adv = np.ascontiguousarray(np.asarray(advantages_list[i], dtype=np.float32))
                 adv_ref = self._guard_store.put(
-                    adv.tobytes(), "application/octet-stream", f"advantage-trl-{step}-{i}",
+                    adv.tobytes(), "application/octet-stream", f"advantage-trl-{gen_seq}-{i}",
                     dtype="float32", shape=list(adv.shape))
             records.append({
                 "step": step, "index": i,
@@ -234,18 +238,17 @@ class GuardedGRPOTrainer:
                 "advantage_ref": adv_ref,
             })
             if self._guard_log:
-                self._guard_emit_generation(i, seq_ref, cmask_ref, sampling_ref, P, C)
+                self._guard_emit_generation(gen_seq, i, seq_ref, cmask_ref, sampling_ref, P, C)
         self._guard_rollouts = records
 
-    def _guard_emit_generation(self, index, seq_ref, mask_ref, sampling_ref,
+    def _guard_emit_generation(self, gen_seq, index, seq_ref, mask_ref, sampling_ref,
                                prompt_len, completion_len) -> None:
-        step = getattr(getattr(self, "state", None), "global_step", 0)
         gen = GenerationEvent(
-            event_id=f"gen-gtrl-{step}-{index}",
+            event_id=f"gen-gtrl-{gen_seq}-{index}",
             event_type="generation_finished", run_id=self._guard_run_id,
             component_id="trl-grpo-trainer", lifecycle_seq=index + 1,
             created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            request_id=f"gtrl-step{step}-{index}",
+            request_id=f"gtrl-gen{gen_seq}-{index}",
             attempt_id="1", prompt_id=f"countdown-{index:04d}", sample_index=index,
             runtime_id="trl-vllm-server", prompt_span=[0, prompt_len],
             completion_span=[prompt_len, prompt_len + completion_len],
@@ -254,7 +257,7 @@ class GuardedGRPOTrainer:
             service_behavior_logprobs=sampling_ref if sampling_ref is not None else ArtifactRef(
                 uri="", media_type="application/octet-stream", dtype="float32",
                 shape=[completion_len], num_bytes=completion_len * 4,
-                sha256="0" * 64, producer_event_id=f"gen-gtrl-{step}-{index}"),
+                sha256="0" * 64, producer_event_id=f"gen-gtrl-{gen_seq}-{index}"),
             # Placeholders needing GPU-run wiring (documented, P0-4).
             behavior_policy_version=0, checkpoint_manifest_sha256="", sync_event=EventRef(
                 uri="", event_id="sync-gtrl", event_sha256="0" * 64),
@@ -280,20 +283,20 @@ class GuardedGRPOTrainer:
         return inputs
 
     def training_step(self, model, inputs, num_items_in_batch):
-        out = super().training_step(model, inputs, num_items_in_batch)
-        # P0-4: each optimizer step consumes its own rollout records;
-        # rotate so the next step cannot validate against stale rollouts.
-        self._guard_rollouts = []
-        return out
+        return super().training_step(model, inputs, num_items_in_batch)
 
     def _guard_pre_update(self, inputs) -> None:
         """Verify the ACTUAL tensors the official step will consume.
 
-        TRL 1.10 shuffles/slices the generation batch, so matching is by
-        CONTENT: each input row's mask-selected token sequence, old-logprob
-        completion span and advantage must byte-match one of the recorded
-        rollout artifacts (T001 / L004 / reward binding).  All checks run
-        BEFORE ``super().training_step`` — i.e. before loss/backward.
+        TRL 1.10 shuffles the generation batch and slices it into
+        per-device-batch steps (e.g. 8 rollouts consumed as 8 x 1-row
+        steps), so matching is by CONTENT against the NOT-YET-consumed
+        records: each input row's mask-selected token sequence, old-logprob
+        completion span and advantage must byte-match one remaining rollout
+        artifact (T001 / L004 / reward binding).  Matched records are
+        consumed (persisted only after the whole batch verifies), so a row
+        can never be used twice — retokenized/misbound/stale rows fail
+        BEFORE loss/backward.
         """
         if not self._guard_rollouts:
             return  # no guard records (e.g. non-rollout steps)
@@ -316,12 +319,13 @@ class GuardedGRPOTrainer:
                 "training_step batch has no prompt_ids/completion_ids — cannot "
                 "verify the actual consumed tokens (guard refuses to run blind)")
         n_rows = prompt_ids.shape[0]
-        if n_rows != len(records):
+        if n_rows > len(records):
             raise GuardViolation(
-                f"batch rows {n_rows} != recorded rollouts {len(records)} "
-                f"(stale/partial rollout consumption)")
-        # content-match token sequences (shuffle-proof)
+                f"batch rows {n_rows} exceed the {len(records)} unconsumed rollouts "
+                f"(stale/duplicate rollout consumption)")
+        # content-match token sequences (shuffle-proof; atomic commit below)
         available = {r["sequence_ref"].sha256: r for r in records}
+        matched_recs: list[dict] = []
         for i in range(n_rows):
             pm = np.asarray(prompt_mask[i]) if prompt_mask is not None else None
             cm = np.asarray(completion_mask[i]) if completion_mask is not None else None
@@ -335,6 +339,7 @@ class GuardedGRPOTrainer:
                     f"row {i}: consumed token ids do not match any recorded server "
                     f"sequence (T001 retokenization/misbinding)")
             rec = available.pop(h)
+            matched_recs.append(rec)
             if old_lp is not None:
                 span = _span(old_lp[i], rec["prompt_len"], rec["completion_len"], cm, attn)
                 if rec["old_logprob_ref"] is not None:
@@ -350,13 +355,13 @@ class GuardedGRPOTrainer:
                             f"row {i}: old-logprob completion span does not match the "
                             f"recorded completion (L004 misbinding)")
         if advantages is not None:
-            if advantages.shape[0] != len(records):
-                raise GuardViolation(
-                    f"advantages rows {advantages.shape[0]} != recorded rollouts "
-                    f"{len(records)} (reward misbinding)")
             from collections import Counter
-            avail_adv = Counter(r["advantage_ref"].sha256 for r in records
+            avail_adv = Counter(r["advantage_ref"].sha256 for r in matched_recs
                                 if r["advantage_ref"] is not None)
+            if advantages.shape[0] > sum(avail_adv.values()):
+                raise GuardViolation(
+                    f"advantages rows {advantages.shape[0]} exceed the rewards "
+                    f"recorded for this batch (reward misbinding)")
             for i in range(advantages.shape[0]):
                 row = np.ascontiguousarray(np.asarray(advantages[i], dtype=np.float32))
                 h = hashlib.sha256(row.tobytes()).hexdigest()
@@ -365,9 +370,11 @@ class GuardedGRPOTrainer:
                         f"row {i}: consumed advantages do not match the recorded "
                         f"reward artifacts (reward misbinding)")
                 avail_adv[h] -= 1
+        # atomic commit: only persist consumption after the whole batch verified
+        self._guard_rollouts = list(available.values())
         self._last_guard_verified = {
             "global_step": getattr(getattr(self, "state", None), "global_step", 0),
-            "n_rollouts": len(records),
+            "n_rollouts": len(self._guard_rollouts),
         }
 
     # ---------------------------------------------------------- commit seam
