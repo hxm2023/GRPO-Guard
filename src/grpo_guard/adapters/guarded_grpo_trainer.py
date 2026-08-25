@@ -1,33 +1,40 @@
 """GuardedGRPOTrainer — wraps the OFFICIAL TRL GRPOTrainer (P1-1).
 
 The official trainer's rollout → loss → step path is instrumented at its
-three natural seams without reimplementing GRPO:
+three natural seams without reimplementing GRPO.
 
-- ``_generate_and_score_completions`` (rollout): every generated
-  completion is shape/alignment-checked (non-empty completion,
-  prompt/completion spans, logprob-vs-completion length — the L/T/M
-  contract semantics) and recorded as a GenerationEvent; the REAL
-  sequence, canonical completion mask and server behavior-logprob bytes
-  are content-addressed in the guard store (no zero-hash placeholders,
-  v0.4.0/P0-4).  A violated contract fails closed (raises) BEFORE the
-  rollouts reach scoring/loss.
-- ``training_step`` (optimizer step): the ACTUAL tensors the official
-  step consumes (``input_ids`` rows, old ``logprobs`` completion spans,
-  ``advantages`` row count) are hash/identity-compared against the
-  recorded rollout artifacts BEFORE ``super().training_step`` — i.e.
-  before loss/backward.  Any mismatch fails closed.  Records rotate after
-  each step so a later step cannot be validated against stale rollouts.
+TRL 1.10.0 reality (verified against the installed source, 2026-08-25):
+``_generate_and_score_completions`` returns ``prompt_ids`` /
+``prompt_mask`` / ``completion_ids`` / ``completion_mask`` /
+``advantages`` and, for vLLM, ``sampling_per_token_logps`` (the SERVER's
+behavior logprobs) and ``old_per_token_logps`` (the trainer's own
+recomputed logprobs, used as the loss denominator with importance-sampling
+correction).  ``_prepare_inputs`` then SHUFFLES the batch rows and slices
+them per accumulation step — so step-time verification must match by
+CONTENT, not by row position.
+
+- ``_generate_and_score_completions`` (rollout): every completion is
+  shape/alignment-checked on its REAL (mask-selected) tokens and recorded
+  as a GenerationEvent; the REAL sequence, completion mask, the server's
+  sampling logprobs, the old logprobs the loss will consume, and the
+  advantages are content-addressed in the guard store (no zero-hash
+  placeholders).  A violated contract fails closed BEFORE loss/backward.
+- ``training_step`` (step seam): the ACTUAL tensors the official step
+  consumes are content-matched against the recorded artifacts
+  (token ids → T001, old-logprob completion span → L004, advantages →
+  reward binding) BEFORE ``super().training_step``.  Records rotate after
+  each step so a later step cannot validate against stale rollouts.
 - ``_save_checkpoint`` (commit): the saved checkpoint gets a
   content-hashed digest attribute (full PolicyManifest/update_committed
   events on this seam are still pending — see Honest scope).
 
 Honest scope (per the 2026-08-25 audit): this is contract INSTRUMENTATION
-of the official trainer, not a re-implementation of its loss.  The strict
+of the official trainer, not a re-implementation of its loss or a
+capability gate on ``optimizer.step()``.  The strict
 envelope/validated-handle pipeline remains the shipped guarded path
-(grpo_loss + guarded_optimizer_step); GuardedGRPOTrainer adds the guard
-seams to the official path.  Fields that need GPU-run wiring (policy
+(grpo_loss + guarded_optimizer_step).  Fields needing GPU wiring (policy
 version, checkpoint/tokenizer/template hashes) stay documented
-placeholders; the token/mask/logprob/reward artifacts are REAL bytes.
+placeholders; token/mask/logprob/reward artifacts are REAL bytes.
 """
 
 from __future__ import annotations
@@ -49,10 +56,7 @@ class GuardViolation(RuntimeError):
 
 
 def _align_checks(prompt_ids, completion_ids) -> list[str]:
-    """Contract checks on one rollout (L/T/M semantics, task-agnostic).
-
-    Returns a list of violation strings (empty == pass).
-    """
+    """Contract checks on one rollout's REAL tokens (L/T/M semantics)."""
     violations = []
     if completion_ids is None or len(completion_ids) == 0:
         violations.append("M005_EMPTY_COMPLETION")
@@ -67,7 +71,6 @@ def _align_checks(prompt_ids, completion_ids) -> list[str]:
     except Exception as exc:  # alignment itself failed
         violations.append(f"ALIGN_FAILURE: {exc}")
         return violations
-    # the canonical completion_target_mask is 1 on [P, T)
     expected = np.zeros(T, dtype=np.int8)
     expected[P:] = 1
     if not np.array_equal(alignment.completion_target_mask, expected):
@@ -76,7 +79,7 @@ def _align_checks(prompt_ids, completion_ids) -> list[str]:
 
 
 def _logprob_length_check(completion_ids, logprobs) -> str | None:
-    """L004: logprobs must cover the completion (one per completion token)."""
+    """L004: completion-only logprobs must cover the completion tokens."""
     if logprobs is None:
         return None
     if len(logprobs) != len(completion_ids):
@@ -91,6 +94,35 @@ def _as_np(value):
     if hasattr(value, "cpu"):
         value = value.cpu().numpy()
     return np.asarray(value)
+
+
+def _masked_real(padded: np.ndarray, mask: np.ndarray | None) -> np.ndarray:
+    """Select the REAL token positions of a padded TRL row via its mask."""
+    arr = np.asarray(padded, dtype=np.int32)
+    if mask is not None and mask.shape[0] == arr.shape[0]:
+        return arr[np.asarray(mask, dtype=bool)]
+    return arr
+
+
+def _span(values: np.ndarray, prompt_len: int, completion_len: int,
+          cmask: np.ndarray | None = None, attn: np.ndarray | None = None) -> np.ndarray | None:
+    """Completion span of a padded per-row tensor.
+
+    TRL 1.10: per-part masks align with their own row (prompt_mask with
+    prompt_ids, completion_mask with completion_ids); old/sampling logprobs
+    are full-sequence tensors aligned with attention_mask = concat(masks).
+    """
+    if values is None:
+        return None
+    row = np.asarray(values, dtype=np.float32)
+    if row.shape[0] == completion_len:
+        return np.ascontiguousarray(row)  # completion-only tensor (e.g. server sampling logprobs)
+    if attn is not None and attn.shape[0] == row.shape[0]:
+        real = row[np.asarray(attn, dtype=bool)]
+        return np.ascontiguousarray(real[prompt_len:prompt_len + completion_len])
+    if cmask is not None and cmask.shape[0] == row.shape[0] and np.asarray(cmask, dtype=bool).any():
+        return np.ascontiguousarray(row[np.asarray(cmask, dtype=bool)])
+    return np.ascontiguousarray(row[prompt_len:prompt_len + completion_len])
 
 
 class GuardedGRPOTrainer:
@@ -123,11 +155,11 @@ class GuardedGRPOTrainer:
     def _guard_validate_rollouts(self, result) -> None:
         """Check + record every rollout in the official batch result.
 
-        P0-4: the REAL sequence, canonical mask, server behavior-logprob
-        and reward bytes are content-addressed (no zero-hash
-        placeholders); records are per-step (rotated, not accumulated).
+        Uses TRL 1.10's REAL keys and records REAL bytes (P0-4): the
+        mask-selected token sequence, the completion mask, the server's
+        sampling logprobs, the old logprobs the loss will consume, and the
+        advantages — all content-addressed, no zero-hash placeholders.
         """
-        # TRL returns torch tensors; normalize to python lists
         def _to_lists(key):
             v = result.get(key)
             if v is None:
@@ -137,55 +169,75 @@ class GuardedGRPOTrainer:
             return v
 
         prompt_ids_list = _to_lists("prompt_ids")
+        prompt_mask_list = _to_lists("prompt_mask")
         completion_ids_list = _to_lists("completion_ids")
-        logprobs_list = _to_lists("logprobs")
-        rewards_list = _to_lists("rewards")
+        completion_mask_list = _to_lists("completion_mask")
+        sampling_lp_list = _to_lists("sampling_per_token_logps")
+        old_lp_list = _to_lists("old_per_token_logps")
+        advantages_list = _to_lists("advantages")
         step = getattr(getattr(self, "state", None), "global_step", 0)
         records = []
         for i, (pids, cids) in enumerate(zip(prompt_ids_list, completion_ids_list)):
-            violations = _align_checks(pids, cids)
-            lp = logprobs_list[i] if i < len(logprobs_list) else None
-            lp_violation = _logprob_length_check(cids, lp)
-            if lp_violation:
-                violations.append(lp_violation)
+            pm = np.asarray(prompt_mask_list[i]) if i < len(prompt_mask_list) else None
+            cm = np.asarray(completion_mask_list[i]) if i < len(completion_mask_list) else None
+            attn = np.concatenate([pm, cm]) if pm is not None and cm is not None else None
+            real_p = _masked_real(pids, pm)
+            real_c = _masked_real(cids, cm)
+            P, C = int(real_p.shape[0]), int(real_c.shape[0])
+            violations = _align_checks(list(real_p), list(real_c))
             if violations:
-                raise GuardViolation(
-                    f"rollout {i} contract violations: {violations}")
+                raise GuardViolation(f"rollout {i} contract violations: {violations}")
+            # the server's behavior logprobs must cover the completion span
+            sampling_span = None
+            if i < len(sampling_lp_list) and sampling_lp_list[i] is not None:
+                sampling_span = _span(np.asarray(sampling_lp_list[i]), P, C, cm, attn)
+                if sampling_span is None or sampling_span.shape[0] not in (C, C + 1):
+                    raise GuardViolation(
+                        f"rollout {i}: server sampling logprobs completion span "
+                        f"{None if sampling_span is None else sampling_span.shape[0]} "
+                        f"does not cover the {C}-token completion (L004)")
             # REAL bytes, content-addressed (P0-4)
-            P, C = len(pids), len(cids)
-            total = P + C
-            seq = np.ascontiguousarray(np.concatenate(
-                [np.asarray(pids), np.asarray(cids)]).astype(np.int32))
+            seq = np.ascontiguousarray(np.concatenate([real_p, real_c]).astype(np.int32))
             seq_ref = self._guard_store.put(
                 seq.tobytes(), "application/octet-stream", f"gen-trl-{step}-{i}",
                 dtype="int32", shape=[seq.shape[0]])
-            mask = np.zeros(total, dtype=np.int8)
-            mask[P:] = 1  # canonical completion_target_mask
-            mask_ref = self._guard_store.put(
-                mask.tobytes(), "application/octet-stream", f"mask-trl-{step}-{i}",
-                dtype="int8", shape=[total])
-            lp_arr = np.ascontiguousarray(np.asarray(lp, dtype=np.float32))
-            lp_ref = self._guard_store.put(
-                lp_arr.tobytes(), "application/octet-stream", f"logprob-trl-{step}-{i}",
-                dtype="float32", shape=[lp_arr.shape[0]])
-            rw_arr = (np.ascontiguousarray(np.asarray(rewards_list[i], dtype=np.float32))
-                      if i < len(rewards_list) else None)
-            rw_ref = None
-            if rw_arr is not None:
-                rw_ref = self._guard_store.put(
-                    rw_arr.tobytes(), "application/octet-stream", f"reward-trl-{step}-{i}",
-                    dtype="float32", shape=list(rw_arr.shape))
+            cmask = np.ascontiguousarray(cm.astype(np.int8) if cm is not None
+                                         else np.ones(P + C, dtype=np.int8))
+            cmask_ref = self._guard_store.put(
+                cmask.tobytes(), "application/octet-stream", f"mask-trl-{step}-{i}",
+                dtype="int8", shape=list(cmask.shape))
+            old_span = None
+            old_ref = None
+            if i < len(old_lp_list) and old_lp_list[i] is not None:
+                old_span = _span(np.asarray(old_lp_list[i]), P, C, cm, attn)
+                if old_span is not None:
+                    old_ref = self._guard_store.put(
+                        old_span.tobytes(), "application/octet-stream",
+                        f"oldlogprob-trl-{step}-{i}", dtype="float32", shape=[old_span.shape[0]])
+            sampling_ref = None
+            if sampling_span is not None:
+                sampling_ref = self._guard_store.put(
+                    sampling_span.tobytes(), "application/octet-stream",
+                    f"samplinglogprob-trl-{step}-{i}", dtype="float32",
+                    shape=[sampling_span.shape[0]])
+            adv_ref = None
+            if i < len(advantages_list) and advantages_list[i] is not None:
+                adv = np.ascontiguousarray(np.asarray(advantages_list[i], dtype=np.float32))
+                adv_ref = self._guard_store.put(
+                    adv.tobytes(), "application/octet-stream", f"advantage-trl-{step}-{i}",
+                    dtype="float32", shape=list(adv.shape))
             records.append({
                 "step": step, "index": i,
                 "prompt_len": P, "completion_len": C,
-                "sequence_ref": seq_ref, "mask_ref": mask_ref,
-                "logprob_ref": lp_ref, "reward_ref": rw_ref,
+                "sequence_ref": seq_ref, "mask_ref": cmask_ref,
+                "old_logprob_ref": old_ref, "sampling_logprob_ref": sampling_ref,
+                "advantage_ref": adv_ref,
             })
             if self._guard_log:
-                self._guard_emit_generation(i, seq_ref, mask_ref, lp_ref, rw_ref, P, C)
+                self._guard_emit_generation(i, seq_ref, cmask_ref, sampling_ref, P, C)
         self._guard_rollouts = records
 
-    def _guard_emit_generation(self, index, seq_ref, mask_ref, lp_ref, rw_ref,
+    def _guard_emit_generation(self, index, seq_ref, mask_ref, sampling_ref,
                                prompt_len, completion_len) -> None:
         step = getattr(getattr(self, "state", None), "global_step", 0)
         gen = GenerationEvent(
@@ -199,10 +251,11 @@ class GuardedGRPOTrainer:
             completion_span=[prompt_len, prompt_len + completion_len],
             sequence_token_ids=seq_ref, completion_target_mask=mask_ref,
             loss_mask=mask_ref,
-            service_behavior_logprobs=lp_ref,
-            # Placeholders needing GPU-run wiring (documented, P0-4):
-            # the official trainer does not expose a sync/checkpoint
-            # manifest at rollout time in the current TRL version.
+            service_behavior_logprobs=sampling_ref if sampling_ref is not None else ArtifactRef(
+                uri="", media_type="application/octet-stream", dtype="float32",
+                shape=[completion_len], num_bytes=completion_len * 4,
+                sha256="0" * 64, producer_event_id=f"gen-gtrl-{step}-{index}"),
+            # Placeholders needing GPU-run wiring (documented, P0-4).
             behavior_policy_version=0, checkpoint_manifest_sha256="", sync_event=EventRef(
                 uri="", event_id="sync-gtrl", event_sha256="0" * 64),
             tokenizer_sha256="", chat_template_sha256="", sampling_config_sha256="",
@@ -222,43 +275,75 @@ class GuardedGRPOTrainer:
     def _guard_pre_update(self, inputs) -> None:
         """Verify the ACTUAL tensors the official step will consume.
 
-        P0-4: ``input_ids`` rows and old-logprob completion spans must
-        byte-match the recorded server artifacts (T001/L004 semantics);
-        ``advantages`` row count must match.  All checks run BEFORE
-        ``super().training_step`` — i.e. before loss/backward.
+        TRL 1.10 shuffles/slices the generation batch, so matching is by
+        CONTENT: each input row's mask-selected token sequence, old-logprob
+        completion span and advantage must byte-match one of the recorded
+        rollout artifacts (T001 / L004 / reward binding).  All checks run
+        BEFORE ``super().training_step`` — i.e. before loss/backward.
         """
         if not self._guard_rollouts:
             return  # no guard records (e.g. non-rollout steps)
         records = self._guard_rollouts
-        input_ids = _as_np(inputs.get("input_ids"))
-        if input_ids is None:
-            raise GuardViolation(
-                "training_step batch has no input_ids — cannot verify the "
-                "actual consumed tokens (guard refuses to run blind)")
-        if input_ids.shape[0] != len(records):
-            raise GuardViolation(
-                f"batch rows {input_ids.shape[0]} != recorded rollouts {len(records)} "
-                f"(stale/partial rollout consumption)")
-        for i, rec in enumerate(records):
-            row = np.ascontiguousarray(np.asarray(input_ids[i], dtype=np.int32))
-            if hashlib.sha256(row.tobytes()).hexdigest() != rec["sequence_ref"].sha256:
-                raise GuardViolation(
-                    f"row {i}: consumed token ids do not match the recorded server "
-                    f"sequence (T001 retokenization/misbinding)")
-        logprobs = _as_np(inputs.get("logprobs"))
-        if logprobs is not None:
-            for i, rec in enumerate(records):
-                P = rec["prompt_len"]
-                comp = np.ascontiguousarray(np.asarray(logprobs[i, P:], dtype=np.float32))
-                if hashlib.sha256(comp.tobytes()).hexdigest() != rec["logprob_ref"].sha256:
-                    raise GuardViolation(
-                        f"row {i}: consumed old logprobs do not match the recorded "
-                        f"server logprobs (L004 misbinding)")
+        prompt_ids = _as_np(inputs.get("prompt_ids"))
+        completion_ids = _as_np(inputs.get("completion_ids"))
+        prompt_mask = _as_np(inputs.get("prompt_mask"))
+        completion_mask = _as_np(inputs.get("completion_mask"))
+        old_lp = _as_np(inputs.get("old_per_token_logps"))
         advantages = _as_np(inputs.get("advantages"))
-        if advantages is not None and advantages.shape[0] != len(records):
+        if prompt_ids is None or completion_ids is None:
             raise GuardViolation(
-                f"advantages rows {advantages.shape[0]} != recorded rollouts "
-                f"{len(records)} (reward misbinding)")
+                "training_step batch has no prompt_ids/completion_ids — cannot "
+                "verify the actual consumed tokens (guard refuses to run blind)")
+        n_rows = prompt_ids.shape[0]
+        if n_rows != len(records):
+            raise GuardViolation(
+                f"batch rows {n_rows} != recorded rollouts {len(records)} "
+                f"(stale/partial rollout consumption)")
+        # content-match token sequences (shuffle-proof)
+        available = {r["sequence_ref"].sha256: r for r in records}
+        for i in range(n_rows):
+            pm = np.asarray(prompt_mask[i]) if prompt_mask is not None else None
+            cm = np.asarray(completion_mask[i]) if completion_mask is not None else None
+            attn = np.concatenate([pm, cm]) if pm is not None and cm is not None else None
+            real_p = _masked_real(np.asarray(prompt_ids[i]), pm)
+            real_c = _masked_real(np.asarray(completion_ids[i]), cm)
+            seq = np.ascontiguousarray(np.concatenate([real_p, real_c]).astype(np.int32))
+            h = hashlib.sha256(seq.tobytes()).hexdigest()
+            if h not in available:
+                raise GuardViolation(
+                    f"row {i}: consumed token ids do not match any recorded server "
+                    f"sequence (T001 retokenization/misbinding)")
+            rec = available.pop(h)
+            if old_lp is not None:
+                span = _span(old_lp[i], rec["prompt_len"], rec["completion_len"], cm, attn)
+                if rec["old_logprob_ref"] is not None:
+                    if span is None or hashlib.sha256(span.tobytes()).hexdigest() != rec["old_logprob_ref"].sha256:
+                        raise GuardViolation(
+                            f"row {i}: old-logprob VALUES differ from what was "
+                            f"recorded at rollout (L004 misbinding)")
+                else:
+                    # no old logprobs recorded at rollout — length contract only
+                    if span is None or span.shape[0] not in (rec["completion_len"],
+                                                             rec["completion_len"] + 1):
+                        raise GuardViolation(
+                            f"row {i}: old-logprob completion span does not match the "
+                            f"recorded completion (L004 misbinding)")
+        if advantages is not None:
+            if advantages.shape[0] != len(records):
+                raise GuardViolation(
+                    f"advantages rows {advantages.shape[0]} != recorded rollouts "
+                    f"{len(records)} (reward misbinding)")
+            from collections import Counter
+            avail_adv = Counter(r["advantage_ref"].sha256 for r in records
+                                if r["advantage_ref"] is not None)
+            for i in range(advantages.shape[0]):
+                row = np.ascontiguousarray(np.asarray(advantages[i], dtype=np.float32))
+                h = hashlib.sha256(row.tobytes()).hexdigest()
+                if avail_adv[h] == 0:
+                    raise GuardViolation(
+                        f"row {i}: consumed advantages do not match the recorded "
+                        f"reward artifacts (reward misbinding)")
+                avail_adv[h] -= 1
         self._last_guard_verified = {
             "global_step": getattr(getattr(self, "state", None), "global_step", 0),
             "n_rollouts": len(records),

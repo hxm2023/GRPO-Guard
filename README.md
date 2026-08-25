@@ -174,7 +174,7 @@ upgrade condition (frozen injection protocol + passing matrix) is met
 | F7 event reorder | `L005_SCORING_AFTER_UPDATE` (+P007) | reject | same |
 | F8 artifact mutation | `T001_ARTIFACT_HASH_MISMATCH` (isolated store) | reject | same |
 
-`uv run grpo-guard v02-matrix --loop-dir artifacts/v0.1.0/loop` → 4/4 matched,
+`uv run grpo-guard v02-matrix --loop-dir artifacts/v0.4.0/loop` → 4/4 matched,
 normal 4/4 allow, GATE PASS.
 
 ## v0.2.1: fault families F9-F10 (decision D16)
