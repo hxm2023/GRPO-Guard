@@ -246,7 +246,7 @@ class GuardedGRPOTrainer:
         gen = GenerationEvent(
             event_id=f"gen-gtrl-{gen_seq}-{index}",
             event_type="generation_finished", run_id=self._guard_run_id,
-            component_id="trl-grpo-trainer", lifecycle_seq=index + 1,
+            component_id="trl-grpo-trainer", lifecycle_seq=gen_seq * 1000 + index + 1,
             created_at_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
             request_id=f"gtrl-gen{gen_seq}-{index}",
             attempt_id="1", prompt_id=f"countdown-{index:04d}", sample_index=index,

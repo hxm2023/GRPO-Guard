@@ -20,7 +20,8 @@
     "The step seam verifies the ACTUAL tensors the loss consumes (verified in _prepare_inputs against TRL's real keys: prompt_ids/prompt_mask/completion_ids/completion_mask/advantages/sampling_per_token_logps/old_per_token_logps)",
     "Rows are consumed per-slice (TRL splits 8 rollouts into 8x1-row steps); a row can never be reused",
     "policy_version/tokenizer/checkpoint hashes in GenerationEvents remain placeholders (GPU-run wiring pending)",
-    "optimizer.step is not yet capability-gated on this path (instrumentation only; strict guarded_optimizer_step remains the shipped update entry)"
+    "optimizer.step is not yet capability-gated on this path (instrumentation only; strict guarded_optimizer_step remains the shipped update entry)",
+    "grpo-guard verify reports exactly 24 failures, all 'dangling reference to event sync-gtrl' — the documented placeholder sync_event ref (TRL's server-mode weight sync is internal; runtime-side sync attestation is pending work). Checksums and lifecycle order verify clean."
   ],
   "verify_command": "cd artifacts/run_packs/p0_4_official_trl && sha256sum -c SHA256SUMS"
 }
