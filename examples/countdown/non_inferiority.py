@@ -180,11 +180,6 @@ def main() -> int:
         guard_store_dir=OUT_DIR / "store",
     )
 
-    from transformers import AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
-    base_eval = heldout_eval(trainer.model, tokenizer)  # base weights
-
     t0 = time.perf_counter()
     trainer.train()
     wall_s = time.perf_counter() - t0
@@ -196,7 +191,6 @@ def main() -> int:
     result = {
         "experiment": "E2 guard on/off non-inferiority (official TRL path)",
         "arm": ARM, "seed": SEED, "steps": N_STEPS,
-        "heldout_base_accuracy": base_eval["accuracy"],
         "train_reward_mean": round(float(np.mean([p["reward_mean"] for p in trainer._per_step])), 4),
         "mean_step_time_s": round(float(np.mean([p["wall_s"] for p in trainer._per_step])), 4),
         "wall_time_s": round(wall_s, 1),
