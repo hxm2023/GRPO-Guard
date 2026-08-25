@@ -126,6 +126,30 @@ def _span(values: np.ndarray, prompt_len: int, completion_len: int,
     return np.ascontiguousarray(row[prompt_len:prompt_len + completion_len])
 
 
+class _CapabilityOptimizer:
+    """Wraps the HF/accelerate optimizer so ``step()`` requires the guard's
+    per-step capability — issued in ``_prepare_inputs`` only after the
+    actual-tensor verification passes (P0-4: no capability, no optimizer
+    step on the official path)."""
+
+    def __init__(self, optimizer, holder):
+        object.__setattr__(self, "_opt", optimizer)
+        object.__setattr__(self, "_holder", holder)
+
+    def step(self, *args, **kwargs):
+        if not getattr(self._holder, "_guard_step_capability", False):
+            raise GuardViolation(
+                "optimizer.step() without a validated step capability — the "
+                "step's actual tensors were never verified (P0-4 gate)")
+        return self._opt.step(*args, **kwargs)
+
+    def __getattr__(self, name):
+        return getattr(object.__getattribute__(self, "_opt"), name)
+
+    def __setattr__(self, name, value):
+        setattr(object.__getattribute__(self, "_opt"), name, value)
+
+
 class GuardedGRPOTrainer:
     """Mixin-style wrapper around TRL's GRPOTrainer.
 
@@ -134,11 +158,15 @@ class GuardedGRPOTrainer:
         class MyGuardedTrainer(GuardedGRPOTrainer, GRPOTrainer): ...
 
     The mixin overrides the three seams; all other behavior is the
-    official trainer's.
+    official trainer's.  ``guard_enabled=False`` disables step-time
+    verification (E1 guard-off baseline arm) but keeps the capability
+    gate active.
     """
 
-    def __init__(self, *args, guard_events_dir=None, guard_store_dir=None, **kwargs):
+    def __init__(self, *args, guard_events_dir=None, guard_store_dir=None,
+                 guard_enabled: bool = True, **kwargs):
         super().__init__(*args, **kwargs)
+        self._guard_enabled = guard_enabled
         self._guard_run_id = f"guarded-trl-{int(time.time())}"
         self._guard_log = AppendLog(guard_events_dir, run_id=self._guard_run_id,
                                     lease_id="guard-trl") if guard_events_dir else None
@@ -147,6 +175,8 @@ class GuardedGRPOTrainer:
         self._guard_rollouts: list[dict] = []  # per-generation rollout contract records
         self._guard_gen_seq = 0  # monotonically increasing generation id (unique event/artifact ids)
         self._last_guard_verified: dict | None = None
+        self._guard_step_capability = False
+        self._guard_opt_wrapped = False
 
     # ---------------------------------------------------------- rollout seam
     def _generate_and_score_completions(self, inputs):
@@ -279,11 +309,22 @@ class GuardedGRPOTrainer:
         inputs = super()._prepare_inputs(generation_batch)
         hook = getattr(self, "_guard_prepare_hook", None)
         to_verify = hook(inputs) if callable(hook) else inputs
-        self._guard_pre_update(to_verify)
+        if self._guard_enabled:
+            self._guard_pre_update(to_verify)
+        # capability for this step's optimizer.step() — issued only after
+        # verification (or after the documented guard-off bypass)
+        self._guard_step_capability = True
         return inputs
 
     def training_step(self, model, inputs, num_items_in_batch):
-        return super().training_step(model, inputs, num_items_in_batch)
+        if not self._guard_opt_wrapped and getattr(self, "optimizer", None) is not None:
+            if not isinstance(self.optimizer, _CapabilityOptimizer):
+                self.optimizer = _CapabilityOptimizer(self.optimizer, self)
+            self._guard_opt_wrapped = True
+        try:
+            return super().training_step(model, inputs, num_items_in_batch)
+        finally:
+            self._guard_step_capability = False
 
     def _guard_pre_update(self, inputs) -> None:
         """Verify the ACTUAL tensors the official step will consume.

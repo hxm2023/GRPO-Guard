@@ -13,6 +13,18 @@ from grpo_guard.adapters.guarded_grpo_trainer import (
 )
 
 
+class _FakeOptimizer:
+    def __init__(self):
+        self.steps = 0
+
+    def zero_grad(self, *args, **kwargs):
+        return None
+
+    def step(self, *args, **kwargs):
+        self.steps += 1
+        return None
+
+
 class _MockTrainer:
     """Minimal stand-in for TRL's GRPOTrainer (no GPU needed).
 
@@ -22,6 +34,7 @@ class _MockTrainer:
 
     def __init__(self, *args, **kwargs):
         self.state = type("S", (), {"global_step": 0})()
+        self.optimizer = _FakeOptimizer()
 
     def _generate_and_score_completions(self, inputs):
         return inputs
@@ -31,6 +44,8 @@ class _MockTrainer:
 
     def training_step(self, model, inputs, num_items_in_batch):
         inputs = self._prepare_inputs(inputs)
+        self.optimizer.zero_grad()
+        self.optimizer.step()
         return "step-ok"
 
     def _save_checkpoint(self, model, trial):
@@ -192,6 +207,49 @@ def test_guarded_step_partial_consumption_and_reuse_detection(tmp_path):
     foreign["completion_ids"][0] = [10, 11, 999]
     with pytest.raises(GuardViolation, match="T001"):
         t.training_step(None, foreign, 1)
+
+
+def test_optimizer_step_gated_by_step_capability(tmp_path):
+    """P0-4 gate: optimizer.step() without a validated capability raises;
+    a full guarded step issues the capability and the optimizer runs."""
+    from grpo_guard.adapters.guarded_grpo_trainer import GuardViolation, _CapabilityOptimizer
+
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = _good_result()
+    t._generate_and_score_completions(good)
+    # outside a guarded step the capability is cleared -> step() fails closed
+    assert t._guard_step_capability is False
+    if not isinstance(t.optimizer, _CapabilityOptimizer):
+        t.optimizer = _CapabilityOptimizer(t.optimizer, t)
+    with pytest.raises(GuardViolation, match="capability"):
+        t.optimizer.step()
+    # a full guarded step wraps the optimizer and runs it under the capability
+    assert t.training_step(None, good, 1) == "step-ok"
+    assert isinstance(t.optimizer, _CapabilityOptimizer)
+    assert t.optimizer.steps == 1
+    assert t._guard_step_capability is False  # cleared after the step
+
+
+def test_guard_off_skips_verification(tmp_path):
+    """E1 guard-off baseline arm: verification disabled, tampered tensors
+    flow into the loss (that is the point of the baseline)."""
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store",
+                     guard_enabled=False)
+    good = _good_result()
+    t._generate_and_score_completions(good)
+    bad = dict(good)
+    bad["completion_ids"] = [[10, 11, 999]]  # retokenized — would be T001 with guard on
+    assert t.training_step(None, bad, 1) == "step-ok"
+    assert t.optimizer.steps == 1
+    assert t._guard_step_capability is False  # cleared after the step
+
+
+def test_capability_cleared_after_step(tmp_path):
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = _good_result()
+    t._generate_and_score_completions(good)
+    t.training_step(None, good, 1)
+    assert t._guard_step_capability is False
 
 
 def test_guarded_training_step_refuses_retokenized_tokens(tmp_path):
