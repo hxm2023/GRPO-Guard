@@ -264,8 +264,22 @@ class GuardedGRPOTrainer:
         self._guard_log.append(gen, required_epoch=self._guard_epoch)
 
     # ------------------------------------------------------------ step seam
+    def _prepare_inputs(self, generation_batch):
+        """Verify the ACTUAL tensor batch the step will consume.
+
+        transformers 5.x calls ``self._prepare_inputs`` inside
+        ``training_step``, and TRL's override generates/scores/slices the
+        batch there — so the tensors the loss will consume exist only at
+        this point.  We verify them here (before loss/backward) via an
+        optional one-shot hook, then return the CLEAN batch.
+        """
+        inputs = super()._prepare_inputs(generation_batch)
+        hook = getattr(self, "_guard_prepare_hook", None)
+        to_verify = hook(inputs) if callable(hook) else inputs
+        self._guard_pre_update(to_verify)
+        return inputs
+
     def training_step(self, model, inputs, num_items_in_batch):
-        self._guard_pre_update(inputs)
         out = super().training_step(model, inputs, num_items_in_batch)
         # P0-4: each optimizer step consumes its own rollout records;
         # rotate so the next step cannot validate against stale rollouts.

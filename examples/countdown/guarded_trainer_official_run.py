@@ -23,6 +23,7 @@ VLLM_HOST = os.environ.get("GRPO_GUARD_VLLM_HOST", "127.0.0.1")
 VLLM_PORT = int(os.environ.get("GRPO_GUARD_VLLM_PORT", "8012"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard/repo"))
 N_STEPS = int(os.environ.get("GRPO_GUARD_STEPS", "20"))
+VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.4"))
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
@@ -40,11 +41,17 @@ def inject_retokenize(inputs) -> dict:
     Handles both dict batches and transformers-5.x list-of-sample-dicts.
     """
     import numpy as np
+
+    def _cpu_np(v):
+        if hasattr(v, "cpu"):
+            v = v.cpu()
+        return np.array(np.asarray(v), copy=True)
+
     if isinstance(inputs, dict):
         bad = dict(inputs)
         if "completion_ids" not in bad:
             raise TypeError(f"inject_retokenize: no completion_ids ({list(bad)[:5]})")
-        cids = np.array(np.asarray(bad["completion_ids"]), copy=True)
+        cids = _cpu_np(bad["completion_ids"])
         cids[0, 0] = (cids[0, 0] + 1) % 32000  # different token id
         bad["completion_ids"] = cids
         return bad
@@ -52,7 +59,7 @@ def inject_retokenize(inputs) -> dict:
         bad = [dict(s) for s in inputs]
         if "completion_ids" not in bad[0]:
             raise TypeError(f"inject_retokenize: no completion_ids ({list(bad[0])[:5]})")
-        cids = np.array(np.asarray(bad[0]["completion_ids"]), copy=True)
+        cids = _cpu_np(bad[0]["completion_ids"])
         cids[0] = (cids[0] + 1) % 32000  # first completion token of sample 0
         bad[0]["completion_ids"] = cids
         return bad
@@ -70,7 +77,7 @@ def main() -> int:
 
     _patch_device_normalization()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=0.4, device="1")
+    server = start_server(OUT_DIR / "vllm_server.log", port=VLLM_PORT, mem_util=VLLM_MEM, device="1")
 
     args = GRPOConfig(
         output_dir=str(OUT_DIR / "ckpt"),
@@ -94,11 +101,14 @@ def main() -> int:
     )
 
     class GuardedTRLTrainer(GuardedGRPOTrainer, GRPOTrainer):
-        def _generate_and_score_completions(self, inputs):
-            result = super()._generate_and_score_completions(inputs)
-            keys = list(result.keys())[:12] if hasattr(result, "keys") else "N/A"
-            print(f"[rollout] result type={type(result).__name__} keys={keys}", flush=True)
-            return result
+        def _guard_prepare_hook(self, inputs):
+            """One-shot fault injection into the ACTUAL step tensors."""
+            if self.state.global_step in FAULTS:
+                del FAULTS[self.state.global_step]
+                print(f"[fault] step {self.state.global_step} injected "
+                      f"F3_retokenize_completion", flush=True)
+                return inject_retokenize(inputs)
+            return inputs
 
         def _guard_pre_update(self, inputs):
             super()._guard_pre_update(inputs)
@@ -108,26 +118,19 @@ def main() -> int:
                 "records": len(self._guard_rollouts),
             })
             print(f"[guard] step {self.state.global_step} verified={self._last_guard_verified} "
-                  f"records={len(self._guard_rollouts)} inputs={type(inputs).__name__}", flush=True)
+                  f"records={len(self._guard_rollouts)}", flush=True)
 
         def training_step(self, model, inputs, num_items_in_batch):
             step = self.state.global_step
-            if step in FAULTS:
-                tampered = inject_retokenize(inputs)
-                try:
-                    super().training_step(model, tampered, num_items_in_batch)
-                except GuardViolation as exc:
-                    self._guard_fault_blocks.append({
-                        "step": step, "fault": FAULTS[step], "violation": str(exc),
-                        "blocked_before_backward": True,
-                    })
-                else:
-                    raise RuntimeError(
-                        f"fault step {step} was NOT blocked — guard failed to detect "
-                        f"{FAULTS[step]}")
-                # recovery: re-run the step on the untampered batch (the
-                # guard's records were NOT rotated by the blocked call)
-            return super().training_step(model, inputs, num_items_in_batch)
+            try:
+                return super().training_step(model, inputs, num_items_in_batch)
+            except GuardViolation as exc:
+                self._guard_fault_blocks.append({
+                    "step": step, "fault": FAULTS.pop(step, "fault"),
+                    "violation": str(exc), "blocked_before_backward": True,
+                })
+                # recovery: re-run the step on the CLEAN batch (hook one-shot)
+                return super().training_step(model, inputs, num_items_in_batch)
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)

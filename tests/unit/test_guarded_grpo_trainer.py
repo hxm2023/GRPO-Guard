@@ -14,7 +14,11 @@ from grpo_guard.adapters.guarded_grpo_trainer import (
 
 
 class _MockTrainer:
-    """Minimal stand-in for TRL's GRPOTrainer (no GPU needed)."""
+    """Minimal stand-in for TRL's GRPOTrainer (no GPU needed).
+
+    Mirrors transformers 5.x: training_step calls self._prepare_inputs,
+    which TRL's GRPOTrainer overrides to generate/slice the tensor batch.
+    """
 
     def __init__(self, *args, **kwargs):
         self.state = type("S", (), {"global_step": 0})()
@@ -22,7 +26,11 @@ class _MockTrainer:
     def _generate_and_score_completions(self, inputs):
         return inputs
 
+    def _prepare_inputs(self, generation_batch):
+        return generation_batch
+
     def training_step(self, model, inputs, num_items_in_batch):
+        inputs = self._prepare_inputs(inputs)
         return "step-ok"
 
     def _save_checkpoint(self, model, trial):
