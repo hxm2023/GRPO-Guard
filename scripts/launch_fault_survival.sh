@@ -9,6 +9,7 @@ SEED="${GRPO_GUARD_SEED:-20260825}"
 nohup bash -c '
 cd /root/autodl-tmp/grpo-guard/repo
 export LD_LIBRARY_PATH=/root/autodl-tmp/grpo-guard/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:${LD_LIBRARY_PATH:-}
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 GRPO_GUARD_MODEL_PATH=/root/autodl-tmp/models/Qwen3-4B \
 GRPO_GUARD_OUT=/root/autodl-tmp/grpo-guard/fault_survival_out \
 GRPO_GUARD_REPO=/root/autodl-tmp/grpo-guard/repo \
