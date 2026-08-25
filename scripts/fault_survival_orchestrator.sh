@@ -24,14 +24,14 @@ for arm_seed in "on 20260825" "on 20260826" "off 20260825" "off 20260826"; do
       if [ "$F0" -gt 40000 ] && [ "$F1" -gt 24000 ]; then ok=1; break; fi
     done
     [ "$ok" = 1 ] || { echo "NO_WINDOW"; break; }
-    rm -rf /root/autodl-tmp/grpo-guard/fault_survival_out
+    rm -rf /root/autodl-tmp/grpo-guard/fault_survival_out_${ARM}_${SEED}
     GRPO_GUARD_ARM=$ARM GRPO_GUARD_SEED=$SEED GRPO_GUARD_VLLM_MEM=0.3 \
       bash scripts/launch_fault_survival.sh
     echo "=== launched $ARM s$SEED; waiting for result ==="
     done_flag=0
     for j in $(seq 1 60); do
       sleep 30
-      if [ -f /root/autodl-tmp/grpo-guard/fault_survival_out/fault_survival.json ]; then
+      if [ -f /root/autodl-tmp/grpo-guard/fault_survival_out_${ARM}_${SEED}/fault_survival.json ]; then
         done_flag=1; break
       fi
       if grep -q "Traceback" /root/autodl-tmp/grpo-guard/fault_survival_${ARM}.log 2>/dev/null; then

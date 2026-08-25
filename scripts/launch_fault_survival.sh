@@ -11,7 +11,7 @@ cd /root/autodl-tmp/grpo-guard/repo
 export LD_LIBRARY_PATH=/root/autodl-tmp/grpo-guard/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:${LD_LIBRARY_PATH:-}
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 GRPO_GUARD_MODEL_PATH=/root/autodl-tmp/models/Qwen3-4B \
-GRPO_GUARD_OUT=/root/autodl-tmp/grpo-guard/fault_survival_out \
+GRPO_GUARD_OUT=/root/autodl-tmp/grpo-guard/fault_survival_out_${ARM}_${SEED} \
 GRPO_GUARD_REPO=/root/autodl-tmp/grpo-guard/repo \
 GRPO_GUARD_STEPS=${GRPO_GUARD_STEPS:-30} \
 GRPO_GUARD_ARM='${ARM}' \
