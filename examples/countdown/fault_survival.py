@@ -37,7 +37,7 @@ N_STEPS = int(os.environ.get("GRPO_GUARD_STEPS", "30"))
 VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.25"))
 ARM = os.environ.get("GRPO_GUARD_ARM", "on")  # on | off
 SEED = int(os.environ.get("GRPO_GUARD_SEED", "20260825"))
-MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "48"))
+MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "32"))
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
@@ -144,7 +144,7 @@ def main() -> int:
         output_dir=str(OUT_DIR / "ckpt"),
         run_name=f"fault-survival-{ARM}-s{SEED}",
         learning_rate=1e-6,
-        beta=0.04,
+        beta=0.0,  # no ref model (E1 tests fault blocking, not KL quality)
         per_device_train_batch_size=1,
         gradient_accumulation_steps=1,
         num_generations=4,
