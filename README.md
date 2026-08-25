@@ -156,7 +156,7 @@ server (trl vllm-serve + Qwen3-4B), evidence committed under
 | multi-step closed loop (D14) | 3× committed update-sync-rollout (v0→v3), 3×398-param sync, 3× canary pass, 1876-token boundary rollout ALLOW | `multi_step/multi_step.json` |
 | real RL training (D15/D17) | 19 committed GRPO updates (bounded off-policy lag-1), nonzero loss, real weight delta 10.4, guard ALLOW every step; success curve reported honestly (in-train reward, not held-out) | `rl_training/rl_training.json` |
 | P0-fixed RL training (D18) | FULL 20-step rerun: real lag=1 in event chain, 20 committed updates (B=64, micro-batched), 3× interruption+resume; stale-runtime detection (server v0 vs trained v20 → drift 7 → DETECTED) | `rl_training_final/`, `sync_noop/` |
-| P1-1 GuardedGRPOTrainer | official TRL GRPOTrainer wrapped at rollout/step/commit seams; 1-step real server-mode smoke: 4 rollouts validated + GenerationEvents + commit sha | `guarded_trainer/` |
+| P1-1 GuardedGRPOTrainer | official TRL GRPOTrainer wrapped at rollout/step/commit seams; 1-step smoke + **20-step official run**: actual step tensors verified per step; F3 retokenization injected at steps 10/19 — both blocked before backward (T001) and recovered | `guarded_trainer/`, `run_packs/p0_4_official_trl/` |
 | P1-2 guard on/off 3-seed | guard-on 0.698±0.049 vs off 0.709±0.050 (delta <1σ — no degradation) | `guard_seeds/` |
 | P1-3 tool-use contract | action-only mask, causal order, stale/duplicate/orphan observation detection (deterministic env) | `src/grpo_guard/adapters/tool_env.py` |
 | v0.2 variant matrix (F5-F8 ×3 variants) | 12/12 matched, normal 4/4 ALLOW, GATE PASS | `v0.2.0-dev/fault_matrix.json` |

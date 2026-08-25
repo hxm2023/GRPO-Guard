@@ -1,0 +1,184 @@
+{
+  "scope": "P0-4 official-path run: 20 steps through official TRL GRPOTrainer wrapped by GuardedGRPOTrainer; pre-registered fault injection (F3 retokenization) must be blocked before backward at the fault steps",
+  "steps_completed": 20,
+  "faults": {},
+  "fault_blocks": [
+    {
+      "step": 10,
+      "fault": "fault",
+      "violation": "row 0: consumed token ids do not match any recorded server sequence (T001 retokenization/misbinding)",
+      "blocked_before_backward": true
+    },
+    {
+      "step": 19,
+      "fault": "fault",
+      "violation": "row 0: consumed token ids do not match any recorded server sequence (T001 retokenization/misbinding)",
+      "blocked_before_backward": true
+    }
+  ],
+  "per_step_verified": [
+    {
+      "step": 0,
+      "verified": {
+        "global_step": 0,
+        "n_rollouts": 7
+      },
+      "records": 7
+    },
+    {
+      "step": 1,
+      "verified": {
+        "global_step": 1,
+        "n_rollouts": 6
+      },
+      "records": 6
+    },
+    {
+      "step": 2,
+      "verified": {
+        "global_step": 2,
+        "n_rollouts": 5
+      },
+      "records": 5
+    },
+    {
+      "step": 3,
+      "verified": {
+        "global_step": 3,
+        "n_rollouts": 4
+      },
+      "records": 4
+    },
+    {
+      "step": 4,
+      "verified": {
+        "global_step": 4,
+        "n_rollouts": 3
+      },
+      "records": 3
+    },
+    {
+      "step": 5,
+      "verified": {
+        "global_step": 5,
+        "n_rollouts": 2
+      },
+      "records": 2
+    },
+    {
+      "step": 6,
+      "verified": {
+        "global_step": 6,
+        "n_rollouts": 1
+      },
+      "records": 1
+    },
+    {
+      "step": 7,
+      "verified": {
+        "global_step": 7,
+        "n_rollouts": 0
+      },
+      "records": 0
+    },
+    {
+      "step": 8,
+      "verified": {
+        "global_step": 8,
+        "n_rollouts": 7
+      },
+      "records": 7
+    },
+    {
+      "step": 9,
+      "verified": {
+        "global_step": 9,
+        "n_rollouts": 6
+      },
+      "records": 6
+    },
+    {
+      "step": 10,
+      "verified": {
+        "global_step": 10,
+        "n_rollouts": 5
+      },
+      "records": 5
+    },
+    {
+      "step": 11,
+      "verified": {
+        "global_step": 11,
+        "n_rollouts": 4
+      },
+      "records": 4
+    },
+    {
+      "step": 12,
+      "verified": {
+        "global_step": 12,
+        "n_rollouts": 3
+      },
+      "records": 3
+    },
+    {
+      "step": 13,
+      "verified": {
+        "global_step": 13,
+        "n_rollouts": 2
+      },
+      "records": 2
+    },
+    {
+      "step": 14,
+      "verified": {
+        "global_step": 14,
+        "n_rollouts": 1
+      },
+      "records": 1
+    },
+    {
+      "step": 15,
+      "verified": {
+        "global_step": 15,
+        "n_rollouts": 0
+      },
+      "records": 0
+    },
+    {
+      "step": 16,
+      "verified": {
+        "global_step": 16,
+        "n_rollouts": 7
+      },
+      "records": 7
+    },
+    {
+      "step": 17,
+      "verified": {
+        "global_step": 17,
+        "n_rollouts": 6
+      },
+      "records": 6
+    },
+    {
+      "step": 18,
+      "verified": {
+        "global_step": 18,
+        "n_rollouts": 5
+      },
+      "records": 5
+    },
+    {
+      "step": 19,
+      "verified": {
+        "global_step": 19,
+        "n_rollouts": 4
+      },
+      "records": 4
+    }
+  ],
+  "guard_generation_events": 24,
+  "guard_commit_sha256": "3b36b4a4a06d096930d6141c554977b8406daabfabcffd7886baa2e4d86ffe6e",
+  "ok": true
+}

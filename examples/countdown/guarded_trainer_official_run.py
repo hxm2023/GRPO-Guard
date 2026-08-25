@@ -30,9 +30,10 @@ sys.path.insert(0, str(REPO_DIR))
 
 from examples.countdown.smoke_train import build_dataset, reward_func  # noqa: E402
 
-# pre-registered faults: global_step -> fault kind
+# pre-registered faults: global_step -> fault kind (max_steps=N_STEPS
+# yields steps 0..N_STEPS-1, so the last fault lands on N_STEPS-1)
 FAULTS = {N_STEPS // 2: "F3_retokenize_completion",
-          N_STEPS: "F3_retokenize_completion"}
+          N_STEPS - 1: "F3_retokenize_completion"}
 
 
 def inject_retokenize(inputs) -> dict:

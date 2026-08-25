@@ -29,8 +29,8 @@ SHA256SUMS, with the status below.
 | C13 | transactional exactly-once nonce across processes | T0 | tests/unit/test_guarded_step.py (32-process race) | supported (Linux CI) |
 | C14 | crash-consistent update lifecycle (WAL PREPARED→COMMITTED/ABORTED), atomic checkpoint promotion | T0/T2 | guarded_update.py, test_guarded_step.py failpoints | supported; **in-memory rollback NOT claimed** |
 | C15 | actual reward/group-size/group-order/model identity bound to handle | T0 | guarded_update.py, test_guarded_step.py | supported (v0.4.0) |
-| C16 | official GuardedGRPOTrainer verifies actual step inputs (tokens/logprobs/advantages) | T0 | guarded_grpo_trainer.py, test_guarded_grpo_trainer.py | supported at CPU level; **full official-path GPU run pending** |
-| C17 | official trainer 1-step server-mode smoke (4 rollouts + commit sha) | T3 | `guarded_trainer/guarded_trainer_smoke.json` | supported (1-step only) |
+| C16 | official GuardedGRPOTrainer verifies actual step inputs (tokens/logprobs/advantages) | T0+T3 | guarded_grpo_trainer.py, test_guarded_grpo_trainer.py, `run_packs/p0_4_official_trl/` | supported — CPU tests + **20-step official-path GPU run** (`ok=true`, per-step verified) |
+| C17 | official trainer runs: 1-step smoke + 20-step with F3 injection blocked | T3 | `guarded_trainer/guarded_trainer_smoke.json`, `run_packs/p0_4_official_trl/guarded_trainer_official_run.json` | supported — 20 steps verified; faults at steps 10/19 blocked before backward (T001), recovered; commit sha recorded |
 | C18 | TRL upstream PR #6876 accepted/merged | — | github.com/huggingface/trl/pull/6876 | **unsupported — "open PR" only** |
 | C19 | core coverage 87% | — | CI artifacts (coverage.xml) | supported as "gate ≥80%"; exact % downloadable from CI artifact |
 | C20 | current main == released v0.3.0 | — | git tags | **unsupported** — main is v0.4.0-dev; frozen pack = artifacts/v0.4.0 |

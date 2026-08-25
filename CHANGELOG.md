@@ -23,9 +23,14 @@ Evidence audit (`docs/audits/2026-08-25_*`) drove five P0 fixes:
   object) all fail before backward.
 - **P0-4 official-trainer actual-input verification** — `GuardedGRPOTrainer`
   records REAL mask/logprob/reward artifacts (no zero-hash placeholders)
-  and verifies the ACTUAL `training_step` tensors (`input_ids` rows, old
-  logprob completion spans, advantages row count) before
-  `super().training_step`; rollout records rotate per step.
+  and verifies the ACTUAL tensor batch in `_prepare_inputs` (where
+  transformers 5.x + TRL 1.10 build the tensors the loss consumes):
+  mask-selected token sequences (T001), old-logprob completion spans
+  (L004) and advantages, matched by content against not-yet-consumed
+  records (TRL slices the 8-rollout batch into 8x1-row steps).  GPU
+  acceptance: **20 official steps with F3 retokenization injected at
+  steps 10 and 19 — both blocked before backward and recovered, all 20
+  steps per-step verified** (`artifacts/run_packs/p0_4_official_trl/`).
 - **P0-5 release governance** — version marked `0.4.0-dev`; new frozen
   evidence pack `artifacts/v0.4.0/` with `RELEASE_MANIFEST.json` and a real
   provenance `run_manifest.json`; `artifacts/v0.2.0-dev` checksums

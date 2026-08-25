@@ -1,0 +1,26 @@
+{
+  "pack": "p0_4_official_trl",
+  "kind": "run pack (new evidence; the frozen v0.4.0 pack is NOT modified)",
+  "created_at_utc": "2026-08-25T14:23:00Z",
+  "code_commit": "9eb6538 (guarded_grpo_trainer.py subset-consumption + gen-seq ids)",
+  "purpose": "P0-4 GPU acceptance: 20 official TRL GRPOTrainer steps wrapped by GuardedGRPOTrainer with pre-registered F3 retokenization injection at steps 10 and 19 — both blocked before backward (T001), all 20 steps per-step verified, checkpoint commit hashed.",
+  "hardware": "autodl2, 2x RTX 6000D 84GB (trainer GPU0, vLLM server GPU1, mem_util=0.35 due to agent-ttrl sharing)",
+  "framework": "torch 2.11.0+cu130, trl 1.10.0, vllm 0.26.0, transformers 5.15.1",
+  "model": "Qwen/Qwen3-4B (revision 1cfa9a7208912126459214e8b04321603b3df60c)",
+  "config": "GRPOConfig(max_steps=20, per_device_train_batch_size=1, gradient_accumulation_steps=1, num_generations=8, generation_batch_size=8, max_completion_length=64, lr=1e-6, beta=0.04, use_vllm=True, vllm_mode=server)",
+  "faults": {
+    "10": "F3_retokenize_completion -> GuardViolation T001, blocked_before_backward=True, step recovered on clean batch",
+    "19": "F3_retokenize_completion -> GuardViolation T001, blocked_before_backward=True, step recovered on clean batch"
+  },
+  "result": "guarded_trainer_official_run.json (ok=true, per_step_verified=20, guard_generation_events=24, fault_blocks=2)",
+  "event_store": "events/ (AppendLog: GenerationEvents with REAL token/mask/logprob/advantage artifacts)",
+  "artifact_store": "store/ (content-addressed bytes)",
+  "checkpoints": "NOT published (45GB, exceeds the light-artifacts rule); commit sha recorded in result json",
+  "honest_notes": [
+    "The step seam verifies the ACTUAL tensors the loss consumes (verified in _prepare_inputs against TRL's real keys: prompt_ids/prompt_mask/completion_ids/completion_mask/advantages/sampling_per_token_logps/old_per_token_logps)",
+    "Rows are consumed per-slice (TRL splits 8 rollouts into 8x1-row steps); a row can never be reused",
+    "policy_version/tokenizer/checkpoint hashes in GenerationEvents remain placeholders (GPU-run wiring pending)",
+    "optimizer.step is not yet capability-gated on this path (instrumentation only; strict guarded_optimizer_step remains the shipped update entry)"
+  ],
+  "verify_command": "cd artifacts/run_packs/p0_4_official_trl && sha256sum -c SHA256SUMS"
+}
