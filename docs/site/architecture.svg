@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 520" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8ab4f8"/>
+    </marker>
+    <style>
+      .box { fill:#1e293b; stroke:#8ab4f8; stroke-width:1.5; rx:8; }
+      .box-warn { stroke:#fbbf24; }
+      .box-ok { stroke:#34d399; }
+      .txt { fill:#e2e8f0; font-size:13px; }
+      .txt-title { fill:#f8fafc; font-size:14px; font-weight:600; }
+      .lane { fill:none; stroke:#334155; stroke-dasharray:4 4; }
+      .lane-txt { fill:#64748b; font-size:11px; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="520" fill="#0f172a"/>
+  <line x1="30" y1="180" x2="1250" y2="180" class="lane"/>
+  <text x="40" y="170" class="lane-txt">ROLLOUT / DATA PATH (server-owned)</text>
+  <line x1="30" y1="400" x2="1250" y2="400" class="lane"/>
+  <text x="40" y="390" class="lane-txt">UPDATE PATH (trainer-owned)</text>
+
+  <g>
+    <rect x="40" y="40" width="180" height="70" class="box"/>
+    <text x="130" y="72" text-anchor="middle" class="txt-title">TRL GRPO Trainer</text>
+    <text x="130" y="92" text-anchor="middle" class="txt">policy v → v+1</text>
+  </g>
+  <line x1="220" y1="75" x2="270" y2="75" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="275" y="40" width="170" height="70" class="box"/>
+    <text x="360" y="72" text-anchor="middle" class="txt-title">Checkpoint</text>
+    <text x="360" y="92" text-anchor="middle" class="txt">+ PolicyManifest (hash)</text>
+  </g>
+  <line x1="445" y1="75" x2="495" y2="75" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="500" y="40" width="170" height="70" class="box"/>
+    <text x="585" y="72" text-anchor="middle" class="txt-title">Weight sync</text>
+    <text x="585" y="92" text-anchor="middle" class="txt">398 update_named_param</text>
+  </g>
+  <line x1="670" y1="75" x2="720" y2="75" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="725" y="40" width="180" height="70" class="box"/>
+    <text x="815" y="72" text-anchor="middle" class="txt-title">vLLM Runtime</text>
+    <text x="815" y="92" text-anchor="middle" class="txt">server tokens + logprobs</text>
+  </g>
+  <line x1="905" y1="75" x2="955" y2="75" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="960" y="40" width="280" height="70" class="box box-warn"/>
+    <text x="1100" y="72" text-anchor="middle" class="txt-title">GenerationEvent + artifacts</text>
+    <text x="1100" y="92" text-anchor="middle" class="txt">content-addressed, append-only</text>
+  </g>
+  <line x1="1100" y1="110" x2="1100" y2="150" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="960" y="155" width="280" height="60" class="box"/>
+    <text x="1100" y="180" text-anchor="middle" class="txt-title">Envelope + Identity Validator</text>
+    <text x="1100" y="198" text-anchor="middle" class="txt">ALLOW / QUARANTINE / REJECT</text>
+  </g>
+
+  <line x1="960" y1="185" x2="700" y2="230" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="380" y="230" width="280" height="60" class="box box-ok"/>
+    <text x="520" y="255" text-anchor="middle" class="txt-title">RewardAdapter → RewardEvent</text>
+    <text x="520" y="273" text-anchor="middle" class="txt">verifier identity bound</text>
+  </g>
+  <line x1="380" y1="260" x2="330" y2="260" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="100" y="230" width="200" height="60" class="box"/>
+    <text x="200" y="255" text-anchor="middle" class="txt-title">Pre-update Validator</text>
+    <text x="200" y="273" text-anchor="middle" class="txt">policy/token/mask rules</text>
+  </g>
+  <line x1="200" y1="290" x2="200" y2="330" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="100" y="335" width="200" height="60" class="box box-warn"/>
+    <text x="200" y="360" text-anchor="middle" class="txt-title">Materializer</text>
+    <text x="200" y="378" text-anchor="middle" class="txt">single-use ValidatedBatchHandle</text>
+  </g>
+  <line x1="300" y1="365" x2="350" y2="365" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="355" y="335" width="220" height="60" class="box box-ok"/>
+    <text x="465" y="360" text-anchor="middle" class="txt-title">guarded_optimizer_step</text>
+    <text x="465" y="378" text-anchor="middle" class="txt">WAL + nonce + precondition checks</text>
+  </g>
+  <line x1="575" y1="365" x2="625" y2="365" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="630" y="335" width="220" height="60" class="box"/>
+    <text x="740" y="360" text-anchor="middle" class="txt-title">GRPO loss → backward → step</text>
+    <text x="740" y="378" text-anchor="middle" class="txt">only after ALLOW + consumed nonce</text>
+  </g>
+  <line x1="850" y1="365" x2="900" y2="365" stroke="#8ab4f8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="905" y="335" width="220" height="60" class="box box-ok"/>
+    <text x="1015" y="360" text-anchor="middle" class="txt-title">Commit → checkpoint promote</text>
+    <text x="1015" y="378" text-anchor="middle" class="txt">fsync + atomic rename + event</text>
+  </g>
+
+  <g>
+    <rect x="40" y="440" width="1200" height="55" rx="8" fill="#0b1220" stroke="#334155"/>
+    <text x="640" y="462" text-anchor="middle" class="txt-title">Trajectory contract:</text>
+    <text x="640" y="482" text-anchor="middle" class="txt">policy version · server token ids · behavior logprobs · loss mask · reward lineage · single-use update handle — every hop content-hashed, any bypass exposed at the next hop</text>
+  </g>
+</svg>

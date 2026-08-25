@@ -132,6 +132,17 @@ uv run grpo-guard replay --manifest artifacts/v0.1.0/run_manifest.json
 uv run grpo-guard report --artifact-dir artifacts/v0.1.0
 ```
 
+## Watch the fault get rejected (40 s, CPU)
+
+![demo](docs/site/assets/demo.gif)
+
+Happy path → ALLOW; then F1–F8 injected faults → reject/quarantine with
+reason codes; raw text input → `TypeError`.  The F2 case is the point:
+misbound logprobs change the loss by ~0 while the guard rejects on
+identity — the exact failure numeric monitoring misses.
+
+Full demo: `uv run python examples/countdown/demo.py`
+
 ## Single-fault demo
 
 ```bash
@@ -215,7 +226,7 @@ GATE PASS (`configs/faults/f9_f10_v01.yaml`, `tests/frozen/f9_f10_v01/`).
 
 `Dockerfile` + `docker-compose.yml` package the CPU-only stack: the
 `verify` service attests the evidence chain
-(`grpo-guard verify --artifact-dir /artifacts/v0.1.0 --events ...`) and
+(`grpo-guard verify --artifact-dir /artifacts/v0.4.0 --events ...`) and
 `panel` serves the Streamlit monitor on :8501 with the committed
 artifacts mounted read-only.
 
@@ -225,10 +236,9 @@ docker compose run --rm verify     # checksums + event seals/order/refs
 docker compose up panel            # http://localhost:8501
 ```
 
-Honest note: no docker daemon was available in this project's
-environment, so the images were NOT built/run here — the compose file
-mirrors exactly the commands verified natively (`uv run grpo-guard
-verify ...`, `streamlit run examples/monitor/panel.py ...`).
+The image is built and smoke-tested on every main push by CI
+(`.github/workflows/ci.yml` → `docker-demo` job: build, `--help`,
+evidence-chain attest inside the image).
 
 ## Operations: monitor + alerts
 

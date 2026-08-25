@@ -6,14 +6,14 @@
 services:
   verify:
     build: .
-    command: verify --artifact-dir /artifacts/v0.1.0 --events /artifacts/v0.1.0/loop/events/events
+    command: verify --artifact-dir /artifacts/v0.4.0 --events /artifacts/v0.4.0/loop/events/events
     volumes:
       - ./artifacts:/artifacts:ro
 
   panel:
     build: .
     entrypoint: streamlit
-    command: run /app/examples/monitor/panel.py --server.address 0.0.0.0 --server.port 8501 -- --event-dir /artifacts/v0.1.0/loop/events/events
+    command: run /app/examples/monitor/panel.py --server.address 0.0.0.0 --server.port 8501 -- --event-dir /artifacts/v0.4.0/loop/events/events
     volumes:
       - ./artifacts:/artifacts:ro
     ports:

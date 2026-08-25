@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRPO-Guard — trajectory contracts for online LLM post-training</title>
+<meta name="description" content="Machine-verifiable evidence chain between trainer / rollout / scoring / reward / optimizer in TRL GRPO + vLLM. Detects silent wiring errors: static rollout, misbound logprobs, retokenization, mask shift.">
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --acc:#8ab4f8; --ok:#34d399; --warn:#fbbf24; --txt:#e2e8f0; --dim:#94a3b8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--txt); font-family:'Segoe UI',-apple-system,Arial,sans-serif; line-height:1.55; }
+  .wrap { max-width:1060px; margin:0 auto; padding:0 24px; }
+  nav { position:sticky; top:0; background:rgba(15,23,42,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); z-index:9; }
+  nav .wrap { display:flex; gap:22px; align-items:center; height:52px; font-size:14px; }
+  nav a { color:var(--dim); text-decoration:none; }
+  nav a:hover { color:var(--acc); }
+  nav .brand { color:var(--txt); font-weight:600; margin-right:auto; }
+  header { padding:64px 0 40px; }
+  h1 { font-size:34px; letter-spacing:-.5px; }
+  h1 span { color:var(--acc); }
+  .sub { color:var(--dim); font-size:16px; margin-top:10px; max-width:760px; }
+  .badges { margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+  .badge { border:1px solid var(--line); border-radius:999px; padding:4px 14px; font-size:12.5px; color:var(--dim); }
+  .badge.ok { color:var(--ok); border-color:var(--ok); }
+  section { padding:36px 0; border-top:1px solid var(--line); }
+  h2 { font-size:22px; margin-bottom:18px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  .card .k { color:var(--acc); font-size:22px; font-weight:600; }
+  .card .t { margin-top:6px; font-size:14px; color:var(--dim); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:500; font-size:12.5px; text-transform:uppercase; letter-spacing:.4px; }
+  td .ok { color:var(--ok); } td .warn { color:var(--warn); }
+  code, pre { font-family:'Cascadia Code',Consolas,monospace; }
+  code { background:#0b1220; border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-size:13px; }
+  pre { background:#0b1220; border:1px solid var(--line); border-radius:8px; padding:14px; overflow-x:auto; font-size:13px; }
+  img.arch { width:100%; border:1px solid var(--line); border-radius:10px; background:#0b1220; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:760px){ .grid2 { grid-template-columns:1fr; } }
+  a { color:var(--acc); }
+  footer { border-top:1px solid var(--line); padding:28px 0 40px; color:var(--dim); font-size:13px; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <span class="brand">GRPO-Guard</span>
+    <a href="#arch">Architecture</a>
+    <a href="#numbers">Numbers</a>
+    <a href="#quickstart">Quickstart</a>
+    <a href="#boundaries">Boundaries</a>
+    <a href="https://github.com/hxm2023/GRPO-Guard">GitHub ↗</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <h1>Training curves can look fine <span>while the rollout is fake.</span></h1>
+    <p class="sub">GRPO-Guard makes the online post-training loop machine-verifiable: it binds policy version, server token ids, behavior logprobs, loss masks, reward lineage and the optimizer update into a content-hashed evidence chain — and detects the silent wiring errors that loss/logging cannot (static rollout, misbound old-logprob, retokenization, mask shift).</p>
+    <div class="badges">
+      <span class="badge">TRL 1.10 + vLLM 0.26</span>
+      <span class="badge">Qwen3-4B</span>
+      <span class="badge ok">v0.4.0 released</span>
+      <span class="badge ok">198 tests · coverage ≥80%</span>
+      <span class="badge">Apache-2.0</span>
+    </div>
+  </div>
+</header>
+
+<section id="arch">
+  <div class="wrap">
+    <h2>Architecture — one hop, one hash</h2>
+    <img class="arch" src="architecture.svg" alt="GRPO-Guard architecture">
+  </div>
+</section>
+
+<section id="numbers">
+  <div class="wrap">
+    <h2>Gate-passed numbers (all traceable to artifacts + commit + SHA256SUMS)</h2>
+    <div class="cards">
+      <div class="card"><div class="k">4096 / 4096</div><div class="t">fault-injected decisions match the frozen oracle (512 real rollouts × F1–F8), normal trajectories 100% ALLOW</div></div>
+      <div class="card"><div class="k">20 / 20</div><div class="t">official TRL GRPOTrainer steps, actual tensors verified per step; F3 retokenization blocked before backward at steps 10 &amp; 19</div></div>
+      <div class="card"><div class="k">cos 0.19</div><div class="t">mask-shift gradient impact (24 paired 4B probes: F2 0.93 / F3 0.53 / F4 0.19) — why numeric monitoring misses semantic misbinding</div></div>
+      <div class="card"><div class="k">0.6 ms</div><div class="t">guard overhead per envelope (0.59–0.63 ms, n=32/64)</div></div>
+      <div class="card"><div class="k">32 / 32</div><div class="t">processes racing on one nonce — exactly one succeeds (SQLite transactional registry)</div></div>
+      <div class="card"><div class="k">1 ms → 0</div><div class="t">stale-runtime detection: server v0 vs trained v20, drift 7 → STALE RUNTIME DETECTED, blocked before the optimizer</div></div>
+    </div>
+
+    <h2 style="margin-top:34px">Honest boundaries</h2>
+    <table>
+      <tr><th>Capability</th><th>Status</th></tr>
+      <tr><td>Precondition failures before backward (non-ALLOW, tampered artifact, reward substitution, wrong group/model, nonce reuse)</td><td class="ok">implemented + tested — params provably unchanged</td></tr>
+      <tr><td>Crash-consistent update (WAL PREPARED→COMMITTED/ABORTED, atomic checkpoint promotion)</td><td class="ok">implemented + failpoint tests</td></tr>
+      <tr><td>In-memory rollback after a failed step</td><td class="warn">not claimed — crash recovery discards the worker, resumes from last committed checkpoint</td></tr>
+      <tr><td>Frozen held-out probe</td><td class="warn">25% → 25% — the guard proves training-loop correctness, not capability gains (deliberate negative result)</td></tr>
+      <tr><td>Multi-node / NPU / malicious-producer resistance</td><td class="warn">out of scope — single-box 2-GPU prototype, dev-environment wiring errors</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart (CPU, ~2 min)</h2>
+    <pre>uv sync --frozen          # pydantic / numpy / pyyaml — no GPU needed
+uv run python examples/countdown/demo.py
+# happy path -> ALLOW; then F1–F4 injected faults -> reject with reason codes;
+# raw text input -> TypeError (no text fallback)</pre>
+    <p style="margin-top:10px;color:var(--dim)">Demo shows the contract rejecting a fault whose loss would look normal: <code>F2 misbound logprobs</code> changes the loss by ~0 while the guard rejects on identity — the exact case numeric monitoring misses.</p>
+    <p style="margin-top:14px"><img src="assets/demo.gif" alt="demo: faults rejected with reason codes" style="max-width:100%;border:1px solid var(--line);border-radius:8px"></p>
+    <p style="margin-top:14px">Read more: <a href="https://github.com/hxm2023/GRPO-Guard">README</a> · <a href="https://github.com/hxm2023/GRPO-Guard/blob/main/CHANGELOG.md">CHANGELOG</a> · <a href="https://github.com/hxm2023/GRPO-Guard/blob/main/docs/CLAIM_MATRIX.md">claim matrix</a> · <a href="https://github.com/hxm2023/GRPO-Guard/blob/main/docs/audits/2026-08-25_experiment_audit.md">evidence audit</a></p>
+  </div>
+</section>
+
+<section id="boundaries">
+  <div class="wrap">
+    <h2>Story</h2>
+    <p>This framework came out of a real failure: an Agent-RL GRPO loop whose training curves looked healthy while the rollout service served an old policy. Success rates were batch noise of a static policy. The fix is not a better metric — it is making <em>who produced which token for which policy version, and what the optimizer actually consumed</em> a machine-verifiable contract. See <a href="https://github.com/hxm2023/GRPO-Guard/blob/main/docs/blog/incident-postmortem.md">the incident postmortem</a>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">GRPO-Guard · Apache-2.0 · every number in this page traces to <code>artifacts/</code> + commit + SHA256SUMS (CLAIM_MATRIX.md)</div>
+</footer>
+</body>
+</html>

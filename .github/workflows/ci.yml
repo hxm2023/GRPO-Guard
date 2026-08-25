@@ -53,3 +53,16 @@ jobs:
           done
       - name: Evidence chain verification (seals, order, refs)
         run: uv run grpo-guard verify --artifact-dir artifacts/v0.4.0 --events artifacts/v0.4.0/loop/events/events
+
+  docker-demo:
+    # CPU demo image: actually builds on every main push (closure of the
+    # "Docker not built" gap from the 2026-08-25 audit).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build demo image
+        run: docker build -t grpo-guard .
+      - name: Image runs (grpo-guard --help)
+        run: docker run --rm grpo-guard --help | head -5
+      - name: Evidence chain attest inside the image
+        run: docker run --rm -v "$PWD/artifacts:/artifacts:ro" grpo-guard verify --artifact-dir /artifacts/v0.4.0 --events /artifacts/v0.4.0/loop/events/events | tail -3

@@ -1552,6 +1552,11 @@ test = [
     { name = "torch", version = "2.11.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pillow" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "accelerate", marker = "extra == 'gpu'", specifier = ">=1.0" },
@@ -1570,6 +1575,9 @@ requires-dist = [
     { name = "vllm", marker = "extra == 'gpu'", specifier = ">=0.17.0,<0.27.0" },
 ]
 provides-extras = ["test", "gpu"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pillow", specifier = ">=12.3.0" }]
 
 [[package]]
 name = "h11"
