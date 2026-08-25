@@ -135,6 +135,27 @@ def test_guarded_step_content_matching_survives_shuffle_and_padding(tmp_path):
     assert t.training_step(None, shuffled, 3) == "step-ok"
 
 
+def test_guarded_step_accepts_list_of_sample_dicts(tmp_path):
+    """transformers 5.x passes training_step a LIST of per-sample dicts;
+    the guard must normalize and still verify (P0-4)."""
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = _good_result()
+    t._generate_and_score_completions(good)
+    sample = {k: v[0] for k, v in good.items()}
+    assert t.training_step(None, [sample], 1) == "step-ok"
+    assert t._last_guard_verified == {"global_step": 0, "n_rollouts": 1}
+
+
+def test_guarded_step_rejects_tampered_token_in_list_of_dicts(tmp_path):
+    t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
+    good = _good_result()
+    t._generate_and_score_completions(good)
+    sample = {k: v[0] for k, v in good.items()}
+    sample["completion_ids"] = [10, 11, 999]  # re-encoded token
+    with pytest.raises(GuardViolation, match="T001"):
+        t.training_step(None, [sample], 1)
+
+
 def test_guarded_training_step_refuses_retokenized_tokens(tmp_path):
     """P0-4: tampered tokens (retokenization wiring bug) fail BEFORE
     super().training_step — i.e. before loss/backward."""

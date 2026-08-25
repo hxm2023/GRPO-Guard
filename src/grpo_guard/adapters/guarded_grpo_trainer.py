@@ -284,6 +284,13 @@ class GuardedGRPOTrainer:
         if not self._guard_rollouts:
             return  # no guard records (e.g. non-rollout steps)
         records = self._guard_rollouts
+        if isinstance(inputs, (list, tuple)):
+            # transformers 5.x passes training_step a list of per-sample
+            # dicts; normalize to a dict of column lists
+            if not inputs:
+                return
+            keys = inputs[0].keys()
+            inputs = {k: [d[k] for d in inputs if k in d] for k in keys}
         prompt_ids = _as_np(inputs.get("prompt_ids"))
         completion_ids = _as_np(inputs.get("completion_ids"))
         prompt_mask = _as_np(inputs.get("prompt_mask"))
