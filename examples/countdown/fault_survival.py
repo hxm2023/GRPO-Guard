@@ -37,7 +37,7 @@ N_STEPS = int(os.environ.get("GRPO_GUARD_STEPS", "30"))
 VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.25"))
 ARM = os.environ.get("GRPO_GUARD_ARM", "on")  # on | off
 SEED = int(os.environ.get("GRPO_GUARD_SEED", "20260825"))
-MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "96"))
+MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "48"))
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
@@ -147,8 +147,8 @@ def main() -> int:
         beta=0.04,
         per_device_train_batch_size=1,
         gradient_accumulation_steps=1,
-        num_generations=8,
-        generation_batch_size=8,
+        num_generations=4,
+        generation_batch_size=4,
         max_completion_length=MAX_COMPLETION,
         num_train_epochs=1,
         max_steps=N_STEPS,
