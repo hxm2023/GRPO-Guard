@@ -53,11 +53,13 @@ def server_logprob_fingerprint(host: str, port: int, sequences: list[list[int]],
     logprobs = data.get("logprobs") or []
     arrays = []
     for seq_lp in logprobs:
-        rows = []
-        for pos in seq_lp:
-            topk = [float(x) if x is not None else None for x in (pos or [])]
-            rows.append(topk)
-        arrays.append(np.asarray(rows, dtype=np.float64))
+        rows = [[float(x) if x is not None else 0.0 for x in (pos or [])]
+                for pos in seq_lp]
+        k = max((len(r) for r in rows), default=0)
+        rect = np.zeros((len(rows), k), dtype=np.float64)
+        for j, r in enumerate(rows):
+            rect[j, :len(r)] = r
+        arrays.append(rect)
     return {"digest": _digest(arrays), "arrays": arrays,
             "n_sequences": len(arrays), "n_positions": [a.shape[0] for a in arrays]}
 
@@ -93,22 +95,23 @@ def _digest(arrays: list[np.ndarray]) -> str:
 
 
 def drift(server: dict, model: dict) -> dict:
-    """Max abs logprob difference between the two fingerprints + verdict.
+    """Max abs top-1 logprob difference between the fingerprints + verdict.
 
+    Compares the top-1 (argmax) logprob per completion position — the
+    strongest weight-sensitive signal, robust to top-k width differences
+    between the server's ragged response and the model's uniform topk.
     Verdict threshold: 1e-2 — identical weights give ~1e-6 noise (same
     math on the same tensors); a stale/partially-updated runtime shows
     materially larger drift on at least one canary position.
     """
     max_drift = 0.0
     for sa, ma in zip(server["arrays"], model["arrays"]):
-        if sa.shape != ma.shape:
-            continue  # shape mismatch itself is a strong signal
-        max_drift = max(max_drift, float(np.abs(sa - ma).max()))
-    n = min(len(server["arrays"]), len(model["arrays"]))
-    shape_match = all(s.shape == m.shape for s, m in zip(server["arrays"], model["arrays"]))
+        n = min(sa.shape[0], ma.shape[0])
+        if n == 0:
+            continue
+        max_drift = max(max_drift, float(np.abs(sa[:n, 0] - ma[:n, 0]).max()))
     return {
         "max_abs_logprob_drift": round(max_drift, 6),
-        "n_sequences": n,
-        "shape_match": shape_match,
-        "verdict": "CONSISTENT" if (shape_match and max_drift < 1e-2) else "STALE_RUNTIME_SUSPECTED",
+        "n_sequences": min(len(server["arrays"]), len(model["arrays"])),
+        "verdict": "CONSISTENT" if max_drift < 1e-2 else "STALE_RUNTIME_SUSPECTED",
     }

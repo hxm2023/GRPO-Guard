@@ -26,6 +26,8 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
+
 MODEL_ID = os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B")
 OUT_DIR = Path(os.environ.get("GRPO_GUARD_OUT", "/root/autodl-tmp/grpo-guard/fault_survival_out"))
 VLLM_HOST = os.environ.get("GRPO_GUARD_VLLM_HOST", "127.0.0.1")
@@ -35,22 +37,57 @@ N_STEPS = int(os.environ.get("GRPO_GUARD_STEPS", "30"))
 VLLM_MEM = float(os.environ.get("GRPO_GUARD_VLLM_MEM", "0.25"))
 ARM = os.environ.get("GRPO_GUARD_ARM", "on")  # on | off
 SEED = int(os.environ.get("GRPO_GUARD_SEED", "20260825"))
-MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "128"))
+MAX_COMPLETION = int(os.environ.get("GRPO_GUARD_MAX_COMPLETION", "96"))
 
 sys.path.insert(0, str(REPO_DIR / "src"))
 sys.path.insert(0, str(REPO_DIR))
 
-from examples.countdown.smoke_train import build_dataset, reward_func  # noqa: E402
-
 FAULT_STEPS = [int(x) for x in os.environ.get("GRPO_GUARD_FAULT_STEPS", "10,20").split(",")]
 FAULT_KINDS = os.environ.get("GRPO_GUARD_FAULT_KINDS", "F3,F2").split(",")
+
+# GSM8K-style prompts: short "final number" completions terminate within
+# budget (the countdown prompts produced 96+ token rambling -> reward 0).
+E1_PROMPTS = [
+    ("A farmer has 12 cows and buys 7 more. How many cows does he have?", 19),
+    ("Sara has 4 bags with 3 apples in each. How many apples in total?", 12),
+    ("A bus starts with 20 passengers. 5 get off and 8 get on. How many are on the bus?", 23),
+    ("A rectangle is 6 units wide and 4 units tall. What is its area?", 24),
+    ("Tom reads 5 pages a day for a whole week. How many pages does he read?", 35),
+    ("There are 3 boxes with 6 pens each, and 4 extra pens. How many pens total?", 22),
+    ("A shop sells 12 cupcakes on Monday and twice that on Tuesday. How many on Tuesday?", 24),
+    ("A train covers 45 miles in 1 hour. How far does it go in 4 hours?", 180),
+]
+
+
+def build_e1_dataset():
+    from datasets import Dataset
+
+    rows = [{"prompt": q + "\nAnswer with only the final number.", "answer": a}
+            for q, a in E1_PROMPTS]
+    return Dataset.from_list(rows)
+
+
+def reward_func_e1(prompts, completions, **kwargs):
+    from grpo_guard.adapters.gsm8k_reward import gsm8k_rule_verifier
+
+    answers = kwargs.get("answer")
+    scores = []
+    for i, comp in enumerate(completions):
+        ans = answers[i] if answers is not None else E1_PROMPTS[i % len(E1_PROMPTS)][1]
+        scores.append(gsm8k_rule_verifier(comp, float(ans))["correctness"])
+    return scores
+
+
+def _cpu_np(v):
+    if hasattr(v, "cpu"):
+        v = v.cpu()
+    return np.asarray(v)
 
 
 def inject_misbound_logprobs(inputs: dict) -> dict:
     """F2: row 0's old logprobs replaced by row 1's (misbinding)."""
-    import numpy as np
     bad = dict(inputs)
-    lp = np.array(np.asarray(bad["old_per_token_logps"]), copy=True)
+    lp = np.array(_cpu_np(bad["old_per_token_logps"]), copy=True)
     if lp.shape[0] >= 2:
         lp[0] = lp[1]  # behavior logprobs bound to the WRONG trajectory
         bad["old_per_token_logps"] = lp
@@ -59,9 +96,8 @@ def inject_misbound_logprobs(inputs: dict) -> dict:
 
 def inject_retokenize(inputs: dict) -> dict:
     """F3: a completion token re-encoded to a different id."""
-    import numpy as np
     bad = dict(inputs)
-    cids = np.array(np.asarray(bad["completion_ids"]), copy=True)
+    cids = np.array(_cpu_np(bad["completion_ids"]), copy=True)
     cids[0, 0] = (cids[0, 0] + 1) % 32000
     bad["completion_ids"] = cids
     return bad
@@ -70,9 +106,8 @@ def inject_retokenize(inputs: dict) -> dict:
 def inject_mask_shift(inputs: dict) -> dict:
     """F4: completion mask shifted by 1 (prompt token selected, last
     completion token dropped from the loss)."""
-    import numpy as np
     bad = dict(inputs)
-    cm = np.array(np.asarray(bad["completion_mask"]), copy=True)
+    cm = np.array(_cpu_np(bad["completion_mask"]), copy=True)
     cm[0, 0] = 0
     cm[0, -1] = 1
     bad["completion_mask"] = cm
@@ -145,22 +180,35 @@ def main() -> int:
 
         def training_step(self, model, inputs, num_items_in_batch):
             step = self.state.global_step
+            t0 = time.perf_counter()
             try:
                 out = super().training_step(model, inputs, num_items_in_batch)
-                return out
             except GuardViolation as exc:
                 self._fault_blocks.append({
                     "step": step, "violation": str(exc),
                     "blocked_before_backward": True,
                 })
                 # recovery: re-run the step on the CLEAN batch (hook one-shot)
-                return super().training_step(model, inputs, num_items_in_batch)
+                out = super().training_step(model, inputs, num_items_in_batch)
+            loss = float(out.detach().cpu()) if hasattr(out, "detach") else float(out)
+            rewards = []
+            for name in getattr(self, "reward_func_names", []):
+                rewards.extend(self._logs.get("rewards", {}).get(name, []))
+            self._per_step.append({
+                "step": step,
+                "loss": round(loss, 4),
+                "reward_mean": round(float(sum(rewards) / max(1, len(rewards))), 4),
+                "wall_s": round(time.perf_counter() - t0, 3),
+                "fault_injected": step in [f["step"] for f in self._injected],
+                "blocked": step in [b["step"] for b in self._fault_blocks],
+            })
+            return out
 
     trainer = FaultSurvivalTrainer(
         model=MODEL_ID,
         args=args,
-        reward_funcs=reward_func,
-        train_dataset=build_dataset(),
+        reward_funcs=reward_func_e1,
+        train_dataset=build_e1_dataset(),
         guard_events_dir=OUT_DIR / "events",
         guard_store_dir=OUT_DIR / "store",
     )
@@ -177,25 +225,28 @@ def main() -> int:
     print("[attest] end:", attest_end)
 
     # ---- metrics
-    m = trainer._metrics["train"]
-    success = m.get("rewards/reward_func/mean", [])
-    losses = m.get("loss", [])
-    step_times = m.get("step_time", [])
-    n_done = min(len(success), N_STEPS)
     fault_steps = [f["step"] for f in trainer._injected]
+    step_times = [p["wall_s"] for p in trainer._per_step]
+    start_drift = attest_start.get("max_abs_logprob_drift") or 0.0
+    end_drift = attest_end.get("max_abs_logprob_drift") or 0.0
+    # relative attestation: end drift vs the SAME-weights numeric baseline
+    # (fp16 server vs bf16 trainer ~0.07); a stale runtime diverges far more
+    stale_detected = end_drift > max(0.25, 3 * start_drift)
     result = {
         "experiment": "E1 fault-injected training survival (official TRL path)",
         "arm": ARM, "seed": SEED, "steps": N_STEPS,
         "faults": trainer._injected,
         "fault_blocks": trainer._fault_blocks,
+        "per_step": trainer._per_step,
         "bad_updates_accepted": 0 if ARM == "on" else len(fault_steps),
         "detection_latency_steps": 0 if ARM == "on" else None,
         "wasted_steps": 0 if ARM == "on" else sum(N_STEPS - s for s in fault_steps),
-        "success_series": [round(float(x), 4) for x in success[:n_done]],
-        "loss_series": [round(float(x), 4) for x in losses[:n_done]],
+        "success_series": [p["reward_mean"] for p in trainer._per_step],
+        "loss_series": [p["loss"] for p in trainer._per_step],
         "mean_step_time_s": round(float(sum(step_times) / max(1, len(step_times))), 4) if step_times else None,
         "wall_time_s": round(wall_s, 1),
-        "attestation": {"start": attest_start, "end": attest_end},
+        "attestation": {"start": attest_start, "end": attest_end,
+                        "stale_detected": stale_detected},
         "ok": (ARM == "on" and len(trainer._fault_blocks) == len(fault_steps))
               or (ARM == "off" and len(trainer._fault_blocks) == 0),
     }

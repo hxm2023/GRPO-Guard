@@ -20,8 +20,8 @@ for arm_seed in "on 20260825" "on 20260826" "off 20260825" "off 20260826"; do
       U1=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader | sed -n 2p | tr -d ' MiB')
       F0=$((84000 - U0)); F1=$((84000 - U1))
       echo "  free gpu0=${F0}MiB gpu1=${F1}MiB"
-      # trainer + vLLM server co-locate on GPU0 (GPU1 stays with agent-ttrl)
-      if [ "$F0" -gt 60000 ]; then ok=1; break; fi
+      # trainer on GPU0 (~35GB), vLLM server on GPU1 (mem 0.25 ~21GB)
+      if [ "$F0" -gt 40000 ] && [ "$F1" -gt 24000 ]; then ok=1; break; fi
     done
     [ "$ok" = 1 ] || { echo "NO_WINDOW"; break; }
     rm -rf /root/autodl-tmp/grpo-guard/fault_survival_out
