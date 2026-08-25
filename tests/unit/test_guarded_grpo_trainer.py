@@ -227,7 +227,9 @@ def test_optimizer_step_gated_by_step_capability(tmp_path):
     assert t.training_step(None, good, 1) == "step-ok"
     assert isinstance(t.optimizer, _CapabilityOptimizer)
     assert t.optimizer.steps == 1
-    assert t._guard_step_capability is False  # cleared after the step
+    # capability persists until the next prepare: it covers the
+    # end-of-epoch optimizer flush on the last verified batch
+    assert t._guard_step_capability is True
 
 
 def test_guard_off_skips_verification(tmp_path):
@@ -241,15 +243,23 @@ def test_guard_off_skips_verification(tmp_path):
     bad["completion_ids"] = [[10, 11, 999]]  # retokenized — would be T001 with guard on
     assert t.training_step(None, bad, 1) == "step-ok"
     assert t.optimizer.steps == 1
-    assert t._guard_step_capability is False  # cleared after the step
+    assert t._guard_step_capability is True  # last prepared batch covered
 
 
-def test_capability_cleared_after_step(tmp_path):
+def test_capability_cleared_before_next_prepare(tmp_path):
+    """The capability covers the last verified batch (incl. the flush);
+    the next prepare clears it before re-verification (fail-closed)."""
     t = _GuardedMock(guard_events_dir=tmp_path / "events", guard_store_dir=tmp_path / "store")
     good = _good_result()
     t._generate_and_score_completions(good)
     t.training_step(None, good, 1)
-    assert t._guard_step_capability is False
+    assert t._guard_step_capability is True  # flush coverage
+    # next prepare clears before verification -> a tampered batch re-raises
+    t._generate_and_score_completions(good)
+    bad = dict(good)
+    bad["completion_ids"] = [[10, 11, 999]]
+    with pytest.raises(GuardViolation, match="T001"):
+        t.training_step(None, bad, 1)
 
 
 def test_guarded_training_step_refuses_retokenized_tokens(tmp_path):

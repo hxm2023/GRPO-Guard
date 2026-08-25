@@ -309,6 +309,12 @@ class GuardedGRPOTrainer:
         inputs = super()._prepare_inputs(generation_batch)
         hook = getattr(self, "_guard_prepare_hook", None)
         to_verify = hook(inputs) if callable(hook) else inputs
+        # clear before verification: the capability reflects the MOST
+        # RECENT prepared batch, so the end-of-epoch optimizer flush
+        # (transformers steps on the last verified batch's gradients)
+        # remains covered while any step before the first verification
+        # fails closed.
+        self._guard_step_capability = False
         if self._guard_enabled:
             self._guard_pre_update(to_verify)
         # capability for this step's optimizer.step() — issued only after
@@ -321,10 +327,7 @@ class GuardedGRPOTrainer:
             if not isinstance(self.optimizer, _CapabilityOptimizer):
                 self.optimizer = _CapabilityOptimizer(self.optimizer, self)
             self._guard_opt_wrapped = True
-        try:
-            return super().training_step(model, inputs, num_items_in_batch)
-        finally:
-            self._guard_step_capability = False
+        return super().training_step(model, inputs, num_items_in_batch)
 
     def _guard_pre_update(self, inputs) -> None:
         """Verify the ACTUAL tensors the official step will consume.
