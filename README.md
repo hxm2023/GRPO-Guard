@@ -25,12 +25,13 @@ It does not reimplement TRL, vLLM or GRPO: it wraps them with content-addressed
 artifacts, append-only events, reason-coded validation and a single-use
 guarded update handle.
 
-> **Status: v0.4.0-dev (post-audit).** All three gates (Compatibility /
+> **Status: v0.4.0 (released).** All three gates (Compatibility /
 > Correctness / Impact+Overhead) have passed on autodl2 (2×RTX 6000D) with
-> Qwen/Qwen3-4B, and the 2026-08-25 evidence audit (docs/audits/) drove the
+> Qwen/Qwen3-4B; the 2026-08-25 evidence audit (docs/audits/) drove the
 > P0 fixes: transactional SQLite nonce registry, crash-consistent update
 > WAL, actual-input binding (reward/group/model), official-trainer
-> input verification, and frozen release packs.  The authoritative design
+> input verification, and frozen release packs — all closed in v0.4.0
+> (20-step official-path GPU run included).  The authoritative design
 > is `GRPO-Guard_详细项目设计与旧项目迁移手册.md` (v1.0).  Every number in
 > this README traces to `artifacts/v0.4.0/` (frozen pack) + commit +
 > SHA256SUMS; `artifacts/v0.1.0/` is the historical pack (was appended to
@@ -83,7 +84,7 @@ Key invariants (design doc §6-§9):
 | atomic checkpoint promotion (fsync + rename) | implemented |
 | in-memory parameter rollback after a failed step | **not claimed** (crash consistency, not DB-style transactions) |
 | actual reward/group-size/group-order/model identity bound to the handle | implemented (v0.4.0) |
-| official GuardedGRPOTrainer verifies ACTUAL step inputs (tokens / old logprobs / advantages) | implemented at CPU level (P0-4); full official-path GPU run pending |
+| official GuardedGRPOTrainer verifies ACTUAL step inputs (tokens / old logprobs / advantages) | implemented + tested; **20-step official-path GPU run**: every step verified, F3 injection blocked before backward at steps 10/19 (`run_packs/p0_4_official_trl/`) |
 | persistent nonce across sequential restarts | implemented (legacy JSONL auto-imported) |
 | malicious-producer resistance | out of scope (detects silent wiring errors in dev environments) |
 - **Deterministic paired replay**: fault pairs are derived from the same

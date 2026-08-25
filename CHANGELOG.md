@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.4.0-dev (2026-08-25, post-audit)
+## v0.4.0 (2026-08-25, released)
 
 Evidence audit (`docs/audits/2026-08-25_*`) drove five P0 fixes:
 
