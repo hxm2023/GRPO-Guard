@@ -189,19 +189,17 @@ def main() -> int:
     trainer.train()
     wall_s = time.perf_counter() - t0
 
-    trained_eval = heldout_eval(trainer.model, tokenizer)
-
+    # NOTE: the trained-model held-out eval runs in a SEPARATE process
+    # (examples/countdown/eval_heldout.py, ckpt from <out>/ckpt/checkpoint-*):
+    # in-process eval after the checkpoint save was repeatedly killed by
+    # agent-ttrl grabbing GPU0 memory mid-eval.
     result = {
         "experiment": "E2 guard on/off non-inferiority (official TRL path)",
         "arm": ARM, "seed": SEED, "steps": N_STEPS,
         "heldout_base_accuracy": base_eval["accuracy"],
-        "heldout_trained_accuracy": trained_eval["accuracy"],
-        "heldout_correct": trained_eval["correct"],
-        "heldout_n": trained_eval["n"],
         "train_reward_mean": round(float(np.mean([p["reward_mean"] for p in trainer._per_step])), 4),
         "mean_step_time_s": round(float(np.mean([p["wall_s"] for p in trainer._per_step])), 4),
         "wall_time_s": round(wall_s, 1),
-        "per_question": trained_eval["per_q"],
     }
     (OUT_DIR / "non_inferiority.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))

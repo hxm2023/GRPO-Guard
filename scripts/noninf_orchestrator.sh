@@ -30,7 +30,20 @@ for arm in on off; do
         fi
         if grep -q "Traceback" /root/autodl-tmp/grpo-guard/noninf_${arm}.log 2>/dev/null; then break; fi
       done
-      if [ "$done_flag" = 1 ]; then echo "=== DONE $arm s$seed ==="; break; fi
+      if [ "$done_flag" = 1 ]; then
+        echo "=== DONE $arm s$seed (training); running held-out eval ==="
+        CKPT=$(ls -d /root/autodl-tmp/grpo-guard/noninf_out_${arm}_${seed}/ckpt/checkpoint-* 2>/dev/null | tail -1)
+        GRPO_GUARD_CKPT=$CKPT \
+        GRPO_GUARD_OUT=/root/autodl-tmp/grpo-guard/noninf_out_${arm}_${seed} \
+        GRPO_GUARD_MODEL_PATH=/root/autodl-tmp/models/Qwen3-4B \
+        GRPO_GUARD_REPO=/root/autodl-tmp/grpo-guard/repo \
+        PYTHONPATH=/root/autodl-tmp/grpo-guard/repo/src \
+        CUDA_VISIBLE_DEVICES=0 \
+        /root/autodl-tmp/grpo-guard/.venv/bin/python examples/countdown/eval_heldout.py \
+          >> /root/autodl-tmp/grpo-guard/noninf_${arm}.log 2>&1
+        echo "=== EVAL DONE $arm s$seed ==="
+        break
+      fi
       echo "=== $arm s$seed attempt $attempt FAILED; retrying ==="
       ps aux | grep -E 'grpo-guard/.venv' | grep -v grep | awk '{print $2}' | xargs -r kill -9 2>/dev/null
       sleep 30
