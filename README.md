@@ -3,6 +3,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/hxm2023/GRPO-Guard/ci.yml?branch=main&label=CI)](https://github.com/hxm2023/GRPO-Guard/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
+[![Docs](https://img.shields.io/badge/docs-site-8ab4f8)](https://hxm2023.github.io/GRPO-Guard/)
 
 Trajectory contract, lineage and fault-injection framework for online LLM
 post-training (TRL GRPO + vLLM server).
@@ -38,6 +39,27 @@ guarded update handle.
 > after its release — documented gap, see RELEASE_MANIFEST.json).  This is
 > a production-oriented prototype: single-box 2-GPU validation, CPU CI, no
 > multi-node/DDP runs yet (docs/PROJECT_INTRO.md honest boundaries).
+
+## The two-project trust chain (GRPO-Guard ↔ Agent-RL Credit Auditor)
+
+GRPO-Guard validates the ONLINE trajectory chain; the
+[Agent-RL Credit Auditor](https://github.com/hxm2023/agent-credit-auditor)
+validates the OFFLINE estimator claims on the trajectories Guard certifies:
+
+- Guard-issued trajectory envelopes flow through the Auditor's
+  `CreditAuditBundle` validation (hash-only references, fail-closed on the
+  pinned `grpo-guard-envelope-1.0` schema — the Auditor never forks Guard's
+  schema and never writes back).
+- The Auditor's trajectory-level audit (`audit-trajectories`) catches the
+  Guard online faults that are offline-detectable on the records the
+  optimizer consumed: mask shift → T005, misbound old-logprob → S002, stale
+  policy_version → T004 (`docs/online_offline_fault_map.md` in the Auditor
+  repo).
+- The 2026-08 Stage-3 real loop: 18 Guard-supervised GRPO runs whose
+  trajectories were then audited by the Auditor.
+
+One trust chain, two projects: Guard makes the trajectory trustworthy,
+the Auditor makes the estimator claim trustworthy.
 
 ## Architecture
 
