@@ -30,6 +30,9 @@ SHA256SUMS, with the status below.
 | C14 | crash-consistent update lifecycle (WAL PREPARED→COMMITTED/ABORTED), atomic checkpoint promotion | T0/T2 | guarded_update.py, test_guarded_step.py failpoints | supported; **in-memory rollback NOT claimed** |
 | C15 | actual reward/group-size/group-order/model identity bound to handle | T0 | guarded_update.py, test_guarded_step.py | supported (v0.4.0) |
 | C16 | official GuardedGRPOTrainer verifies actual step inputs (tokens/logprobs/advantages) | T0+T3 | guarded_grpo_trainer.py, test_guarded_grpo_trainer.py, `run_packs/p0_4_official_trl/` | supported — CPU tests + **20-step official-path GPU run** (`ok=true`, per-step verified) |
+| C23 | official-path optimizer.step() capability-gated (no capability → GuardViolation) | T0 | guarded_grpo_trainer.py (_CapabilityOptimizer), test_guarded_grpo_trainer.py | supported + tested |
+| C24 | dual-source runtime attestation (server /get_sequence_logprobs fingerprint vs trainer forward; STALE_RUNTIME_SUSPECTED on drift) | T0 | runtime_attest.py, test_runtime_attest.py | supported at unit level; **GPU-run wiring in E1** (start/end attestation) |
+| C25 | E1 fault-injected training survival (guard on/off): bad update accepted, detection latency, wasted steps | T3 | examples/countdown/fault_survival.py | **pending GPU runs** |
 | C17 | official trainer runs: 1-step smoke + 20-step with F3 injection blocked | T3 | `guarded_trainer/guarded_trainer_smoke.json`, `run_packs/p0_4_official_trl/guarded_trainer_official_run.json` | supported — 20 steps verified; faults at steps 10/19 blocked before backward (T001), recovered; commit sha recorded |
 | C18 | TRL upstream PR #6876 accepted/merged | — | github.com/huggingface/trl/pull/6876 | **unsupported — "open PR" only** |
 | C19 | core coverage 87% | — | CI artifacts (coverage.xml) | supported as "gate ≥80%"; exact % downloadable from CI artifact |
