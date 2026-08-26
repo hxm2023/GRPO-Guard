@@ -66,6 +66,7 @@ artifact).
 | P1-1 官方 Trainer 包裹 | ✅ | GuardedGRPOTrainer：官方 TRL GRPOTrainer 三 seam + 实际张量校验；**20 步真实 server-mode run**（每步校验，F3 注入 step 10/19 均 T001 阻断并恢复，run_packs/p0_4_official_trl/）；optimizer.step 已 capability-gated；双源 runtime attestation（server logprob 指纹 vs trainer 前向） |
 | P1-2 guard on/off 3-seed | ✅ | guard-on 0.698±0.049 vs off 0.709±0.050（差异 <1σ，guard 不劣化）；held-out 25%→25%（训练内提升不泛化，诚实结论） |
 | E1 故障注入训练生存 | ✅ | 官方路径 30 步训练，step 10/20 注入 F3 retokenization + F2 logprob misbinding：guard-on **0/4 坏更新被接受、检测延迟 0 步、浪费 0 步**（F3→T001、F2→L004 均在 backward 前阻断并恢复）；guard-off 4/4 坏更新应用、30 步浪费；step 时间开销 ~1%（run_packs/e1_fault_survival/） |
+| E2 non-inferiority | ✅ | 5 seeds × on/off，16-prompt 冻结 held-out：on 0.250±0.06 vs off 0.288±0.11，delta -0.0375 **在预注册 margin（≤1/16）内**且 on 方差更小；训练内 reward on 0.273 vs off 0.263；step 开销 +2.3%（run_packs/e2_non_inferiority/） |
 | P1-3 tool-use 契约 | ✅ | action-only mask、stale/duplicate/orphan observation 检测（确定性环境） |
 
 ## 诚实性声明（面试必答）

@@ -1,0 +1,9 @@
+{
+  "experiment": "E2 guard on/off non-inferiority (official TRL path)",
+  "arm": "on",
+  "seed": 20260827,
+  "steps": 30,
+  "train_reward_mean": 0.2333,
+  "mean_step_time_s": 0.3787,
+  "wall_time_s": 115.2
+}

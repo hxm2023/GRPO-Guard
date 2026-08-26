@@ -1,0 +1,88 @@
+{
+  "ckpt": "/root/autodl-tmp/grpo-guard/noninf_out_on_20260825/ckpt/checkpoint-30",
+  "n": 16,
+  "correct": 5,
+  "accuracy": 0.3125,
+  "per_q": [
+    {
+      "q": "Emma has 15 stickers and gives 6 to ",
+      "golden": 9,
+      "correct": false
+    },
+    {
+      "q": "A bakery makes 8 loaves every day. H",
+      "golden": 40,
+      "correct": false
+    },
+    {
+      "q": "A tree has 30 apples. 12 fall down. ",
+      "golden": 18,
+      "correct": false
+    },
+    {
+      "q": "Four friends share 20 candies equall",
+      "golden": 5,
+      "correct": true
+    },
+    {
+      "q": "A library has 45 books and adds 15 m",
+      "golden": 60,
+      "correct": false
+    },
+    {
+      "q": "Lily buys 3 pencils at 2 yuan each. ",
+      "golden": 6,
+      "correct": false
+    },
+    {
+      "q": "A bike travels 12 km per hour. How f",
+      "golden": 36,
+      "correct": true
+    },
+    {
+      "q": "There are 7 rows of chairs with 4 ch",
+      "golden": 28,
+      "correct": false
+    },
+    {
+      "q": "A box has 24 oranges. 9 are eaten. H",
+      "golden": 15,
+      "correct": false
+    },
+    {
+      "q": "Jack runs 3 km each morning for 6 da",
+      "golden": 18,
+      "correct": true
+    },
+    {
+      "q": "A class has 32 students. 14 are girl",
+      "golden": 18,
+      "correct": false
+    },
+    {
+      "q": "A spider has 8 legs. How many legs d",
+      "golden": 40,
+      "correct": true
+    },
+    {
+      "q": "A movie is 90 minutes long. Half is ",
+      "golden": 45,
+      "correct": false
+    },
+    {
+      "q": "Sue saves 5 yuan a day for 9 days. H",
+      "golden": 45,
+      "correct": true
+    },
+    {
+      "q": "A garden has 18 tulips and 14 roses.",
+      "golden": 32,
+      "correct": false
+    },
+    {
+      "q": "A bottle holds 2 liters. How many li",
+      "golden": 14,
+      "correct": false
+    }
+  ]
+}

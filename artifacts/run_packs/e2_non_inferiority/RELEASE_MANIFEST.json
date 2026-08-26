@@ -1,0 +1,24 @@
+{
+  "pack": "e2_non_inferiority",
+  "kind": "run pack (E2: guard on/off non-inferiority, official TRL path, 5 seeds x 2 arms)",
+  "created_at_utc": "2026-08-26T01:30:00Z",
+  "code_commit": "ace6349 + E2 runner (non_inferiority.py, eval_heldout.py, noninf_serial.sh)",
+  "purpose": "Pre-registered non-inferiority: 30 official GRPO steps per run, guard on vs off x 5 seeds; primary metric = frozen 16-prompt held-out accuracy (disjoint from the 8 training prompts), margin |delta| <= 1/16 question; secondary = in-train reward mean, step time.",
+  "hardware": "autodl2, 2x RTX 6000D 84GB (trainer GPU0, vLLM server GPU1, mem_util 0.2)",
+  "framework": "torch 2.11.0+cu130, trl 1.10.0, vllm 0.26.0, transformers 5.15.1",
+  "model": "Qwen/Qwen3-4B (revision 1cfa9a7208912126459214e8b04321603b3df60c)",
+  "config": "GRPOConfig(max_steps=30, per_device_train_batch_size=1, num_generations=4, max_completion_length=32, beta=0, gradient_checkpointing, use_vllm server)",
+  "results": {
+    "heldout_accuracy": "on 0.2500 ± 0.0625 vs off 0.2875 ± 0.1135 (5 seeds each, 16 prompts) — delta -0.0375, WITHIN the pre-registered margin (<=1/16 = 0.0625); guard-on variance is smaller",
+    "train_reward_mean": "on 0.273 ± 0.057 vs off 0.263 ± 0.049",
+    "step_time": "on 0.405s vs off 0.396s (~+2.3%)",
+    "honest_reading": "16-prompt resolution is coarse (0.0625 per question); 5 seeds give SD 0.06-0.11. Conclusion: NO held-out degradation beyond one question observed with the guard on; no statistical-equivalence claim (pre-registered margin test only). In-train reward is noise at this scale."
+  },
+  "honest_notes": [
+    "beta=0 (no KL/ref model) — E2 tests whether the guard degrades training, not training quality",
+    "held-out accuracy ~0.25 both arms and vs base (P1-2): no capability claim — the guard's non-inferiority holds, generalization does not",
+    "evaluation runs in a separate process loading the saved checkpoint (~8GB) — in-process eval after checkpoint save was repeatedly killed by GPU contention on the shared box",
+    "some seeds' runs were retried 1-2x due to agent-ttrl GPU contention (shared autodl2); every reported run completed 30 steps and a full 16-prompt eval"
+  ],
+  "verify_command": "cd artifacts/run_packs/e2_non_inferiority && sha256sum -c SHA256SUMS"
+}
