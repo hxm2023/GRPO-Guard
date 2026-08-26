@@ -30,7 +30,7 @@
       "step": 0,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 1.192,
+      "wall_s": 1.186,
       "fault_injected": false,
       "blocked": false
     },
@@ -38,7 +38,7 @@
       "step": 1,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.152,
+      "wall_s": 0.15,
       "fault_injected": false,
       "blocked": false
     },
@@ -46,7 +46,7 @@
       "step": 2,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.145,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -62,7 +62,7 @@
       "step": 4,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.858,
+      "wall_s": 0.854,
       "fault_injected": false,
       "blocked": false
     },
@@ -70,7 +70,7 @@
       "step": 5,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.14,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -86,7 +86,7 @@
       "step": 7,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.141,
+      "wall_s": 0.144,
       "fault_injected": false,
       "blocked": false
     },
@@ -94,7 +94,7 @@
       "step": 8,
       "loss": 0.4995,
       "reward_mean": 0.25,
-      "wall_s": 0.867,
+      "wall_s": 0.859,
       "fault_injected": false,
       "blocked": false
     },
@@ -102,7 +102,7 @@
       "step": 9,
       "loss": 0.5713,
       "reward_mean": 0.25,
-      "wall_s": 0.16,
+      "wall_s": 0.141,
       "fault_injected": false,
       "blocked": false
     },
@@ -110,7 +110,7 @@
       "step": 10,
       "loss": -1.1231,
       "reward_mean": 0.25,
-      "wall_s": 0.164,
+      "wall_s": 0.142,
       "fault_injected": true,
       "blocked": true
     },
@@ -118,7 +118,7 @@
       "step": 11,
       "loss": 0.5749,
       "reward_mean": 0.25,
-      "wall_s": 0.141,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -126,7 +126,7 @@
       "step": 12,
       "loss": -0.9811,
       "reward_mean": 0.5,
-      "wall_s": 0.888,
+      "wall_s": 0.861,
       "fault_injected": false,
       "blocked": false
     },
@@ -134,7 +134,7 @@
       "step": 13,
       "loss": -0.6687,
       "reward_mean": 0.5,
-      "wall_s": 0.143,
+      "wall_s": 0.138,
       "fault_injected": false,
       "blocked": false
     },
@@ -142,7 +142,7 @@
       "step": 14,
       "loss": 0.7322,
       "reward_mean": 0.5,
-      "wall_s": 0.148,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -150,7 +150,7 @@
       "step": 15,
       "loss": 1.0303,
       "reward_mean": 0.5,
-      "wall_s": 0.141,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -158,7 +158,7 @@
       "step": 16,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.865,
+      "wall_s": 0.857,
       "fault_injected": false,
       "blocked": false
     },
@@ -166,7 +166,7 @@
       "step": 17,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.158,
+      "wall_s": 0.138,
       "fault_injected": false,
       "blocked": false
     },
@@ -174,7 +174,7 @@
       "step": 18,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.156,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -182,7 +182,7 @@
       "step": 19,
       "loss": 0.0,
       "reward_mean": 0.0,
-      "wall_s": 0.159,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
@@ -190,7 +190,7 @@
       "step": 20,
       "loss": 0.4199,
       "reward_mean": 0.25,
-      "wall_s": 1.33,
+      "wall_s": 1.236,
       "fault_injected": true,
       "blocked": true
     },
@@ -198,71 +198,71 @@
       "step": 21,
       "loss": 0.4436,
       "reward_mean": 0.25,
-      "wall_s": 0.163,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 22,
-      "loss": 0.5317,
+      "loss": 0.5739,
       "reward_mean": 0.25,
-      "wall_s": 0.162,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 23,
-      "loss": -1.7905,
+      "loss": -1.7843,
       "reward_mean": 0.25,
-      "wall_s": 0.145,
+      "wall_s": 0.138,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 24,
-      "loss": 0.4672,
+      "loss": 0.3511,
       "reward_mean": 0.25,
-      "wall_s": 0.863,
+      "wall_s": 0.855,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 25,
-      "loss": 0.4829,
+      "loss": 0.5622,
       "reward_mean": 0.25,
-      "wall_s": 0.146,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 26,
-      "loss": -2.1735,
+      "loss": -1.5598,
       "reward_mean": 0.25,
-      "wall_s": 0.144,
+      "wall_s": 0.138,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 27,
-      "loss": 0.5049,
+      "loss": 0.5303,
       "reward_mean": 0.25,
-      "wall_s": 0.144,
+      "wall_s": 0.138,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 28,
-      "loss": -2.0059,
+      "loss": -1.4007,
       "reward_mean": 0.25,
-      "wall_s": 0.94,
+      "wall_s": 0.856,
       "fault_injected": false,
       "blocked": false
     },
     {
       "step": 29,
-      "loss": 0.3917,
+      "loss": 0.4016,
       "reward_mean": 0.25,
-      "wall_s": 0.162,
+      "wall_s": 0.137,
       "fault_injected": false,
       "blocked": false
     }
@@ -325,31 +325,31 @@
     0.0,
     0.4199,
     0.4436,
-    0.5317,
-    -1.7905,
-    0.4672,
-    0.4829,
-    -2.1735,
-    0.5049,
-    -2.0059,
-    0.3917
+    0.5739,
+    -1.7843,
+    0.3511,
+    0.5622,
+    -1.5598,
+    0.5303,
+    -1.4007,
+    0.4016
   ],
-  "mean_step_time_s": 0.3699,
-  "wall_time_s": 117.8,
+  "mean_step_time_s": 0.3539,
+  "wall_time_s": 94.2,
   "attestation": {
     "start": {
-      "server": "e5bbe656543e0a40",
+      "server": "7d53f27f08c91118",
       "model": "6ec79ab17b4dfb48",
       "max_abs_logprob_drift": 0.062561,
       "n_sequences": 5,
-      "verdict": "STALE_RUNTIME_SUSPECTED"
+      "verdict": "CONSISTENT"
     },
     "end": {
-      "server": "49bc2282a61c405c",
-      "model": "541973906a0ec290",
-      "max_abs_logprob_drift": 0.102091,
+      "server": "c2a8852074677eb8",
+      "model": "8df1994c2a93d563",
+      "max_abs_logprob_drift": 0.064847,
       "n_sequences": 5,
-      "verdict": "STALE_RUNTIME_SUSPECTED"
+      "verdict": "CONSISTENT"
     },
     "stale_detected": false
   },

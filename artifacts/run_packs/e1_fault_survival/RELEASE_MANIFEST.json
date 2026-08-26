@@ -14,10 +14,11 @@
   },
   "results": {
     "guard-on (2 seeds)": "bad updates accepted 0/4; detection latency 0 steps; wasted steps 0; F3->T001 and F2->L004 blocked before backward; runs recovered on the clean batch",
-    "guard-off (2 seeds)": "bad updates accepted 4/4 (corrupted updates applied); never detected; 30 steps trained on corrupted weights afterwards",
-    "overhead": "mean step time on 0.349s vs off 0.352s (~1%); wall 116-119s per 30-step run",
-    "attestation": "dual-source runtime fingerprint start/end CONSISTENT (stale_detected false) in all 4 runs"
+    "guard-off (seed 20260826)": "bad updates accepted 2/2 (corrupted updates APPLIED — on/off losses diverge from the first fault step, 19/30 steps differ); never detected; 30 wasted steps. NOTE: the paired seed-20260825 off arm was rerun as part of the 2026-08-26 audit fix but the shared-box GPU1 was occupied for hours; the pre-fix version is void (see docs/audits/2026-08-26_independent_audit.md)",
+    "overhead": "mean step time on 0.354-0.364s vs off 0.360s (no significant difference at 30-step scale)",
+    "attestation": "dual-source runtime fingerprint start/end CONSISTENT (stale_detected false) in all runs"
   },
+  "audit_note": "2026-08-26 independent fresh-context audit found the original guard-off arm NEVER consumed the tampered batch (_prepare_inputs returned the clean inputs; the hook's copy was only verified) — the 'corrupted updates applied' counterfactual was empty. Fixed: guard_enabled=False now returns the tampered batch; rerun verified (on/off losses diverge). off_20260825 pre-fix evidence removed. See docs/audits/2026-08-26_independent_audit.md.",
   "honest_notes": [
     "E1 measures fault blocking and damage avoidance, NOT training quality: beta=0 (no KL), 30 steps, in-train reward only; success deltas between arms are noise at this scale",
     "F2 detection requires the batch to carry old_per_token_logps (TRL importance-sampling path); if upstream never produces them, the guard can only enforce the length contract (documented blind spot)",
