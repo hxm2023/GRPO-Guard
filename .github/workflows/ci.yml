@@ -51,6 +51,10 @@ jobs:
             echo "== verifying $pack =="
             (cd "$pack" && sha256sum -c SHA256SUMS)
           done
+          for pack in artifacts/run_packs/*; do
+            echo "== verifying run pack $pack =="
+            (cd "$pack" && sha256sum -c SHA256SUMS)
+          done
       - name: Evidence chain verification (seals, order, refs)
         run: uv run grpo-guard verify --artifact-dir artifacts/v0.4.0 --events artifacts/v0.4.0/loop/events/events
 

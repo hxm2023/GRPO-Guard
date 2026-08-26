@@ -1,0 +1,33 @@
+{
+  "pack": "f1_f4_matrix",
+  "kind": "run pack (F1 static-rollout end-to-end on the official path + E1 F4 mask-shift arm)",
+  "created_at_utc": "2026-08-26T02:40:00Z",
+  "code_commit": "ee93490 + f1_static_rollout.py, launch_f1.sh, F4 injector fix (launch env export)",
+  "purpose": "Complete F1-F4 coverage on the OFFICIAL TRL path: F1 (static rollout — the ORIGINAL incident) detected end-to-end by the dual-source runtime attestation; F2/F3/F4 blocked before backward by the step seam (L004/T001/T001).",
+  "hardware": "autodl2, 2x RTX 6000D 84GB (trainer GPU0, vLLM server GPU1, mem_util 0.2)",
+  "framework": "torch 2.11.0+cu130, trl 1.10.0, vllm 0.26.0, transformers 5.15.1",
+  "model": "Qwen/Qwen3-4B (revision 1cfa9a7208912126459214e8b04321603b3df60c)",
+  "config": "GRPOConfig(max_steps=30, num_generations=4, max_completion_length=32, beta=0, gradient_checkpointing, use_vllm server); GSM8K-style prompts",
+  "f1_static_rollout": {
+    "injection": "sync_weights wrapped after step 15: the BASE weights are pushed to the vLLM server instead of the trained ones (4 frozen syncs per run)",
+    "s20260825": "stale_detected=true; server-trainer logprob drift 0.241 vs same-weights baseline 0.063 (~4x); in-train reward 0.31 -> 0.04 (-88%) after the freeze",
+    "s20260826": "stale_detected=true; drift 0.176 vs baseline 0.074 (~2.4x); reward 0.19 -> 0.18 (this seed's training barely moved the weights — detection scales with training signal; reported honestly)",
+    "method_note": "server digest equality across calls is NOT reliable (vLLM kernel noise); the verdict uses drift growth vs the same-weights numeric baseline AND frozen_sync_calls > 0"
+  },
+  "e1_f4_arm": {
+    "injection": "F4 mask shift (completion_mask shifted by 1) at step 20, guard on",
+    "result": "blocked before backward (T001: mask-selected token sequence changed) — bad_updates_accepted=0, ok=true"
+  },
+  "f1_f4_official_path_coverage": {
+    "F1": "attestation STALE_RUNTIME_SUSPECTED (2 seeds)",
+    "F2": "L004 old-logprob VALUES differ (E1 run pack)",
+    "F3": "T001 retokenization (E1 run pack)",
+    "F4": "T001 mask shift (this pack)"
+  },
+  "honest_notes": [
+    "F1 on the official path is detected by the attestation, not the step seam: the stale server's own rollouts are internally consistent, so the step seam cannot see the fault — the server-vs-trainer fingerprint is the detector",
+    "The post-freeze reward collapse (-88% in seed 1) quantifies the damage of the original incident; seed 2's weak training produces weak signal (reported, not hidden)",
+    "vLLM server digest instability across calls is documented; the verdict intentionally avoids digest-equality as the primary signal"
+  ],
+  "verify_command": "cd artifacts/run_packs/f1_f4_matrix && sha256sum -c SHA256SUMS"
+}

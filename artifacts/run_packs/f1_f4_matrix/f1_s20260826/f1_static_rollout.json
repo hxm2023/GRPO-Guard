@@ -1,0 +1,221 @@
+{
+  "experiment": "F1 static-rollout end-to-end (official TRL path)",
+  "seed": 20260826,
+  "steps": 30,
+  "freeze_after": 15,
+  "frozen_sync_calls": 4,
+  "stale_detected": true,
+  "stale_detection_drift": 0.175991,
+  "stale_detection_baseline": 0.073779,
+  "attestations": [
+    {
+      "tag": "start",
+      "server": "b517a98da5cbd6df",
+      "model": "6ec79ab17b4dfb48",
+      "max_abs_logprob_drift": 0.073779,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    {
+      "tag": "after_freeze",
+      "server": "7d53f27f08c91118",
+      "model": "880f7cfc042ea7a3",
+      "max_abs_logprob_drift": 0.175991,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    {
+      "tag": "end",
+      "server": "7d53f27f08c91118",
+      "model": "880f7cfc042ea7a3",
+      "max_abs_logprob_drift": 0.175991,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    }
+  ],
+  "pre_freeze_reward_mean": 0.1875,
+  "post_freeze_reward_mean": 0.1786,
+  "per_step": [
+    {
+      "step": 0,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 1.388
+    },
+    {
+      "step": 1,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.173
+    },
+    {
+      "step": 2,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.156
+    },
+    {
+      "step": 3,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.155
+    },
+    {
+      "step": 4,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.884
+    },
+    {
+      "step": 5,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.161
+    },
+    {
+      "step": 6,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.158
+    },
+    {
+      "step": 7,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.156
+    },
+    {
+      "step": 8,
+      "loss": 0.4995,
+      "reward_mean": 0.25,
+      "wall_s": 0.88
+    },
+    {
+      "step": 9,
+      "loss": 0.5713,
+      "reward_mean": 0.25,
+      "wall_s": 0.157
+    },
+    {
+      "step": 10,
+      "loss": -1.1231,
+      "reward_mean": 0.25,
+      "wall_s": 0.155
+    },
+    {
+      "step": 11,
+      "loss": 0.5749,
+      "reward_mean": 0.25,
+      "wall_s": 0.153
+    },
+    {
+      "step": 12,
+      "loss": -0.9811,
+      "reward_mean": 0.5,
+      "wall_s": 0.88
+    },
+    {
+      "step": 13,
+      "loss": -0.6687,
+      "reward_mean": 0.5,
+      "wall_s": 0.157
+    },
+    {
+      "step": 14,
+      "loss": 0.7322,
+      "reward_mean": 0.5,
+      "wall_s": 0.154
+    },
+    {
+      "step": 15,
+      "loss": 1.0303,
+      "reward_mean": 0.5,
+      "wall_s": 0.158
+    },
+    {
+      "step": 16,
+      "loss": 0.6008,
+      "reward_mean": 0.25,
+      "wall_s": 7.503
+    },
+    {
+      "step": 17,
+      "loss": 0.6606,
+      "reward_mean": 0.25,
+      "wall_s": 0.157
+    },
+    {
+      "step": 18,
+      "loss": -1.0105,
+      "reward_mean": 0.25,
+      "wall_s": 0.162
+    },
+    {
+      "step": 19,
+      "loss": 0.3295,
+      "reward_mean": 0.25,
+      "wall_s": 0.16
+    },
+    {
+      "step": 20,
+      "loss": 0.5522,
+      "reward_mean": 0.25,
+      "wall_s": 4.061
+    },
+    {
+      "step": 21,
+      "loss": -1.5402,
+      "reward_mean": 0.25,
+      "wall_s": 0.158
+    },
+    {
+      "step": 22,
+      "loss": 0.4145,
+      "reward_mean": 0.25,
+      "wall_s": 0.157
+    },
+    {
+      "step": 23,
+      "loss": 0.5303,
+      "reward_mean": 0.25,
+      "wall_s": 0.156
+    },
+    {
+      "step": 24,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 3.952
+    },
+    {
+      "step": 25,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.141
+    },
+    {
+      "step": 26,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.14
+    },
+    {
+      "step": 27,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.142
+    },
+    {
+      "step": 28,
+      "loss": 0.353,
+      "reward_mean": 0.25,
+      "wall_s": 3.721
+    },
+    {
+      "step": 29,
+      "loss": 0.3473,
+      "reward_mean": 0.25,
+      "wall_s": 0.143
+    }
+  ],
+  "wall_time_s": 125.2
+}

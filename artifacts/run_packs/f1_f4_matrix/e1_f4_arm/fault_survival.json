@@ -1,0 +1,269 @@
+{
+  "experiment": "E1 fault-injected training survival (official TRL path)",
+  "arm": "on",
+  "seed": 20260825,
+  "steps": 22,
+  "faults": [
+    {
+      "step": 20,
+      "kind": "F4"
+    }
+  ],
+  "fault_blocks": [
+    {
+      "step": 20,
+      "violation": "row 0: consumed token ids do not match any recorded server sequence (T001 retokenization/misbinding)",
+      "blocked_before_backward": true
+    }
+  ],
+  "per_step": [
+    {
+      "step": 0,
+      "loss": 0.8288,
+      "reward_mean": 0.5,
+      "wall_s": 1.194,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 1,
+      "loss": 0.7376,
+      "reward_mean": 0.5,
+      "wall_s": 0.155,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 2,
+      "loss": -1.021,
+      "reward_mean": 0.5,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 3,
+      "loss": -0.6195,
+      "reward_mean": 0.5,
+      "wall_s": 0.146,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 4,
+      "loss": 0.4957,
+      "reward_mean": 0.25,
+      "wall_s": 0.867,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 5,
+      "loss": -1.3509,
+      "reward_mean": 0.25,
+      "wall_s": 0.149,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 6,
+      "loss": 0.682,
+      "reward_mean": 0.25,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 7,
+      "loss": 0.3624,
+      "reward_mean": 0.25,
+      "wall_s": 0.156,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 8,
+      "loss": 0.3979,
+      "reward_mean": 0.25,
+      "wall_s": 0.866,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 9,
+      "loss": -1.3542,
+      "reward_mean": 0.25,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 10,
+      "loss": 0.4401,
+      "reward_mean": 0.25,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 11,
+      "loss": 0.4722,
+      "reward_mean": 0.25,
+      "wall_s": 0.251,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 12,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.871,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 13,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.149,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 14,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.149,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 15,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.151,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 16,
+      "loss": -1.5797,
+      "reward_mean": 0.25,
+      "wall_s": 0.872,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 17,
+      "loss": 0.5202,
+      "reward_mean": 0.25,
+      "wall_s": 0.144,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 18,
+      "loss": 0.3885,
+      "reward_mean": 0.25,
+      "wall_s": 0.143,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 19,
+      "loss": 0.5113,
+      "reward_mean": 0.25,
+      "wall_s": 0.271,
+      "fault_injected": false,
+      "blocked": false
+    },
+    {
+      "step": 20,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 1.272,
+      "fault_injected": true,
+      "blocked": true
+    },
+    {
+      "step": 21,
+      "loss": 0.0,
+      "reward_mean": 0.0,
+      "wall_s": 0.148,
+      "fault_injected": false,
+      "blocked": false
+    }
+  ],
+  "bad_updates_accepted": 0,
+  "detection_latency_steps": 0,
+  "wasted_steps": 0,
+  "success_series": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.0,
+    0.0
+  ],
+  "loss_series": [
+    0.8288,
+    0.7376,
+    -1.021,
+    -0.6195,
+    0.4957,
+    -1.3509,
+    0.682,
+    0.3624,
+    0.3979,
+    -1.3542,
+    0.4401,
+    0.4722,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -1.5797,
+    0.5202,
+    0.3885,
+    0.5113,
+    0.0,
+    0.0
+  ],
+  "mean_step_time_s": 0.3885,
+  "wall_time_s": 103.3,
+  "attestation": {
+    "start": {
+      "server": "e5bbe656543e0a40",
+      "model": "6ec79ab17b4dfb48",
+      "max_abs_logprob_drift": 0.062561,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    "end": {
+      "server": "99baf61ca9037983",
+      "model": "9926dcc635d4a046",
+      "max_abs_logprob_drift": 0.076309,
+      "n_sequences": 5,
+      "verdict": "STALE_RUNTIME_SUSPECTED"
+    },
+    "stale_detected": false
+  },
+  "ok": true,
+  "fault_blocks_missing": []
+}

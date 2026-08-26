@@ -6,6 +6,8 @@ set -euo pipefail
 cd /root/autodl-tmp/grpo-guard/repo
 export ARM="${GRPO_GUARD_ARM:-on}"
 export SEED="${GRPO_GUARD_SEED:-20260825}"
+export FAULT_STEPS="${GRPO_GUARD_FAULT_STEPS:-10,20}"
+export FAULT_KINDS="${GRPO_GUARD_FAULT_KINDS:-F3,F2}"
 nohup bash -c '
 cd /root/autodl-tmp/grpo-guard/repo
 export LD_LIBRARY_PATH=/root/autodl-tmp/grpo-guard/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:${LD_LIBRARY_PATH:-}
@@ -16,8 +18,8 @@ GRPO_GUARD_REPO=/root/autodl-tmp/grpo-guard/repo \
 GRPO_GUARD_STEPS=${GRPO_GUARD_STEPS:-30} \
 GRPO_GUARD_ARM=${ARM} \
 GRPO_GUARD_SEED=${SEED} \
-GRPO_GUARD_FAULT_STEPS=${GRPO_GUARD_FAULT_STEPS:-10,20} \
-GRPO_GUARD_FAULT_KINDS=${GRPO_GUARD_FAULT_KINDS:-F3,F2} \
+GRPO_GUARD_FAULT_STEPS=${FAULT_STEPS} \
+GRPO_GUARD_FAULT_KINDS=${FAULT_KINDS} \
 GRPO_GUARD_VLLM_MEM=${GRPO_GUARD_VLLM_MEM:-0.25} \
 GRPO_GUARD_SERVER_DEVICE=${GRPO_GUARD_SERVER_DEVICE:-1} \
 PYTHONPATH=/root/autodl-tmp/grpo-guard/repo/src \
