@@ -248,7 +248,9 @@ def main() -> int:
         "fault_blocks": trainer._fault_blocks,
         "per_step": trainer._per_step,
         "bad_updates_accepted": len(fault_steps) - len(trainer._fault_blocks),
-        "detection_latency_steps": 0 if ARM == "on" else None,
+        "detection_latency_steps": (min(b["step"] - f["step"] for f in trainer._injected
+                                        for b in trainer._fault_blocks if b["step"] == f["step"])
+                                     if ARM == "on" and trainer._fault_blocks else None),
         "wasted_steps": 0 if ARM == "on" else sum(N_STEPS - s for s in fault_steps),
         "success_series": [p["reward_mean"] for p in trainer._per_step],
         "loss_series": [p["loss"] for p in trainer._per_step],

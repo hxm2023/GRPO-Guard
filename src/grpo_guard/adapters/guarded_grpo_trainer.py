@@ -317,6 +317,13 @@ class GuardedGRPOTrainer:
         self._guard_step_capability = False
         if self._guard_enabled:
             self._guard_pre_update(to_verify)
+        else:
+            # guard-off baseline arm: the tampered batch IS the batch the
+            # loss consumes (independent audit: previously the hook's
+            # tampered copy was only verified, never consumed, so the
+            # guard-off arm trained on clean batches — the counterfactual
+            # was empty).
+            inputs = to_verify
         # capability for this step's optimizer.step() — issued only after
         # verification (or after the documented guard-off bypass)
         self._guard_step_capability = True

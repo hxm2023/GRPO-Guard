@@ -100,9 +100,11 @@ def drift(server: dict, model: dict) -> dict:
     Compares the top-1 (argmax) logprob per completion position — the
     strongest weight-sensitive signal, robust to top-k width differences
     between the server's ragged response and the model's uniform topk.
-    Verdict threshold: 1e-2 — identical weights give ~1e-6 noise (same
-    math on the same tensors); a stale/partially-updated runtime shows
-    materially larger drift on at least one canary position.
+    Verdict threshold: 0.15 — measured same-weights noise (fp16 server vs
+    bf16 trainer) is ~0.06-0.08; a stale/partially-updated runtime shows
+    materially larger drift on at least one canary position.  The E1/E2/F1
+    runners additionally use the RELATIVE verdict (late drift vs the
+    same-weights baseline) for the final stale_detected flag.
     """
     max_drift = 0.0
     for sa, ma in zip(server["arrays"], model["arrays"]):
@@ -113,5 +115,5 @@ def drift(server: dict, model: dict) -> dict:
     return {
         "max_abs_logprob_drift": round(max_drift, 6),
         "n_sequences": min(len(server["arrays"]), len(model["arrays"])),
-        "verdict": "CONSISTENT" if max_drift < 1e-2 else "STALE_RUNTIME_SUSPECTED",
+        "verdict": "CONSISTENT" if max_drift < 0.15 else "STALE_RUNTIME_SUSPECTED",
     }

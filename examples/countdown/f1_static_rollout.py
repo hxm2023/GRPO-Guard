@@ -167,7 +167,7 @@ def main() -> int:
     # noise); the drift signal scales with how much training moved the
     # weights. Verdict: the freeze happened AND the server-trainer
     # divergence grew beyond 2x the same-weights numeric baseline.
-    stale_detected = (trainer._frozen_sync_calls > 0) and (max_late_drift > 2 * base_drift)
+    stale_detected = max_late_drift > 2 * base_drift  # drift-only (no self-witness)
     result = {
         "experiment": "F1 static-rollout end-to-end (official TRL path)",
         "seed": SEED, "steps": N_STEPS, "freeze_after": FREEZE_AFTER,
