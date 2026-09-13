@@ -141,3 +141,9 @@ For ARIS workflows, prefer the project-local skills under `.claude/skills/` over
 Do not modify or delete files inside any skill that is a symlink (symlinks point into `/c/Users/w1828/repos/aris_repo`).
 Update with: `bash /c/Users/w1828/repos/aris_repo/tools/install_aris.sh`  (re-runnable; reconciles new/removed skills).
 <!-- ARIS:END -->
+
+## External Review Backend (updated 2026-09-10: codex-mcp = qwen3.8-max)
+
+- **codex MCP/CLI now serves `qwen3.8-max`** via DashScope compatible-mode (`~/.codex/config.toml`; env `DASHSCOPE_API_KEY` persisted). Previous gpt-5.4 (yansd666 relay) disabled.
+- All `mcp__codex__codex` review workflows run on qwen3.8-max transparently (still cross-model / non-Claude).
+- Troubleshooting: `Missing environment variable: DASHSCOPE_API_KEY` -> restart Claude Code; `Arrearage` -> recharge Aliyun DashScope. Alternative: `llm-chat` MCP (also qwen3.8-max).
