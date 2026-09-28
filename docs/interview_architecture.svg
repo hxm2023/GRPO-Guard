@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1420" font-family="'Segoe UI', 'Microsoft YaHei', Arial, sans-serif">
+  <defs>
+    <marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8ab4f8"/>
+    </marker>
+    <marker id="a-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f87171"/>
+    </marker>
+    <marker id="a-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/>
+    </marker>
+    <style>
+      .title   { fill:#f8fafc; font-size:22px; font-weight:700; }
+      .sub     { fill:#94a3b8; font-size:13px; }
+      .box     { fill:#1e293b; stroke:#8ab4f8; stroke-width:1.6; }
+      .gate    { fill:#231c0e; stroke:#fbbf24; stroke-width:1.8; }
+      .reject  { fill:#2a1414; stroke:#f87171; stroke-width:1.6; }
+      .ok      { fill:#0f2016; stroke:#34d399; stroke-width:1.6; }
+      .attest  { fill:#0c1f26; stroke:#22d3ee; stroke-width:1.5; stroke-dasharray:6 4; }
+      .lbl     { fill:#e2e8f0; font-size:14px; font-weight:600; }
+      .lbl2    { fill:#cbd5e1; font-size:12.5px; }
+      .dim     { fill:#94a3b8; font-size:12px; }
+      .code    { fill:#8ab4f8; font-size:12px; font-family:Consolas, monospace; }
+      .warn    { fill:#fbbf24; font-size:12px; }
+      .red     { fill:#f87171; font-size:12px; }
+      .grn     { fill:#34d399; font-size:12px; }
+      .cyn     { fill:#22d3ee; font-size:12px; }
+      .layer   { fill:#64748b; font-size:11.5px; letter-spacing:.5px; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1080" height="1420" fill="#0f172a"/>
+  <text x="40" y="46" class="title">GRPO-Guard — 在线 GRPO 训练的数据身份验证（面试讲解图）</text>
+  <text x="40" y="70" class="sub">核心不变量：一条 completion 的 token ids 与 log π_old 必须来自同一策略版本，并被原样消费。三层独立防线 —— 记录不可改 / 检查卡关键点 / 更新凭票执行。</text>
+
+  <!-- Layer badges (left margin) -->
+  <text x="40" y="270" class="layer">第一层 身份</text>
+  <text x="40" y="440" class="layer">第二层 验证</text>
+  <text x="40" y="960" class="layer">第三层 执行</text>
+
+  <!-- 1. Rollout server -->
+  <rect x="360" y="110" width="360" height="76" rx="10" class="box"/>
+  <text x="540" y="140" text-anchor="middle" class="lbl">Rollout Server（vLLM，policy v）</text>
+  <text x="540" y="162" text-anchor="middle" class="lbl2">生成：token ids + behavior logprobs（log π_old）</text>
+
+  <line x1="540" y1="186" x2="540" y2="218" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 2. Events + artifacts -->
+  <rect x="300" y="222" width="480" height="86" rx="10" class="box"/>
+  <text x="540" y="250" text-anchor="middle" class="lbl">GenerationEvent + content-addressed artifacts</text>
+  <text x="540" y="272" text-anchor="middle" class="lbl2">SHA-256 内容哈希 · canonical JSON · append-only 事件链 · 单一生产者</text>
+  <text x="540" y="292" text-anchor="middle" class="code">producer ownership: server = token 与 logprob 的唯一生产者（禁 re-tokenize）</text>
+
+  <line x1="540" y1="308" x2="540" y2="340" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 3. Gate 1 -->
+  <rect x="240" y="344" width="600" height="132" rx="10" class="gate"/>
+  <text x="540" y="372" text-anchor="middle" class="lbl">Gate 1 · pre-reward 验证（打分之前）</text>
+  <text x="270" y="398" class="lbl2">P  策略版本是否过期</text>
+  <text x="650" y="398" class="code">P004_STALE_POLICY_STRICT</text>
+  <text x="270" y="420" class="lbl2">T  tokenizer / chat template 哈希一致</text>
+  <text x="650" y="420" class="code">T002 / T001</text>
+  <text x="270" y="442" class="lbl2">M  completion mask 规范形态（禁 prompt/padding）</text>
+  <text x="650" y="442" class="code">M004 / M002</text>
+  <text x="270" y="464" class="lbl2">D  训练 / 评测数据是否泄漏</text>
+  <text x="650" y="464" class="code">D003_SPLIT_OVERLAP</text>
+
+  <!-- reject branch 1 -->
+  <line x1="840" y1="410" x2="920" y2="410" stroke="#f87171" stroke-width="1.6" marker-end="url(#a-red)"/>
+  <rect x="924" y="378" width="132" height="64" rx="8" class="reject"/>
+  <text x="990" y="404" text-anchor="middle" class="red">REJECT</text>
+  <text x="990" y="424" text-anchor="middle" class="dim">永不进入打分</text>
+
+  <line x1="540" y1="476" x2="540" y2="508" stroke="#34d399" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <text x="556" y="498" class="grn">allow</text>
+
+  <!-- 4. Reward / scoring -->
+  <rect x="340" y="512" width="400" height="64" rx="10" class="box"/>
+  <text x="540" y="538" text-anchor="middle" class="lbl">Reward / Scoring → RewardEvent</text>
+  <text x="540" y="558" text-anchor="middle" class="code">R006_EVALUATOR_ALIAS · R008_REWARD_VERIFIER_UNREGISTERED</text>
+
+  <line x1="540" y1="576" x2="540" y2="608" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 5. Gate 2 -->
+  <rect x="240" y="612" width="600" height="112" rx="10" class="gate"/>
+  <text x="540" y="640" text-anchor="middle" class="lbl">Gate 2 · pre-update 验证（改参数之前）</text>
+  <text x="270" y="666" class="lbl2">token ids / mask / logprob 三份 artifact 内容哈希复核</text>
+  <text x="650" y="666" class="code">T001 · L004</text>
+  <text x="270" y="688" class="lbl2">reward 归因、off-policy 边界、事件时序</text>
+  <text x="650" y="688" class="code">L005 · P005/P006</text>
+  <text x="270" y="710" class="lbl2">所有失败发生在 backward 之前 → 参数可证明未变</text>
+
+  <line x1="840" y1="668" x2="920" y2="668" stroke="#f87171" stroke-width="1.6" marker-end="url(#a-red)"/>
+  <rect x="924" y="636" width="132" height="64" rx="8" class="reject"/>
+  <text x="990" y="662" text-anchor="middle" class="red">REJECT</text>
+  <text x="990" y="682" text-anchor="middle" class="dim">参数一步不动</text>
+
+  <line x1="540" y1="724" x2="540" y2="756" stroke="#34d399" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <text x="556" y="746" class="grn">allow</text>
+
+  <!-- 6. Materializer + handle -->
+  <rect x="280" y="760" width="520" height="104" rx="10" class="box"/>
+  <text x="540" y="788" text-anchor="middle" class="lbl">Materializer → 单次凭证 ValidatedBatchHandle</text>
+  <text x="540" y="810" text-anchor="middle" class="lbl2">冻结实际张量语义：reward 值哈希 · group size 与顺序 · 父策略 manifest</text>
+  <text x="540" y="832" text-anchor="middle" class="code">handle 只能由 materializer 铸造（issuer token，外部构造 → TypeError）</text>
+  <text x="540" y="852" text-anchor="middle" class="code">nonce 跨进程 exactly-once：SQLite UNIQUE + BEGIN IMMEDIATE（32 进程竞争）</text>
+
+  <line x1="540" y1="864" x2="540" y2="896" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 7. Loss / backward -->
+  <rect x="340" y="900" width="400" height="60" rx="10" class="box"/>
+  <text x="540" y="926" text-anchor="middle" class="lbl">GRPO loss（ratio = exp(log π_new − log π_old)）</text>
+  <text x="540" y="946" text-anchor="middle" class="dim">backward：此处之后失败 → 走崩溃恢复，不承诺内存回滚</text>
+
+  <line x1="540" y1="960" x2="540" y2="992" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 8. Capability gate -->
+  <rect x="300" y="996" width="480" height="92" rx="10" class="gate"/>
+  <text x="540" y="1024" text-anchor="middle" class="lbl">Capability Gate（per-step 令牌）</text>
+  <text x="540" y="1046" text-anchor="middle" class="lbl2">令牌仅在「实际消费张量」验证通过后签发；覆盖 epoch 末 optimizer flush</text>
+  <text x="540" y="1068" text-anchor="middle" class="code">无令牌 → optimizer.step() 抛 GuardViolation（一步都走不了）</text>
+
+  <line x1="540" y1="1088" x2="540" y2="1120" stroke="#34d399" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 9. WAL + checkpoint -->
+  <rect x="280" y="1124" width="520" height="96" rx="10" class="ok"/>
+  <text x="540" y="1152" text-anchor="middle" class="lbl">WAL：PREPARED → APPLIED → CHECKPOINTED → COMMITTED / ABORTED</text>
+  <text x="540" y="1174" text-anchor="middle" class="lbl2">checkpoint 原子提升：临时目录 → fsync → 原子重命名（要么完整要么没有）</text>
+  <text x="540" y="1196" text-anchor="middle" class="code">恢复 = 丢弃 worker，从最近 COMMITTED 存档重跑（nonce 保证不重复）</text>
+
+  <line x1="540" y1="1220" x2="540" y2="1252" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+
+  <!-- 10. New policy -->
+  <rect x="360" y="1256" width="360" height="60" rx="10" class="ok"/>
+  <text x="540" y="1282" text-anchor="middle" class="lbl">新权重 policy v+1</text>
+  <text x="540" y="1302" text-anchor="middle" class="dim">权重同步回 server（实测 398 次 update_named_param / 次同步）</text>
+
+  <!-- sync loop arrow (right side going up) -->
+  <path d="M 724 1286 L 1010 1286 L 1010 148 L 726 148" fill="none" stroke="#8ab4f8" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <text x="1020" y="700" class="dim" transform="rotate(90 1020 700)">同步闭环</text>
+
+  <!-- attestation (left dashed) -->
+  <rect x="40" y="840" width="200" height="120" rx="8" class="attest"/>
+  <text x="140" y="866" text-anchor="middle" class="cyn">双源 Runtime Attestation</text>
+  <text x="140" y="888" text-anchor="middle" class="dim">server 的 logprob 指纹</text>
+  <text x="140" y="904" text-anchor="middle" class="dim">vs trainer 前向指纹</text>
+  <text x="140" y="926" text-anchor="middle" class="dim">相对 drift 判定（基线 0.06）</text>
+  <text x="140" y="946" text-anchor="middle" class="cyn">冻结后 0.24 → STALE</text>
+  <path d="M 240 900 L 300 900" fill="none" stroke="#22d3ee" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a-cyan)"/>
+  <path d="M 140 840 L 140 152 L 356 152" fill="none" stroke="#22d3ee" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#a-cyan)"/>
+
+  <!-- legend -->
+  <rect x="40" y="1330" width="1000" height="66" rx="8" fill="#0b1220" stroke="#334155"/>
+  <text x="60" y="1354" class="dim">图例：</text>
+  <rect x="110" y="1342" width="16" height="16" rx="3" class="box"/>
+  <text x="134" y="1355" class="dim">正常数据流</text>
+  <rect x="230" y="1342" width="16" height="16" rx="3" class="gate"/>
+  <text x="254" y="1355" class="dim">验证关卡（fail-closed）</text>
+  <rect x="410" y="1342" width="16" height="16" rx="3" class="reject"/>
+  <text x="434" y="1355" class="dim">拒绝路径</text>
+  <rect x="530" y="1342" width="16" height="16" rx="3" class="attest"/>
+  <text x="554" y="1355" class="dim">运行时认证</text>
+  <text x="60" y="1382" class="warn">边界（主动说明）：</text>
+  <text x="150" y="1382" class="dim">不提升模型能力 · 不做内存参数回滚（走 WAL 崩溃恢复）· 不防恶意攻击者（防研发环境静默接线错误）· 单机 2-GPU 原型</text>
+</svg>
